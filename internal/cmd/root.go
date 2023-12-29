@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"context"
+	"errors"
+	"github.com/spf13/viper"
 	_ "net/http/pprof"
 	"os"
 	"runtime"
@@ -11,10 +13,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func Execute(ctx context.Context) int {
+func Execute(ctx context.Context) error {
 	_ = godotenv.Load()
 
 	profile := false
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.AutomaticEnv()
+	err := viper.ReadInConfig()
+	if err != nil {
+		return err
+	}
+
+	if viper.GetString("plaid.client_id") == "" {
+		return errors.New("plaid.client_id is not set")
+	}
+
+	if viper.GetString("plaid.secret") == "" {
+		return errors.New("plaid.secret is not set")
+	}
 
 	rootCmd := &cobra.Command{
 		Use:   "go-backend-template",
@@ -56,6 +74,8 @@ func Execute(ctx context.Context) int {
 	rootCmd.AddCommand(APICmd(ctx))
 	rootCmd.AddCommand(SchedulerCmd(ctx))
 	rootCmd.AddCommand(WorkerCmd(ctx))
+	rootCmd.AddCommand(CheckCmd(ctx))
+	rootCmd.AddCommand(PlaidCmd(ctx))
 
 	// I'm not sure what this is for.
 	// go func() {
@@ -63,8 +83,8 @@ func Execute(ctx context.Context) int {
 	// }()
 
 	if err := rootCmd.Execute(); err != nil {
-		return 1
+		return err
 	}
 
-	return 0
+	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/hbbb/go-backend-template/internal/plaidroutes"
 	"net"
 	"net/http"
 	"time"
@@ -46,7 +47,9 @@ func (a *api) Server(port int) *http.Server {
 func (a *api) Routes() *mux.Router {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/v1/health", a.healthCheckHandler).Methods("GET")
+	r.HandleFunc("/health", a.healthCheckHandler).Methods("GET")
+
+	plaidroutes.Route(r.PathPrefix("/plaid").Subrouter())
 
 	r.Use(a.loggingMiddleware)
 	r.Use(a.requestIdMiddleware)

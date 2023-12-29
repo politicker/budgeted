@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/google/martian/log"
 	"os"
 	"os/signal"
 
@@ -12,6 +13,11 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
 	defer cancel()
 
-	ret := cmd.Execute(ctx)
-	os.Exit(ret)
+	err := cmd.Execute(ctx)
+	if err != nil {
+		log.Errorf("Error executing command: %v", err)
+		os.Exit(1)
+	}
+
+	os.Exit(0)
 }
