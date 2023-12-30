@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 	"errors"
-	"github.com/hbbb/go-backend-template/internal/plaid"
+	"github.com/politicker/budgeted/internal/plaid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -35,7 +35,7 @@ func Execute(ctx context.Context) error {
 	}
 
 	rootCmd := &cobra.Command{
-		Use:   "go-backend-template",
+		Use:   "budgeted",
 		Short: "Put a description of the service here",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if !profile {
@@ -76,7 +76,7 @@ func Execute(ctx context.Context) error {
 	rootCmd.AddCommand(APICmd(ctx))
 	rootCmd.AddCommand(SchedulerCmd(ctx))
 	rootCmd.AddCommand(WorkerCmd(ctx))
-	rootCmd.AddCommand(LoadCsvCmd(ctx))
+	rootCmd.AddCommand(LoadCmd(ctx))
 	rootCmd.AddCommand(PlaidCmd(ctx))
 
 	// I'm not sure what this is for.

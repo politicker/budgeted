@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/hbbb/go-backend-template/internal/plaid"
+	"github.com/politicker/budgeted/internal/plaid"
 	"net"
 	"net/http"
 	"time"

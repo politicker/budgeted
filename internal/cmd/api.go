@@ -7,8 +7,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/hbbb/go-backend-template/internal/api"
-	"github.com/hbbb/go-backend-template/internal/cmdutil"
+	"github.com/politicker/budgeted/internal/api"
+	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )

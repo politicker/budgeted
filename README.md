@@ -39,9 +39,9 @@ arguments it needs.
 To run a service, use the root CLI like so:
 
 ```bash
-go-backend-template api --with-flags args
+budgeted api --with-flags args
 
-go-backend-template worker --queue send-emails
+budgeted worker --queue send-emails
 ```
 
 This repo includes run configurations for VS Code as well, which allows you to

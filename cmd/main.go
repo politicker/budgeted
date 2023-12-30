@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/hbbb/go-backend-template/internal/cmd"
+	"github.com/politicker/budgeted/internal/cmd"
 )
 
 func main() {
