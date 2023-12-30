@@ -6,10 +6,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func PlaidServerCmd(ctx context.Context) *cobra.Command {
+func LoadCsvCmd(ctx context.Context) *cobra.Command {
 	return &cobra.Command{
-		Use:   "server",
-		Short: "Loads plaid UI",
+		Use:   "load csv",
+		Short: "load data into csv",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return plaid.RunServer(ctx)
 		},

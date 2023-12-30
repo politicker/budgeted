@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func newClient() *plaid.APIClient {
+func NewClient() *plaid.APIClient {
 	configuration := plaid.NewConfiguration()
 	configuration.AddDefaultHeader("PLAID-CLIENT-ID", viper.GetString("plaid.client_id"))
 	configuration.AddDefaultHeader("PLAID-SECRET", viper.GetString("plaid.secret"))

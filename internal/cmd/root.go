@@ -76,8 +76,8 @@ func Execute(ctx context.Context) error {
 	rootCmd.AddCommand(APICmd(ctx))
 	rootCmd.AddCommand(SchedulerCmd(ctx))
 	rootCmd.AddCommand(WorkerCmd(ctx))
-	rootCmd.AddCommand(CheckCmd(ctx))
-	rootCmd.AddCommand(PlaidServerCmd(ctx))
+	rootCmd.AddCommand(LoadCsvCmd(ctx))
+	rootCmd.AddCommand(PlaidCmd(ctx))
 
 	// I'm not sure what this is for.
 	// go func() {

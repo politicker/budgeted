@@ -25,7 +25,7 @@ func init() {
 }
 
 func RunServer(ctx context.Context) error {
-	client := newClient()
+	client := NewClient()
 
 	// This should correspond to a unique id for the current user.
 	// Typically, this will be a user ID number from your application.
@@ -77,6 +77,10 @@ func RunServer(ctx context.Context) error {
 			panic(err)
 		}
 
+		err = ExchangeToken(ctx, token)
+		if err != nil {
+			panic(err)
+		}
 		_, _ = w.Write([]byte("Success!"))
 	})
 
