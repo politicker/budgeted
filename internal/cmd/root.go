@@ -61,7 +61,9 @@ func Execute(ctx context.Context) error {
 			if perr != nil {
 				return perr
 			}
-			defer f.Close()
+			defer func(f *os.File) {
+				_ = f.Close()
+			}(f)
 
 			runtime.GC()
 			err := pprof.WriteHeapProfile(f)
@@ -75,7 +77,7 @@ func Execute(ctx context.Context) error {
 	rootCmd.AddCommand(SchedulerCmd(ctx))
 	rootCmd.AddCommand(WorkerCmd(ctx))
 	rootCmd.AddCommand(CheckCmd(ctx))
-	rootCmd.AddCommand(PlaidCmd(ctx))
+	rootCmd.AddCommand(PlaidServerCmd(ctx))
 
 	// I'm not sure what this is for.
 	// go func() {
