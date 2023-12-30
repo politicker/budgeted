@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  plaidId            String   @unique
+  plaidAccountId     String
+  accountName        String
+  amount             Float
+  category           String
+  date               DateTime
+  dateTime           DateTime
+  authorizedDatetime DateTime
+  name               String
+  merchantName       String
+  paymentChannel     String
+  address            String
+  city               String
+  region             String
+  postalCode         String
+  country            String
+  latitude           Float
+  longitude          Float
+}
