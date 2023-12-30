@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/hbbb/go-backend-template/internal/plaidroutes"
+	"github.com/hbbb/go-backend-template/internal/plaid"
 	"net"
 	"net/http"
 	"time"
@@ -16,48 +16,57 @@ import (
 	"go.uber.org/zap"
 )
 
-type api struct {
+type API struct {
 	logger     *zap.Logger
 	statsd     *statsd.Client
 	redis      *redis.Client
 	db         *sql.DB
 	httpClient *http.Client
+	ctx        context.Context
 
 	// TODO: Maybe add repositories here. Unclear if I like that pattern enough to do it
 	// accountRepo      domain.AccountRepository
 	// liveActivityRepo domain.LiveActivityRepository
 }
 
-func NewAPI(ctx context.Context, logger *zap.Logger, redis *redis.Client, db *sql.DB) *api {
-	return &api{
+func NewAPI(ctx context.Context, logger *zap.Logger, redis *redis.Client, db *sql.DB) *API {
+	return &API{
 		logger:     logger,
 		redis:      redis,
 		db:         db,
 		httpClient: &http.Client{},
+		ctx:        ctx,
 	}
 }
 
-func (a *api) Server(port int) *http.Server {
+func (a *API) Server(port int) (*http.Server, error) {
+	router, err := a.Routes()
+	if err != nil {
+		return nil, err
+	}
+
 	return &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: a.Routes(),
-	}
+		Handler: router,
+	}, nil
 }
 
-func (a *api) Routes() *mux.Router {
+func (a *API) Routes() (*mux.Router, error) {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/health", a.healthCheckHandler).Methods("GET")
 
-	plaidroutes.Route(r.PathPrefix("/plaid").Subrouter())
+	if err := plaid.Routes(a.ctx, r.PathPrefix("/plaid").Subrouter()); err != nil {
+		return nil, err
+	}
 
 	r.Use(a.loggingMiddleware)
 	r.Use(a.requestIdMiddleware)
 
-	return r
+	return r, nil
 }
 
-func (a *api) requestIdMiddleware(next http.Handler) http.Handler {
+func (a *API) requestIdMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := uuid.Must(uuid.NewV4()).String()
 		w.Header().Set("X-Apollo-Request-Id", id)
@@ -86,7 +95,7 @@ func (lrw *LoggingResponseWriter) WriteHeader(statusCode int) {
 	lrw.statusCode = statusCode
 }
 
-func (a *api) loggingMiddleware(next http.Handler) http.Handler {
+func (a *API) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Skip logging health checks
 		if r.RequestURI == "/v1/health" {
@@ -121,10 +130,10 @@ func (a *api) loggingMiddleware(next http.Handler) http.Handler {
 			zap.String("request#id", lrw.Header().Get("X-Apollo-Request-Id")),
 		}
 
-		if lrw.statusCode == 200 {
+		if lrw.statusCode < 500 {
 			a.logger.Info("", fields...)
 		} else {
-			err := lrw.Header().Get("X-Apollo-Error")
+			err := lrw.Header().Get("X-API-Error")
 			a.logger.Error(err, fields...)
 		}
 

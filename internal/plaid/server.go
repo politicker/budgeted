@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/plaid/plaid-go/v20/plaid"
 	"github.com/spf13/viper"
 	"html/template"
@@ -24,7 +25,7 @@ func init() {
 	}
 }
 
-func RunServer(ctx context.Context) error {
+func Routes(ctx context.Context, router *mux.Router) error {
 	client := NewClient()
 
 	// This should correspond to a unique id for the current user.
@@ -52,19 +53,19 @@ func RunServer(ctx context.Context) error {
 
 	fmt.Printf("Link token: %s\n", linkToken)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
+	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) {
 		data := map[string]string{
 			"PlaidLinkToken": linkToken,
 		}
 
+		w.WriteHeader(http.StatusOK)
 		err = tmpl.ExecuteTemplate(w, "index.html", data)
 		if err != nil {
 			panic(err)
 		}
 	})
 
-	http.HandleFunc("/success", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/success", func(w http.ResponseWriter, r *http.Request) {
 		tokenBytes, err := io.ReadAll(r.Body)
 		if err != nil {
 			panic(err)
@@ -81,8 +82,9 @@ func RunServer(ctx context.Context) error {
 		if err != nil {
 			panic(err)
 		}
+
 		_, _ = w.Write([]byte("Success!"))
 	})
 
-	return http.ListenAndServe(":8080", nil)
+	return nil
 }

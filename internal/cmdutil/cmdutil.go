@@ -3,10 +3,11 @@ package cmdutil
 import (
 	"context"
 	"database/sql"
+	"go.uber.org/zap"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
-	"go.uber.org/zap"
 )
 
 func NewLogger(service string) *zap.Logger {

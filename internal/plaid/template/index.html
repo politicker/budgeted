@@ -9,7 +9,7 @@
     const handler = Plaid.create({
         token: '{{ .PlaidLinkToken }}',
         onSuccess: (publicToken, metadata) => {
-            fetch('/success', {
+            fetch('/plaid/success', {
                 method: 'POST',
                 body: publicToken
             })

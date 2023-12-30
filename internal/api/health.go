@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (a *api) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+func (a *API) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
 		"status": "available",
 	}

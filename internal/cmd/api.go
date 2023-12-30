@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
+	"github.com/redis/go-redis/v9"
 	"os"
 	"strconv"
 
@@ -31,13 +33,16 @@ func APICmd(ctx context.Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer db.Close()
+			defer func(db *sql.DB) { _ = db.Close() }(db)
 
-			redis := cmdutil.NewRedisConnection(ctx)
-			defer redis.Close()
+			r := cmdutil.NewRedisConnection(ctx)
+			defer func(r *redis.Client) { _ = r.Close() }(r)
 
-			api := api.NewAPI(ctx, logger, redis, db)
-			srv := api.Server(port)
+			a := api.NewAPI(ctx, logger, r, db)
+			srv, err := a.Server(port)
+			if err != nil {
+				return err
+			}
 
 			go func() { _ = srv.ListenAndServe() }()
 
