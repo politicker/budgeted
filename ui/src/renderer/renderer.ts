@@ -5,10 +5,10 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 
-const func = async () => {
-	// @ts-ignore
-	const response = await window.versions.ping()
-	console.log(response) // prints out 'pong'
-}
+// const func = async () => {
+// 	// @ts-ignore
+// 	const response = await window.versions.ping()
+// 	console.log(response) // prints out 'pong'
+// }
 
-func()
+// func()

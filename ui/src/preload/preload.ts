@@ -1,10 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-contextBridge.exposeInMainWorld('versions', {
-	node: () => process.versions.node,
-	chrome: () => process.versions.chrome,
-	electron: () => process.versions.electron,
+contextBridge.exposeInMainWorld('data', {
+	test: {
+		name: 'Quinn',
+	},
 	ping: () => ipcRenderer.invoke('ping'),
+	fetchTransactions: () => ipcRenderer.invoke('fetch-transactions'),
 })
 
 // It has the same sandbox as a Chrome extension.
