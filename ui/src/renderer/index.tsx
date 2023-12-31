@@ -7,12 +7,11 @@ async function test() {
 	// @ts-ignore
 	// const version = await window.versions.electron()
 	// console.log(version)
-
 	// @ts-ignore
-	const transactions = (await window.data.fetchTransactions()) as ReturnType<
-		typeof fetchTransactions
-	>
-	console.log(transactions)
+	// const transactions = (await window.data.fetchTransactions()) as ReturnType<
+	// 	typeof fetchTransactions
+	// >
+	// console.log(transactions)
 }
 
 test()
