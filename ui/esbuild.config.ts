@@ -1,7 +1,7 @@
-import * as esbuild from 'esbuild'
+import { context } from 'esbuild'
 import CssModulesPlugin from 'esbuild-css-modules-plugin'
 
-await esbuild.build({
+const ctx = await context({
 	entryPoints: ['src/renderer/index.tsx'],
 	bundle: true,
 	outfile: 'dist/bundle.js',
@@ -16,3 +16,9 @@ await esbuild.build({
 		}),
 	],
 })
+
+if (process.argv.includes('--watch')) {
+	await ctx.watch()
+} else {
+	await ctx.rebuild()
+}

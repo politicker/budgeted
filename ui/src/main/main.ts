@@ -1,9 +1,13 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import { PrismaClient } from '@prisma/client'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
 let mainWindow: BrowserWindow | null = null
 const prisma = new PrismaClient()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
