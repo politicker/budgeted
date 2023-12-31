@@ -16,7 +16,7 @@ function createWindow() {
 		webPreferences: {
 			preload: path.join(__dirname, '..', 'preload', 'preload.js'),
 		},
-		width: 800,
+		width: 1600,
 	})
 
 	mainWindow.loadFile(path.join(__dirname, '..', '..', '..', 'index.html'))
@@ -44,8 +44,7 @@ app.whenReady().then(async () => {
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
 	})
 
-	ipcMain.handle('ping', () => 'pong')
-	ipcMain.handle('fetch-transactions', fetchTransactions)
+	mainWindow?.webContents.send('transactions', await fetchTransactions())
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
