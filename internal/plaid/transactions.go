@@ -2,10 +2,12 @@ package plaid
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/plaid/plaid-go/v20/plaid"
 	"io"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -13,26 +15,50 @@ import (
 
 func LoadTransactions(ctx context.Context, accessToken string, jsonStorage string) error {
 	client := NewClient()
-	// Provide a cursor from your database if you've previously
-	// received one for the Item. Leave null if this is your
-	// first sync call for this Item. The first request will
-	// return a cursor.
-	var cursor *string = nil
-
-	// New transaction updates since "cursor"
+	var lastEntry os.DirEntry
+	var syncResponse *plaid.TransactionsSyncResponse
+	var cursor string
 	hasMore := true
-	IncludePersonalFinanceCategory := true
-	options := plaid.TransactionsSyncRequestOptions{
-		IncludePersonalFinanceCategory: &IncludePersonalFinanceCategory,
+
+	entries, err := os.ReadDir(jsonStorage)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		if lastEntry == nil || lastEntry.Name() < entry.Name() {
+			lastEntry = entry
+		}
+	}
+
+	// read the file
+	if lastEntry != nil {
+		bytes, err := os.ReadFile(fmt.Sprintf("%s/%s", jsonStorage, lastEntry.Name()))
+		if err != nil {
+			return err
+		}
+
+		syncResponse = &plaid.TransactionsSyncResponse{}
+		if err := json.Unmarshal(bytes, syncResponse); err != nil {
+			return err
+		}
+
+		cursor = syncResponse.GetNextCursor()
 	}
 
 	// Iterate through each page of new transaction updates for item
 	for hasMore {
+		IncludePersonalFinanceCategory := true
+		options := plaid.TransactionsSyncRequestOptions{
+			IncludePersonalFinanceCategory: &IncludePersonalFinanceCategory,
+		}
 		request := plaid.NewTransactionsSyncRequest(accessToken)
 		request.SetOptions(options)
-		if cursor != nil {
-			request.SetCursor(*cursor)
+
+		if cursor != "" {
+			request.SetCursor(cursor)
 		}
+
 		resp, raw, err := client.PlaidApi.TransactionsSync(
 			ctx,
 		).TransactionsSyncRequest(*request).Execute()
@@ -45,6 +71,11 @@ func LoadTransactions(ctx context.Context, accessToken string, jsonStorage strin
 			}
 		}
 
+		if len(resp.Added)+len(resp.Modified)+len(resp.Removed) == 0 {
+			log.Println("no transactions to sync")
+			return nil
+		}
+
 		body, err := io.ReadAll(raw.Body)
 		if err != nil {
 			return err
@@ -52,10 +83,12 @@ func LoadTransactions(ctx context.Context, accessToken string, jsonStorage strin
 
 		hasMore = resp.GetHasMore()
 		nextCursor := resp.GetNextCursor()
-		cursor = &nextCursor
+		cursor = nextCursor
 		timestamp := strings.Replace(time.Now().Format(time.RFC3339Nano), ":", "X", -1)
 
-		if err := os.WriteFile(fmt.Sprintf("%s/%s_%s.json", jsonStorage, timestamp, *cursor), body, 0644); err != nil {
+		fileName := fmt.Sprintf("%s/%s_%s.json", jsonStorage, timestamp, cursor)
+		log.Println("writing", fileName)
+		if err := os.WriteFile(fileName, body, 0644); err != nil {
 			return err
 		}
 	}
