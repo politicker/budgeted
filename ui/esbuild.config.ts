@@ -1,7 +1,13 @@
 import { context } from 'esbuild'
-import CssModulesPlugin from 'esbuild-css-modules-plugin'
 
 async function main() {
+	const _CssModulesPlugin = await import('esbuild-css-modules-plugin')
+	const CssModulesPlugin = (
+		(await import('esbuild-css-modules-plugin')) as unknown as {
+			default: typeof _CssModulesPlugin
+		}
+	).default
+
 	const ctx = await context({
 		entryPoints: ['src/renderer/index.tsx'],
 		bundle: true,
