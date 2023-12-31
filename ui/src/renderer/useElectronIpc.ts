@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
+import { windowAPI } from './windowAPI'
 
 export function useElectronIPC<T>(channel: string): T | undefined {
 	const [data, setData] = useState<T>()
 
 	useEffect(() => {
 		const listener = (_: Electron.IpcRendererEvent, arg: T) => setData(arg)
-		//@ts-ignore
-		window.electron.on(channel, listener)
+		windowAPI.on(channel, listener)
 
 		return () => {
-			// @ts-ignore
-			window.electron.removeListener(channel, listener)
+			windowAPI.removeListener(channel, listener)
 		}
 	}, [channel])
 

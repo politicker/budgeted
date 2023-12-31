@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-contextBridge.exposeInMainWorld('electron', {
+export const windowAPI = {
 	send: (channel: string, data: Record<string, any>) =>
 		ipcRenderer.send(channel, data),
 	on: (
@@ -11,11 +11,13 @@ contextBridge.exposeInMainWorld('electron', {
 	},
 	removeListener: (
 		channel: string,
-		func: (event: Electron.IpcRendererEvent, args: any[]) => void,
+		func: (event: Electron.IpcRendererEvent, ...args: any[]) => void,
 	) => {
 		ipcRenderer.removeListener(channel, func)
 	},
-})
+}
+
+contextBridge.exposeInMainWorld('electron', windowAPI)
 
 // It has the same sandbox as a Chrome extension.
 // window.addEventListener('DOMContentLoaded', () => {

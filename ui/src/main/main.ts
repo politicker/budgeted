@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import { PrismaClient } from '@prisma/client'
 import { Channel } from '../types'
+import { loadCSV } from './loader'
 
 let mainWindow: BrowserWindow | null = null
 const prisma = new PrismaClient()
@@ -22,8 +23,7 @@ function createWindow() {
 
 export async function fetchTransactions() {
 	try {
-		const transactions = await prisma.transaction.findMany()
-		return transactions
+		return await prisma.transaction.findMany()
 	} catch (err) {
 		throw err
 	}
@@ -35,22 +35,26 @@ export async function fetchTransactions() {
 app.whenReady().then(async () => {
 	createWindow()
 
-	mainWindow?.once('ready-to-show', async () => {
-		mainWindow?.show()
-		mainWindow?.webContents.send(
-			Channel.TRANSACTIONS,
-			await fetchTransactions(),
-		)
-	})
+	// mainWindow?.once('ready-to-show', async () => {
+	// 	mainWindow?.show()
+	// 	mainWindow?.webContents.send(
+	// 		Channel.TRANSACTIONS,
+	// 		await fetchTransactions(),
+	// 	)
+	// })
 
 	app.on('activate', function () {
-		// On macOS it's common to re-create a window in the app when the
+		// On macOS, it's common to re-create a window in the app when the
 		// dock icon is clicked and there are no other windows open.
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
 	})
 
 	console.log('sending transactions to renderer')
 	mainWindow?.webContents.send(Channel.TRANSACTIONS, await fetchTransactions())
+	ipcMain.on(Channel.BUILD_TRANSACTIONS, async () => {
+		console.log('building transactions')
+		await loadCSV()
+	})
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -62,17 +66,3 @@ app.on('window-all-closed', async () => {
 		await prisma.$disconnect()
 	}
 })
-
-async function queryTransactionsAndSendToRenderer() {
-	try {
-		const transactions = await prisma.transaction.findMany()
-
-		// Send the transactions to the render process
-		mainWindow?.webContents.send(Channel.TRANSACTIONS, transactions)
-	} catch (error) {
-		console.error('Error querying transactions:', error)
-	}
-}
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.

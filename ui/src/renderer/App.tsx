@@ -2,22 +2,30 @@ import React from 'react'
 import styles from './App.module.css'
 import useElectronIPC from './useElectronIpc'
 import { Channel } from '../types'
+import { windowAPI } from './windowAPI'
 
 export default function App() {
 	const transactions = useElectronIPC<Record<string, any>[]>(
 		Channel.TRANSACTIONS,
 	)
-	console.log(transactions)
 
 	return (
 		<section className={styles.transactions}>
-			{transactions ? (
+			{transactions?.length ? (
 				transactions.map((transaction, idx) => (
 					<Transaction transaction={transaction} key={idx} />
 				))
 			) : (
 				<p>No transactions</p>
 			)}
+
+			<button
+				onClick={() => {
+					windowAPI.send(Channel.BUILD_TRANSACTIONS, {})
+				}}
+			>
+				Rebuild Transactions
+			</button>
 		</section>
 	)
 }
@@ -26,7 +34,7 @@ interface TransactionProps {
 	transaction: Record<string, any>
 }
 
-const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
+function Transaction({ transaction }: TransactionProps) {
 	console.log(transaction)
 	return (
 		<div className={styles.transaction}>

@@ -1,6 +1,6 @@
 export enum Channel {
 	TRANSACTIONS = 'transactions',
-	TRANSACTION_ADDED = 'transaction-added',
+	BUILD_TRANSACTIONS = 'build-transactions',
 	TRANSACTION_UPDATED = 'transaction-updated',
 	TRANSACTION_DELETED = 'transaction-deleted',
 }
