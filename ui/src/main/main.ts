@@ -1,13 +1,9 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import { PrismaClient } from '@prisma/client'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
 
 let mainWindow: BrowserWindow | null = null
 const prisma = new PrismaClient()
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 
 function createWindow() {
 	// console.log('hello from createWindow')
@@ -38,12 +34,18 @@ export async function fetchTransactions() {
 app.whenReady().then(async () => {
 	createWindow()
 
+	mainWindow?.once('ready-to-show', async () => {
+		mainWindow?.show()
+		mainWindow?.webContents.send('transactions', await fetchTransactions())
+	})
+
 	app.on('activate', function () {
 		// On macOS it's common to re-create a window in the app when the
 		// dock icon is clicked and there are no other windows open.
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
 	})
 
+	console.log('sending transactions to renderer')
 	mainWindow?.webContents.send('transactions', await fetchTransactions())
 })
 
