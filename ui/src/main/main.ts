@@ -10,6 +10,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 function createWindow() {
+	// console.log('hello from createWindow')
 	mainWindow = new BrowserWindow({
 		height: 600,
 		webPreferences: {

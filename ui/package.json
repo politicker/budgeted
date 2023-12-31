@@ -7,7 +7,7 @@
   "scripts": {
     "build:main": "tsc",
     "build:renderer": "node esbuild.config.ts",
-    "dev:main": "tsc -w",
+    "dev:main": "nodemon -w src/main -e ts -x \"tsc\"",
     "dev:renderer": "tsx esbuild.config.ts --watch",
     "dev:electron": "nodemon -w dist/src/main -x \"electron ./dist/src/main/main.js\"",
     "dev": "run-p dev:*",
