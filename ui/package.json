@@ -5,12 +5,11 @@
 	"main": "main.js",
 	"scripts": {
 		"build:main": "tsc",
-		"build:renderer": "node esbuild.config.mjs",
+		"build:renderer": "tsx esbuild.config.ts",
 		"dev:main": "nodemon -w src/main -e ts -x \"tsc\"",
-		"dev:renderer": "tsx esbuild.config.mjs --watch",
+		"dev:renderer": "tsx esbuild.config.ts --watch",
 		"dev:electron": "nodemon -w dist/src/main -x \"electron ./dist/src/main/main.js\"",
 		"dev": "run-p dev:*",
-		"start": "npm run build:main && npm run build:renderer && electron ./dist/src/main/main.js",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"format": "prettier --write ."
 	},

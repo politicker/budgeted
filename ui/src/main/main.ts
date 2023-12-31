@@ -1,12 +1,13 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import { PrismaClient } from '@prisma/client'
+import { Channel } from '../types'
 
 let mainWindow: BrowserWindow | null = null
 const prisma = new PrismaClient()
 
 function createWindow() {
-	// console.log('hello from createWindow')
+	console.log('hello from createWindow')
 	mainWindow = new BrowserWindow({
 		height: 600,
 		webPreferences: {
@@ -36,7 +37,10 @@ app.whenReady().then(async () => {
 
 	mainWindow?.once('ready-to-show', async () => {
 		mainWindow?.show()
-		mainWindow?.webContents.send('transactions', await fetchTransactions())
+		mainWindow?.webContents.send(
+			Channel.TRANSACTIONS,
+			await fetchTransactions(),
+		)
 	})
 
 	app.on('activate', function () {
@@ -46,7 +50,7 @@ app.whenReady().then(async () => {
 	})
 
 	console.log('sending transactions to renderer')
-	mainWindow?.webContents.send('transactions', await fetchTransactions())
+	mainWindow?.webContents.send(Channel.TRANSACTIONS, await fetchTransactions())
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -64,7 +68,7 @@ async function queryTransactionsAndSendToRenderer() {
 		const transactions = await prisma.transaction.findMany()
 
 		// Send the transactions to the render process
-		mainWindow?.webContents.send('transactions', transactions)
+		mainWindow?.webContents.send(Channel.TRANSACTIONS, transactions)
 	} catch (error) {
 		console.error('Error querying transactions:', error)
 	}

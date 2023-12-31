@@ -1,9 +1,12 @@
 import React from 'react'
 import styles from './App.module.css'
 import useElectronIPC from './useElectronIpc'
+import { Channel } from '../types'
 
 export default function App() {
-	const transactions = useElectronIPC<Record<string, any>[]>('transactions')
+	const transactions = useElectronIPC<Record<string, any>[]>(
+		Channel.TRANSACTIONS,
+	)
 	console.log(transactions)
 
 	return (
