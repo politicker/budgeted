@@ -3,7 +3,33 @@ import styles from './App.module.css'
 import useElectronIPC from './useElectronIpc'
 
 export default function App() {
-	const data = useElectronIPC<string>('transactions')
+	const transactions = useElectronIPC<Record<string, any>[]>('transactions')
+	console.log(transactions)
 
-	return <div>{data && <p>Received data: {data}</p>}</div>
+	return (
+		<section className={styles.transactions}>
+			{transactions ? (
+				transactions.map((transaction, idx) => (
+					<Transaction transaction={transaction} key={idx} />
+				))
+			) : (
+				<p>No transactions</p>
+			)}
+		</section>
+	)
+}
+
+interface TransactionProps {
+	transaction: Record<string, any>
+}
+
+const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
+	console.log(transaction)
+	return (
+		<div className={styles.transaction}>
+			<p>{transaction.name}</p>
+			<p>{transaction.merchantName}</p>
+			<p>{transaction.amount}</p>
+		</div>
+	)
 }

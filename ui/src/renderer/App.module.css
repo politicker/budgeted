@@ -4,6 +4,12 @@
 	width: 100px;
 }
 
-.test {
-	color: white;
+.transactions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.transaction {
+	background-color: lightgray;
 }
