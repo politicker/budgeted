@@ -1,27 +1,36 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-contextBridge.exposeInMainWorld('data', {
-	test: {
-		name: 'Quinn',
+contextBridge.exposeInMainWorld('electron', {
+	send: (channel: string, data: Record<string, any>) =>
+		ipcRenderer.send(channel, data),
+	on: (
+		channel: string,
+		func: (event: Electron.IpcRendererEvent, ...args: any[]) => void,
+	) => {
+		ipcRenderer.on(channel, (event, ...args) => func(event, ...args))
 	},
-	ping: () => ipcRenderer.invoke('ping'),
-	fetchTransactions: () => ipcRenderer.invoke('fetch-transactions'),
+	removeListener: (
+		channel: string,
+		func: (event: Electron.IpcRendererEvent, args: any[]) => void,
+	) => {
+		ipcRenderer.removeListener(channel, func)
+	},
 })
 
 // It has the same sandbox as a Chrome extension.
-window.addEventListener('DOMContentLoaded', () => {
-	const replaceText = (selector: string, text: string) => {
-		const element = document.getElementById(selector)
-		if (element) {
-			element.innerText = text
-		}
-	}
+// window.addEventListener('DOMContentLoaded', () => {
+// 	const replaceText = (selector: string, text: string) => {
+// 		const element = document.getElementById(selector)
+// 		if (element) {
+// 			element.innerText = text
+// 		}
+// 	}
 
-	for (const type of ['chrome', 'node', 'electron']) {
-		replaceText(
-			`${type}-version`,
-			// @ts-ignore
-			process.versions[type as keyof NodeJS.ProcessVersions],
-		)
-	}
-})
+// 	for (const type of ['chrome', 'node', 'electron']) {
+// 		replaceText(
+// 			`${type}-version`,
+// 			// @ts-ignore
+// 			process.versions[type as keyof NodeJS.ProcessVersions],
+// 		)
+// 	}
+// })
