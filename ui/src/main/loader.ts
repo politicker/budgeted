@@ -54,11 +54,9 @@ async function cacheFile(cache: Record<string, string>, url: string) {
 		)
 
 		cache[name] = 'cached'
-
-		return `./cache/${name}`
 	}
 
-	return ''
+	return `./cache/${name}`
 }
 
 export async function loadCSV() {
@@ -74,7 +72,6 @@ export async function loadCSV() {
 	for await (const filepath of walk(
 		`${process.env.HOME}/.config/budgeted/csv`,
 	)) {
-		console.log(filepath)
 		const data = await fs.readFile(filepath, 'utf-8')
 		const parser = new Parser<Transaction>()
 		parser.parse(data)

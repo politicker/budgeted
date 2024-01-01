@@ -42,7 +42,6 @@ interface TransactionProps {
 }
 
 function TransactionRow({ transaction }: TransactionProps) {
-	console.log(transaction.logoUrl || transaction.categoryIconUrl)
 	return (
 		<div className={styles.transaction}>
 			<img
