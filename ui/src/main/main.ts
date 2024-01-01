@@ -19,7 +19,6 @@ function createWindow() {
 	mainWindow.loadFile(
 		path.join(__dirname, '..', '..', '..', 'public', 'index.html'),
 	)
-	mainWindow.webContents.openDevTools()
 }
 
 export async function fetchTransactions() {
