@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import styles from './App.module.css'
-import { Channel } from '../types'
-import { windowAPI } from './windowAPI'
+import { Channel } from '../../types'
+import { windowAPI } from '../windowAPI'
 import type { Transaction } from '@prisma/client'
-import { trpcReact } from '.'
+import { trpc } from '../trpc'
 
 export default function Transactions() {
-	const { data } = trpcReact.transactions.useQuery()
+	const { data } = trpc.transactions.useQuery()
 
 	useEffect(() => {
 		windowAPI.send(Channel.READY, {})

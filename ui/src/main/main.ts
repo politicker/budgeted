@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import { Channel } from '../types'
-import { loadCSV } from './loader'
+import { loadCSV } from './loadCSV'
 import { prisma } from './prisma'
 import { createIPCHandler } from 'electron-trpc/main'
 import { router } from './api'
