@@ -3,9 +3,10 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"github.com/redis/go-redis/v9"
 	"os"
 	"strconv"
+
+	"github.com/redis/go-redis/v9"
 
 	"github.com/politicker/budgeted/internal/api"
 	"github.com/politicker/budgeted/internal/cmdutil"
