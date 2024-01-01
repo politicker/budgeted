@@ -6,7 +6,6 @@ export function useElectronIPC<T>(channel: string): T | undefined {
 
 	useEffect(() => {
 		const listener = (_: Electron.IpcRendererEvent, arg: T) => {
-			console.log('useElectronIPC listener', arg)
 			setData(arg)
 		}
 		windowAPI.on(channel, listener)

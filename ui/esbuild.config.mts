@@ -5,7 +5,7 @@ import CssModulesPlugin from 'esbuild-css-modules-plugin'
 const ctx = await context({
 	entryPoints: ['src/renderer/index.tsx'],
 	bundle: true,
-	outfile: 'dist/bundle.js',
+	outfile: 'public/dist/bundle.js',
 	plugins: [
 		CssModulesPlugin({
 			// @see https://github.com/indooorsman/esbuild-css-modules-plugin/blob/main/index.d.ts for more details

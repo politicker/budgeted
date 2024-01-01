@@ -4,10 +4,12 @@ import useElectronIPC from './useElectronIpc'
 import { Channel } from '../types'
 import { windowAPI } from './windowAPI'
 import type { Transaction } from '@prisma/client'
+import { sortBy } from 'remeda'
 
 export default function App() {
-	alert('hello')
-	const transactions = useElectronIPC<Transaction[]>(Channel.TRANSACTIONS)
+	const ttransactions = useElectronIPC<Transaction[]>(Channel.TRANSACTIONS)
+	const transactions =
+		ttransactions && sortBy(ttransactions, (t) => t.date).reverse()
 
 	useEffect(() => {
 		console.log('sending ready')
@@ -40,9 +42,13 @@ interface TransactionProps {
 }
 
 function TransactionRow({ transaction }: TransactionProps) {
-	console.log(transaction)
+	console.log(transaction.logoUrl || transaction.categoryIconUrl)
 	return (
 		<div className={styles.transaction}>
+			<img
+				src={transaction.logoUrl || transaction.categoryIconUrl}
+				alt={transaction.name}
+			/>
 			<p>{transaction.name}</p>
 			<p>{transaction.merchantName}</p>
 			<p>{transaction.amount}</p>

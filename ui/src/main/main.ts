@@ -1,6 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
-import { PrismaClient } from '@prisma/client'
 import { Channel } from '../types'
 import { loadCSV } from './loader'
 import { prisma } from './prisma'
@@ -17,7 +16,9 @@ function createWindow() {
 		width: 1600,
 	})
 
-	mainWindow.loadFile(path.join(__dirname, '..', '..', '..', 'index.html'))
+	mainWindow.loadFile(
+		path.join(__dirname, '..', '..', '..', 'public', 'index.html'),
+	)
 	mainWindow.webContents.openDevTools()
 }
 

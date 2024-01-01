@@ -3,6 +3,7 @@ import * as path from 'path'
 import Parser from '@gregoranders/csv'
 import { prisma } from './prisma'
 import { invariant } from '../invariant'
+import { Readable } from 'node:stream'
 
 async function* walk(dir: string): AsyncGenerator<string> {
 	for await (const d of await fs.opendir(dir as PathLike)) {
@@ -38,7 +39,38 @@ function safeParseFloat(str: string): number | undefined {
 	return isNaN(num) ? undefined : num
 }
 
+async function cacheFile(cache: Record<string, string>, url: string) {
+	const name = path.basename(url)
+
+	if (!cache[name]) {
+		const data = await fetch(url)
+		invariant(data.body, `fetch failed for ${url}`)
+
+		// Readable.fromWeb(data.body)
+		await fs.writeFile(
+			path.join(__dirname, '..', '..', '..', 'public', 'cache', name),
+			// @ts-ignore https://stackoverflow.com/questions/63630114/argument-of-type-readablestreamany-is-not-assignable-to-parameter-of-type-r
+			Readable.fromWeb(data.body),
+		)
+
+		cache[name] = 'cached'
+
+		return `./cache/${name}`
+	}
+
+	return ''
+}
+
 export async function loadCSV() {
+	const cache: Record<string, string> = {}
+
+	for await (const cachepath of walk(
+		path.join(__dirname, '..', '..', '..', 'public', 'cache'),
+	)) {
+		const name = path.basename(cachepath)
+		cache[name] = 'cached'
+	}
+
 	for await (const filepath of walk(
 		`${process.env.HOME}/.config/budgeted/csv`,
 	)) {
@@ -48,13 +80,13 @@ export async function loadCSV() {
 		parser.parse(data)
 
 		for (const transaction of parser.json) {
-			console.log(transaction)
-
-			const {
+			let {
 				plaidId,
 				lat: strLat,
 				lon: strLon,
 				amount: strAmount,
+				categoryIconUrl,
+				logoUrl,
 				...rest
 			} = transaction
 
@@ -66,12 +98,22 @@ export async function loadCSV() {
 				`amount is undefined. strAmount: ${strAmount}`,
 			)
 
+			if (categoryIconUrl) {
+				categoryIconUrl = await cacheFile(cache, categoryIconUrl)
+			}
+
+			if (logoUrl) {
+				logoUrl = await cacheFile(cache, logoUrl)
+			}
+
 			await prisma.transaction.upsert({
 				where: { plaidId },
 				update: {
 					lat,
 					lon,
 					amount,
+					categoryIconUrl,
+					logoUrl,
 					...rest,
 				},
 				create: {
@@ -79,6 +121,8 @@ export async function loadCSV() {
 					lat,
 					lon,
 					amount,
+					categoryIconUrl,
+					logoUrl,
 					...rest,
 				},
 			})

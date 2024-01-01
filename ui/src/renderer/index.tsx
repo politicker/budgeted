@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import React from 'react'
-import type { fetchTransactions } from '../main/main'
 
 async function test() {
 	// @ts-ignore
