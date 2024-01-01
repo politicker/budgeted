@@ -1,15 +1,12 @@
 import React, { useEffect } from 'react'
 import styles from './App.module.css'
-import useElectronIPC from './useElectronIpc'
 import { Channel } from '../types'
 import { windowAPI } from './windowAPI'
 import type { Transaction } from '@prisma/client'
-import { sortBy } from 'remeda'
+import { trpcReact } from '.'
 
-export default function App() {
-	const ttransactions = useElectronIPC<Transaction[]>(Channel.TRANSACTIONS)
-	const transactions =
-		ttransactions && sortBy(ttransactions, (t) => t.date).reverse()
+export default function Transactions() {
+	const { data } = trpcReact.transactions.useQuery()
 
 	useEffect(() => {
 		windowAPI.send(Channel.READY, {})
@@ -28,8 +25,8 @@ export default function App() {
 			</div>
 
 			<div className={styles.content}>
-				{transactions?.length ? (
-					transactions.map((transaction, idx) => (
+				{data?.length ? (
+					data.map((transaction, idx) => (
 						<TransactionRow transaction={transaction} key={idx} />
 					))
 				) : (

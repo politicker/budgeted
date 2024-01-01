@@ -3,15 +3,17 @@ import * as path from 'path'
 import { Channel } from '../types'
 import { loadCSV } from './loader'
 import { prisma } from './prisma'
+import { createIPCHandler } from 'electron-trpc/main'
+import { router } from './api'
 
 let mainWindow: BrowserWindow | null = null
 
 function createWindow() {
-	console.log('hello from createWindow')
 	mainWindow = new BrowserWindow({
 		height: 600,
 		webPreferences: {
 			preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+			sandbox: false,
 		},
 		width: 1600,
 	})
@@ -35,6 +37,10 @@ export async function fetchTransactions() {
 app.whenReady().then(async () => {
 	createWindow()
 
+	if (mainWindow) {
+		createIPCHandler({ router, windows: [mainWindow] })
+	}
+
 	// mainWindow?.once('ready-to-show', async () => {
 	// 	mainWindow?.show()
 	// 	mainWindow?.webContents.send(
@@ -50,7 +56,6 @@ app.whenReady().then(async () => {
 	})
 
 	ipcMain.on(Channel.READY, async () => {
-		console.log('sending transactions to renderer')
 		mainWindow?.webContents.send(
 			Channel.TRANSACTIONS,
 			await fetchTransactions(),
@@ -58,7 +63,6 @@ app.whenReady().then(async () => {
 	})
 
 	ipcMain.on(Channel.BUILD_TRANSACTIONS, async () => {
-		console.log('building transactions')
 		await loadCSV()
 
 		mainWindow?.webContents.send(

@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { exposeElectronTRPC } from 'electron-trpc/main'
 
 export const windowAPI = {
 	send: (channel: string, data: Record<string, any>) =>
@@ -18,6 +19,8 @@ export const windowAPI = {
 }
 
 contextBridge.exposeInMainWorld('electron', windowAPI)
+
+exposeElectronTRPC()
 
 // It has the same sandbox as a Chrome extension.
 // window.addEventListener('DOMContentLoaded', () => {
