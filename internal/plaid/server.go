@@ -4,12 +4,14 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/plaid/plaid-go/v20/plaid"
-	"github.com/spf13/viper"
 	"html/template"
 	"io"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+	"github.com/plaid/plaid-go/v20/plaid"
+	"github.com/spf13/viper"
 )
 
 //go:embed template/*
@@ -27,6 +29,10 @@ func init() {
 
 func Routes(ctx context.Context, router *mux.Router) error {
 	client := NewClient()
+
+	if viper.GetString("plaid.client_user_id") == "" {
+		return errors.New("plaid.client_user_id must be set")
+	}
 
 	// This should correspond to a unique id for the current user.
 	// Typically, this will be a user ID number from your application.
@@ -46,7 +52,11 @@ func Routes(ctx context.Context, router *mux.Router) error {
 
 	linkTokenCreateResp, _, err := client.PlaidApi.LinkTokenCreate(ctx).LinkTokenCreateRequest(*request).Execute()
 	if err != nil {
-		return err
+		if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
+			return errors.New(plaidErr.GetErrorMessage())
+		} else {
+			return err
+		}
 	}
 
 	linkToken := linkTokenCreateResp.GetLinkToken()
