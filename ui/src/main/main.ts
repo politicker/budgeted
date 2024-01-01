@@ -60,6 +60,11 @@ app.whenReady().then(async () => {
 	ipcMain.on(Channel.BUILD_TRANSACTIONS, async () => {
 		console.log('building transactions')
 		await loadCSV()
+
+		mainWindow?.webContents.send(
+			Channel.TRANSACTIONS,
+			await fetchTransactions(),
+		)
 	})
 })
 
