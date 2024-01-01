@@ -5,7 +5,10 @@ export function useElectronIPC<T>(channel: string): T | undefined {
 	const [data, setData] = useState<T>()
 
 	useEffect(() => {
-		const listener = (_: Electron.IpcRendererEvent, arg: T) => setData(arg)
+		const listener = (_: Electron.IpcRendererEvent, arg: T) => {
+			console.log('useElectronIPC listener', arg)
+			setData(arg)
+		}
 		windowAPI.on(channel, listener)
 
 		return () => {

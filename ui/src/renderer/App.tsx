@@ -1,19 +1,24 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styles from './App.module.css'
 import useElectronIPC from './useElectronIpc'
 import { Channel } from '../types'
 import { windowAPI } from './windowAPI'
+import type { Transaction } from '@prisma/client'
 
 export default function App() {
-	const transactions = useElectronIPC<Record<string, any>[]>(
-		Channel.TRANSACTIONS,
-	)
+	alert('hello')
+	const transactions = useElectronIPC<Transaction[]>(Channel.TRANSACTIONS)
+
+	useEffect(() => {
+		console.log('sending ready')
+		windowAPI.send(Channel.READY, {})
+	}, [])
 
 	return (
 		<section className={styles.transactions}>
 			{transactions?.length ? (
 				transactions.map((transaction, idx) => (
-					<Transaction transaction={transaction} key={idx} />
+					<TransactionRow transaction={transaction} key={idx} />
 				))
 			) : (
 				<p>No transactions</p>
@@ -31,10 +36,10 @@ export default function App() {
 }
 
 interface TransactionProps {
-	transaction: Record<string, any>
+	transaction: Transaction
 }
 
-function Transaction({ transaction }: TransactionProps) {
+function TransactionRow({ transaction }: TransactionProps) {
 	console.log(transaction)
 	return (
 		<div className={styles.transaction}>

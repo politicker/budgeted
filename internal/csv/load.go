@@ -12,23 +12,23 @@ import (
 )
 
 type Transaction struct {
-	PlaidID         string   `csv:"plaid_id"`
-	PlaidAccountID  string   `csv:"plaid_account_id"`
+	PlaidID         string   `csv:"plaidId"`
+	PlaidAccountID  string   `csv:"plaidAccountId"`
 	Date            string   `csv:"date"`
 	Name            string   `csv:"name"`
 	Amount          float64  `csv:"amount"`
 	Category        string   `csv:"category"`
-	CheckNumber     string   `csv:"check_number"`
-	CategoryIconURL string   `csv:"category_icon_url"`
-	LogoUrl         string   `csv:"logo_url"`
-	PaymentChannel  string   `csv:"payment_channel"`
-	MerchantName    string   `csv:"merchant_name"`
+	CheckNumber     string   `csv:"checkNumber"`
+	CategoryIconURL string   `csv:"categoryIconUrl"`
+	LogoURL         string   `csv:"logoUrl"`
+	PaymentChannel  string   `csv:"paymentChannel"`
+	MerchantName    string   `csv:"merchantName"`
 	Address         string   `csv:"address"`
 	City            string   `csv:"city"`
 	State           string   `csv:"state"`
 	Lat             *float64 `csv:"lat"`
 	Lon             *float64 `csv:"lon"`
-	PostalCode      string   `csv:"postal_code"`
+	PostalCode      string   `csv:"postalCode"`
 }
 
 func LoadTransactions(ctx context.Context, jsonStorage string, csvStorage string) error {
@@ -108,7 +108,7 @@ func LoadTransactions(ctx context.Context, jsonStorage string, csvStorage string
 				Category:        strings.Join(transaction.GetCategory(), ","),
 				CheckNumber:     transaction.GetCheckNumber(),
 				CategoryIconURL: transaction.GetPersonalFinanceCategoryIconUrl(),
-				LogoUrl:         transaction.GetLogoUrl(),
+				LogoURL:         transaction.GetLogoUrl(),
 				PaymentChannel:  transaction.GetPaymentChannel(),
 				MerchantName:    transaction.GetMerchantName(),
 				Address:         location.GetAddress(),

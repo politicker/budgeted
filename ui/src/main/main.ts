@@ -3,9 +3,9 @@ import * as path from 'path'
 import { PrismaClient } from '@prisma/client'
 import { Channel } from '../types'
 import { loadCSV } from './loader'
+import { prisma } from './prisma'
 
 let mainWindow: BrowserWindow | null = null
-const prisma = new PrismaClient()
 
 function createWindow() {
 	console.log('hello from createWindow')
@@ -49,8 +49,14 @@ app.whenReady().then(async () => {
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
 	})
 
-	console.log('sending transactions to renderer')
-	mainWindow?.webContents.send(Channel.TRANSACTIONS, await fetchTransactions())
+	ipcMain.on(Channel.READY, async () => {
+		console.log('sending transactions to renderer')
+		mainWindow?.webContents.send(
+			Channel.TRANSACTIONS,
+			await fetchTransactions(),
+		)
+	})
+
 	ipcMain.on(Channel.BUILD_TRANSACTIONS, async () => {
 		console.log('building transactions')
 		await loadCSV()
