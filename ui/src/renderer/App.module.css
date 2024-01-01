@@ -1,13 +1,12 @@
-.main {
-	background-color: aquamarine;
-	height: 100px;
-	width: 100px;
+.root {
+	display: grid;
+	grid-template-rows: min-content 1fr;
+	width: 100vw;
+	height: 100vh;
 }
 
-.transactions {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
+.content {
+	overflow: auto;
 }
 
 .transaction {

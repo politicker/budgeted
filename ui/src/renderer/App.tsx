@@ -12,27 +12,30 @@ export default function App() {
 		ttransactions && sortBy(ttransactions, (t) => t.date).reverse()
 
 	useEffect(() => {
-		console.log('sending ready')
 		windowAPI.send(Channel.READY, {})
 	}, [])
 
 	return (
-		<section className={styles.transactions}>
-			{transactions?.length ? (
-				transactions.map((transaction, idx) => (
-					<TransactionRow transaction={transaction} key={idx} />
-				))
-			) : (
-				<p>No transactions</p>
-			)}
+		<section className={styles.root}>
+			<div>
+				<button
+					onClick={() => {
+						windowAPI.send(Channel.BUILD_TRANSACTIONS, {})
+					}}
+				>
+					Rebuild Transactions
+				</button>
+			</div>
 
-			<button
-				onClick={() => {
-					windowAPI.send(Channel.BUILD_TRANSACTIONS, {})
-				}}
-			>
-				Rebuild Transactions
-			</button>
+			<div className={styles.content}>
+				{transactions?.length ? (
+					transactions.map((transaction, idx) => (
+						<TransactionRow transaction={transaction} key={idx} />
+					))
+				) : (
+					<p>No transactions</p>
+				)}
+			</div>
 		</section>
 	)
 }
