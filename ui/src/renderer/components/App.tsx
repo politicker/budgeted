@@ -5,7 +5,8 @@ import { trpc } from '../trpc'
 import { Button } from './Button'
 
 export default function Transactions() {
-	const { data, refetch } = trpc.transactions.useQuery({})
+	const [sort, setSort] = React.useState<'asc' | 'desc'>('desc')
+	const { data, refetch } = trpc.transactions.useQuery({ sort })
 	const { mutate } = trpc.rebuildTransactions.useMutation({
 		onSuccess: () => refetch(),
 	})
@@ -20,6 +21,14 @@ export default function Transactions() {
 					}}
 				>
 					Rebuild Transactions
+				</Button>
+				&nbsp;&nbsp;
+				<Button
+					onClick={() => {
+						setSort((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+					}}
+				>
+					Sorting: {sort}
 				</Button>
 			</div>
 
