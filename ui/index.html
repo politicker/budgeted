@@ -6,15 +6,14 @@
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'self'"
+			content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
 		/>
 		<link rel="stylesheet" href="./reset.css" />
 		<link rel="stylesheet" href="./cache/fonts/stylesheet.css" />
-		<link rel="stylesheet" href="./dist/bundle.css" />
 	</head>
 	<body>
 		<main id="root"></main>
 
-		<script src="./dist/bundle.js"></script>
+		<script type="module" src="./src/index.tsx"></script>
 	</body>
 </html>
