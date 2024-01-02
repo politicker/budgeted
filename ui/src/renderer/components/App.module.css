@@ -12,3 +12,7 @@
 .transaction {
 	background-color: lightgray;
 }
+
+.nav {
+	padding: 0.5rem;
+}

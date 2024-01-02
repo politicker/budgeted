@@ -12,7 +12,7 @@ export default function Transactions() {
 
 	return (
 		<section className={styles.root}>
-			<div>
+			<div className={styles.nav}>
 				<Button
 					onClick={() => {
 						mutate()
