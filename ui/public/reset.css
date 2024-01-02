@@ -1,5 +1,10 @@
 body {
     margin: 0;
+    font-family: 'Noto Sans';
+}
+
+:root {
+    --primary: #1e5d86;
 }
 
 /* Below is Andy Bell's reset: https://piccalil.li/blog/a-more-modern-css-reset/ */

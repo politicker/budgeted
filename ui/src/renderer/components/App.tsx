@@ -2,9 +2,10 @@ import React, { useEffect } from 'react'
 import styles from './App.module.css'
 import type { Transaction } from '@prisma/client'
 import { trpc } from '../trpc'
+import { Button } from './Button'
 
 export default function Transactions() {
-	const { data, refetch } = trpc.transactions.useQuery()
+	const { data, refetch } = trpc.transactions.useQuery({})
 	const { mutate } = trpc.rebuildTransactions.useMutation({
 		onSuccess: () => refetch(),
 	})
@@ -12,14 +13,14 @@ export default function Transactions() {
 	return (
 		<section className={styles.root}>
 			<div>
-				<button
+				<Button
 					onClick={() => {
 						mutate()
 						refetch()
 					}}
 				>
 					Rebuild Transactions
-				</button>
+				</Button>
 			</div>
 
 			<div className={styles.content}>
