@@ -1,4 +1,3 @@
-import http from 'https'
 import fs from 'fs'
 import crypto from 'node:crypto'
 
