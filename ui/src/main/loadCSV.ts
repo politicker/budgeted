@@ -13,7 +13,7 @@ async function* walk(dir: string): AsyncGenerator<string> {
 	}
 }
 
-interface Transaction {
+interface CSVTransaction {
 	plaidId: string
 	plaidAccountId: string
 	date: string
@@ -73,7 +73,7 @@ export async function loadCSV() {
 		`${process.env.HOME}/.config/budgeted/csv`,
 	)) {
 		const data = await fs.readFile(filepath, 'utf-8')
-		const parser = new Parser<Transaction>()
+		const parser = new Parser<CSVTransaction>()
 		parser.parse(data)
 
 		for (const transaction of parser.json) {

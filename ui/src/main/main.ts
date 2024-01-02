@@ -1,7 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
-import { Channel } from '../types'
-import { loadCSV } from './loadCSV'
 import { prisma } from './prisma'
 import { createIPCHandler } from 'electron-trpc/main'
 import { router } from './api'
@@ -23,14 +21,6 @@ function createWindow() {
 	)
 }
 
-export async function fetchTransactions() {
-	try {
-		return await prisma.transaction.findMany()
-	} catch (err) {
-		throw err
-	}
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -41,34 +31,10 @@ app.whenReady().then(async () => {
 		createIPCHandler({ router, windows: [mainWindow] })
 	}
 
-	// mainWindow?.once('ready-to-show', async () => {
-	// 	mainWindow?.show()
-	// 	mainWindow?.webContents.send(
-	// 		Channel.TRANSACTIONS,
-	// 		await fetchTransactions(),
-	// 	)
-	// })
-
 	app.on('activate', function () {
 		// On macOS, it's common to re-create a window in the app when the
 		// dock icon is clicked and there are no other windows open.
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
-	})
-
-	ipcMain.on(Channel.READY, async () => {
-		mainWindow?.webContents.send(
-			Channel.TRANSACTIONS,
-			await fetchTransactions(),
-		)
-	})
-
-	ipcMain.on(Channel.BUILD_TRANSACTIONS, async () => {
-		await loadCSV()
-
-		mainWindow?.webContents.send(
-			Channel.TRANSACTIONS,
-			await fetchTransactions(),
-		)
 	})
 })
 

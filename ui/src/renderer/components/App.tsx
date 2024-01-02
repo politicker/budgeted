@@ -1,23 +1,21 @@
 import React, { useEffect } from 'react'
 import styles from './App.module.css'
-import { Channel } from '../../types'
-import { windowAPI } from '../windowAPI'
 import type { Transaction } from '@prisma/client'
 import { trpc } from '../trpc'
 
 export default function Transactions() {
-	const { data } = trpc.transactions.useQuery()
-
-	useEffect(() => {
-		windowAPI.send(Channel.READY, {})
-	}, [])
+	const { data, refetch } = trpc.transactions.useQuery()
+	const { mutate } = trpc.rebuildTransactions.useMutation({
+		onSuccess: () => refetch(),
+	})
 
 	return (
 		<section className={styles.root}>
 			<div>
 				<button
 					onClick={() => {
-						windowAPI.send(Channel.BUILD_TRANSACTIONS, {})
+						mutate()
+						refetch()
 					}}
 				>
 					Rebuild Transactions
@@ -26,8 +24,11 @@ export default function Transactions() {
 
 			<div className={styles.content}>
 				{data?.length ? (
-					data.map((transaction, idx) => (
-						<TransactionRow transaction={transaction} key={idx} />
+					data.map((transaction) => (
+						<TransactionRow
+							transaction={transaction}
+							key={transaction.plaidId}
+						/>
 					))
 				) : (
 					<p>No transactions</p>
