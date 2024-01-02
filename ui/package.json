@@ -12,7 +12,7 @@
 		"dev": "run-p dev:*",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"format": "prettier --write .",
-		"download-fonts": "tsx bin/download-fonts.ts"
+		"download-fonts": "tsx bin/download-fonts.mts"
 	},
 	"author": "politicker",
 	"license": "MIT",
