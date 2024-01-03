@@ -3,12 +3,25 @@ import styles from './App.module.css'
 import type { Transaction } from '@prisma/client'
 import { trpc } from '@/trpc'
 import { Button } from '@/components/Button'
+import {
+	flexRender,
+	getCoreRowModel,
+	useReactTable,
+} from '@tanstack/react-table'
+import { transactionColumns } from './table/columns'
+import TransactionsTable from './table/Table'
 
 export default function Transactions() {
 	const [sort, setSort] = React.useState<'asc' | 'desc'>('desc')
 	const { data, refetch } = trpc.transactions.useQuery({ sort })
 	const { mutate } = trpc.rebuildTransactions.useMutation({
 		onSuccess: () => refetch(),
+	})
+
+	const table = useReactTable({
+		data: data ?? [],
+		columns: transactionColumns,
+		getCoreRowModel: getCoreRowModel(),
 	})
 
 	return (
@@ -33,18 +46,7 @@ export default function Transactions() {
 				</Button>
 			</div>
 
-			<div className={styles.content}>
-				{data?.length ? (
-					data.map((transaction) => (
-						<TransactionRow
-							transaction={transaction}
-							key={transaction.plaidId}
-						/>
-					))
-				) : (
-					<p>No transactions</p>
-				)}
-			</div>
+			<TransactionsTable transactions={data} />
 		</section>
 	)
 }

@@ -28,8 +28,8 @@ const indexHtml = join(process.env.DIST, 'index.html')
 function createWindow() {
 	win = new BrowserWindow({
 		title: 'Budgeted',
-		height: 600,
-		width: 900,
+		height: 1200,
+		width: 1400,
 		webPreferences: {
 			preload,
 			sandbox: false,

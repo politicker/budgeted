@@ -36,6 +36,7 @@
 		"@gregoranders/csv": "^0.0.13",
 		"@prisma/client": "^5.7.1",
 		"@tanstack/react-query": "^4.18.0",
+		"@tanstack/react-table": "^8.11.2",
 		"@trpc/react-query": "^10.45.0",
 		"@trpc/server": "^10.45.0",
 		"@vitejs/plugin-react": "^4.2.1",
