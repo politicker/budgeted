@@ -31,7 +31,6 @@ export default function Transactions() {
 					className="font-bold"
 					onClick={() => {
 						mutate()
-						refetch()
 					}}
 				>
 					Rebuild Transactions
