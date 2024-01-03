@@ -63,7 +63,7 @@ export async function loadCSV() {
 	const cache: Record<string, string> = {}
 
 	for await (const cachepath of walk(
-		path.join(__dirname, '..', '..', '..', 'public', 'cache'),
+		path.join(__dirname, '..', '..', 'public', 'cache'),
 	)) {
 		const name = path.basename(cachepath)
 		cache[name] = 'cached'
