@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import styles from './App.module.css'
 import type { Transaction } from '@prisma/client'
-import { trpc } from '../trpc'
-import { Button } from './Button'
+import { trpc } from '@/trpc'
+import { Button } from '@/components/Button'
 
 export default function Transactions() {
 	const [sort, setSort] = React.useState<'asc' | 'desc'>('desc')
