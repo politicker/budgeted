@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"path"
 )
 
 func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
@@ -29,8 +30,10 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 
 			if os.IsNotExist(err) {
 				log.Println("creating json storage directory", jsonStorage)
-				err := os.MkdirAll(jsonStorage, 0755)
-				if err != nil {
+				if err := os.MkdirAll(path.Join(jsonStorage, "transactions"), 0755); err != nil {
+					return err
+				}
+				if err := os.MkdirAll(path.Join(jsonStorage, "accounts"), 0755); err != nil {
 					return err
 				}
 			} else if err != nil {
