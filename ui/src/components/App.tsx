@@ -15,6 +15,7 @@ export default function Transactions() {
 		<section className={styles.root}>
 			<div className={styles.nav}>
 				<Button
+					className="font-bold"
 					onClick={() => {
 						mutate()
 						refetch()
