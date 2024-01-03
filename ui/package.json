@@ -33,6 +33,7 @@
 		"typescript-plugin-css-modules": "^5.0.2"
 	},
 	"dependencies": {
+		"@fontsource-variable/rubik": "^5.0.20",
 		"@gregoranders/csv": "^0.0.13",
 		"@prisma/client": "^5.7.1",
 		"@tanstack/react-query": "^4.18.0",

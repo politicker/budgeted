@@ -4,6 +4,7 @@ import { ipcLink } from 'electron-trpc/renderer'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './components/App'
 import { trpc } from './trpc'
+import '@fontsource-variable/rubik'
 import './index.css'
 
 function RenderRoot() {
