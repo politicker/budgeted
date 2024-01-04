@@ -14,16 +14,20 @@ import {
 	TableRow,
 } from '@/components/ui/table'
 
+const emptyArray: Transaction[] = []
+
 export default function TransactionsTable({
-	transactions = [],
+	transactions,
 }: {
 	transactions: Transaction[] | undefined
 }) {
 	const table = useReactTable({
-		data: transactions,
+		data: transactions ?? emptyArray,
 		columns: transactionColumns,
 		getCoreRowModel: getCoreRowModel(),
 	})
+
+	const { rows } = table.getRowModel()
 
 	return (
 		<Table>
@@ -38,8 +42,8 @@ export default function TransactionsTable({
 			</TableHeader>
 
 			<TableBody>
-				{table.getRowModel().rows.length ? (
-					table.getRowModel().rows.map((row, i) => (
+				{rows.length ? (
+					rows.map((row, i) => (
 						<TableRow key={row.id}>
 							{row.getVisibleCells().map((cell) => (
 								<TableCell key={cell.id}>

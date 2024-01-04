@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import styles from './App.module.css'
 import type { Transaction } from '@prisma/client'
 import { trpc } from '@/trpc'
@@ -10,19 +10,33 @@ import {
 } from '@tanstack/react-table'
 import { transactionColumns } from './table/columns'
 import TransactionsTable from './table/Table'
+import { FetchTransactionsInput } from 'electron/main/models/transactions'
+import { z } from 'zod'
 
 export default function Transactions() {
-	const [sort, setSort] = React.useState<'asc' | 'desc'>('desc')
-	const { data, refetch } = trpc.transactions.useQuery({ sort })
+	const [input, setInputSimple] = useState<
+		z.infer<typeof FetchTransactionsInput>
+	>({
+		sort: 'desc',
+		sortColumn: 'date',
+		page: 1,
+		pageSize: 10,
+	})
+
+	const setInput = useCallback(
+		(inp: Partial<typeof input>) => {
+			setInputSimple((prev) => ({ ...prev, ...inp }))
+		},
+		[setInputSimple],
+	)
+
+	const everything = trpc.transactions.useQuery(input)
+	const { data, refetch } = everything
 	const { mutate } = trpc.rebuildTransactions.useMutation({
 		onSuccess: () => refetch(),
 	})
 
-	const table = useReactTable({
-		data: data ?? [],
-		columns: transactionColumns,
-		getCoreRowModel: getCoreRowModel(),
-	})
+	console.log(everything)
 
 	return (
 		<section className={styles.root}>
@@ -38,31 +52,13 @@ export default function Transactions() {
 				&nbsp;&nbsp;
 				<Button
 					onClick={() => {
-						setSort((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+						setInput({ sort: input.sort === 'desc' ? 'asc' : 'desc' })
 					}}
 				>
-					Sorting: {sort}
+					Sorting: {input.sort}
 				</Button>
 			</div>
-			<TransactionsTable key={sort} transactions={data} />
+			<TransactionsTable transactions={data} />
 		</section>
-	)
-}
-
-interface TransactionProps {
-	transaction: Transaction
-}
-
-function TransactionRow({ transaction }: TransactionProps) {
-	return (
-		<div className={styles.transaction}>
-			<img
-				src={transaction.logoUrl || transaction.categoryIconUrl}
-				alt={transaction.name}
-			/>
-			<p>{transaction.name}</p>
-			<p>{transaction.merchantName}</p>
-			<p>{transaction.amount}</p>
-		</div>
 	)
 }
