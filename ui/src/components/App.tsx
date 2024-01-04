@@ -44,8 +44,7 @@ export default function Transactions() {
 					Sorting: {sort}
 				</Button>
 			</div>
-
-			<TransactionsTable transactions={data} />
+			<TransactionsTable key={sort} transactions={data} />
 		</section>
 	)
 }
