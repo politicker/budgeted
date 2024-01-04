@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import styles from './App.module.css'
 import type { Transaction } from '@prisma/client'
 import { trpc } from '@/trpc'
-import { Button } from '@/components/Button'
+import { Button } from '@/components/ui/button'
 import {
 	flexRender,
 	getCoreRowModel,
