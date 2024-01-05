@@ -115,7 +115,7 @@ export default function Table<T>({
 					{pages.map((page) => (
 						<PaginationItem key={page}>
 							{page === '...' ? (
-								<PaginationEllipsis />
+								<PaginationEllipsis key={Math.random()} />
 							) : (
 								<PaginationLink
 									isActive={page === table.getState().pagination.pageIndex + 1}
