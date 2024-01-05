@@ -52,13 +52,8 @@ export function App() {
 
 	return (
 		<section className={styles.root}>
-			<div className={cn(styles.nav, 'p-3')}>
-				<Button
-					className="font-bold"
-					onClick={() => {
-						mutate()
-					}}
-				>
+			<div className="p-3">
+				<Button className="font-bold" onClick={() => mutate()}>
 					Rebuild Transactions
 				</Button>
 				&nbsp;&nbsp;
