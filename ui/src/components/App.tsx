@@ -1,17 +1,23 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import styles from './App.module.css'
-import type { Transaction } from '@prisma/client'
 import { trpc } from '@/trpc'
 import { Button } from '@/components/ui/button'
-import {
-	flexRender,
-	getCoreRowModel,
-	useReactTable,
-} from '@tanstack/react-table'
-import { transactionColumns } from './table/columns'
-import TransactionsTable from './table/Table'
+import Table from './Table'
 import { FetchTransactionsInput } from 'electron/main/models/transactions'
 import { z } from 'zod'
+import { Updater } from '@tanstack/react-table'
+import { transactionColumns } from './columns'
+import { pick } from 'remeda'
+
+export type SetInputType = (
+	inp: Updater<Partial<z.infer<typeof FetchTransactionsInput>>>,
+) => void
+
+export type SetPaginationType = (
+	inp: Updater<
+		Pick<z.infer<typeof FetchTransactionsInput>, 'pageIndex' | 'pageSize'>
+	>,
+) => void
 
 export default function Transactions() {
 	const [input, setInputSimple] = useState<
@@ -19,24 +25,27 @@ export default function Transactions() {
 	>({
 		sort: 'desc',
 		sortColumn: 'date',
-		page: 1,
+		pageIndex: 0,
 		pageSize: 10,
 	})
 
-	const setInput = useCallback(
-		(inp: Partial<typeof input>) => {
+	const setInput: SetInputType = useCallback(
+		(inp) => {
+			// campitible with Updater
+			if (typeof inp === 'function') {
+				setInputSimple((prev) => ({ ...prev, ...inp(prev) }))
+				return
+			}
+
 			setInputSimple((prev) => ({ ...prev, ...inp }))
 		},
 		[setInputSimple],
 	)
 
-	const everything = trpc.transactions.useQuery(input)
-	const { data, refetch } = everything
+	const { data, refetch } = trpc.transactions.useQuery(input)
 	const { mutate } = trpc.rebuildTransactions.useMutation({
 		onSuccess: () => refetch(),
 	})
-
-	console.log(everything)
 
 	return (
 		<section className={styles.root}>
@@ -58,7 +67,16 @@ export default function Transactions() {
 					Sorting: {input.sort}
 				</Button>
 			</div>
-			<TransactionsTable transactions={data} />
+
+			<Table
+				results={data?.results ?? []}
+				pageCount={data?.pageCount ?? 0}
+				pages={data?.pages ?? []}
+				setPagination={setInput as SetPaginationType}
+				setInput={setInput}
+				columns={transactionColumns}
+				pagination={pick(input, ['pageIndex', 'pageSize'])}
+			/>
 		</section>
 	)
 }

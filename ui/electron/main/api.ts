@@ -19,7 +19,7 @@ export const router = t.router({
 	transactions: t.procedure
 		.input(FetchTransactionsInput)
 		.query(async ({ input }) => {
-			console.log('@trpc: fetching transactions')
+			console.log('@trpc: fetching transactions', input)
 			return await fetchTransactions(input)
 		}),
 	rebuildTransactions: t.procedure.mutation(async () => {
