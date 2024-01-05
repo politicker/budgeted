@@ -2,7 +2,7 @@ import { PathLike, promises as fs } from 'node:fs'
 import * as path from 'path'
 import Parser from '@gregoranders/csv'
 import { prisma } from './prisma'
-import { invariant } from '../../src/invariant'
+import { invariant } from '../../src/lib/invariant'
 import { Readable } from 'node:stream'
 
 async function* walk(dir: string): AsyncGenerator<string> {

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import styles from './App.module.css'
-import { trpc } from '@/trpc'
+import { trpc } from '@/lib/trpc'
 import { Button } from '@/components/ui/button'
 import Table from './Table'
 import { FetchTransactionsInput } from 'electron/main/models/transactions'
@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { Updater } from '@tanstack/react-table'
 import { transactionColumns } from './columns'
 import { pick } from 'remeda'
+import { cn } from '@/lib/utils'
 
 export type SetInputType = (
 	inp: Updater<Partial<z.infer<typeof FetchTransactionsInput>>>,
@@ -19,7 +20,7 @@ export type SetPaginationType = (
 	>,
 ) => void
 
-export default function Transactions() {
+export function App() {
 	const [input, setInputSimple] = useState<
 		z.infer<typeof FetchTransactionsInput>
 	>({
@@ -42,14 +43,16 @@ export default function Transactions() {
 		[setInputSimple],
 	)
 
-	const { data, refetch } = trpc.transactions.useQuery(input)
+	const { data, refetch, isPreviousData } = trpc.transactions.useQuery(input, {
+		keepPreviousData: true,
+	})
 	const { mutate } = trpc.rebuildTransactions.useMutation({
 		onSuccess: () => refetch(),
 	})
 
 	return (
 		<section className={styles.root}>
-			<div className={styles.nav}>
+			<div className={cn(styles.nav, 'p-3')}>
 				<Button
 					className="font-bold"
 					onClick={() => {
