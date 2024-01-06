@@ -1,6 +1,5 @@
 import {
 	Route,
-	createBrowserRouter,
 	createMemoryRouter,
 	createRoutesFromElements,
 	redirect,

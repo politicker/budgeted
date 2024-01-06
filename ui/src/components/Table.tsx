@@ -116,7 +116,7 @@ export default function Table<T>({
 						) : (
 							<PaginationLink
 								isActive={page === table.getState().pagination.pageIndex + 1}
-								onClick={() => table.setPageIndex(page)}
+								onClick={() => table.setPageIndex(page - 1)}
 								key={page}
 							>
 								{page}
