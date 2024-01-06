@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import styles from './App.module.css'
 import { trpc } from '@/lib/trpc'
 import { Button } from '@/components/ui/button'
 import Table from './Table'
@@ -8,7 +7,6 @@ import { z } from 'zod'
 import { Updater } from '@tanstack/react-table'
 import { transactionColumns } from './columns'
 import { pick } from 'remeda'
-import { cn } from '@/lib/utils'
 
 export type SetInputType = (
 	inp: Updater<Partial<z.infer<typeof FetchTransactionsInput>>>,
@@ -20,7 +18,7 @@ export type SetPaginationType = (
 	>,
 ) => void
 
-export function App() {
+export function TransactionsTable() {
 	const [input, setInputSimple] = useState<
 		z.infer<typeof FetchTransactionsInput>
 	>({
@@ -51,13 +49,14 @@ export function App() {
 	})
 
 	return (
-		<section className={styles.root}>
-			<div className="p-3">
-				<Button className="font-bold" onClick={() => mutate()}>
+		<>
+			<div className="p-3 border-b">
+				<Button variant="outline" onClick={() => mutate()}>
 					Rebuild Transactions
 				</Button>
 				&nbsp;&nbsp;
 				<Button
+					variant="outline"
 					onClick={() => {
 						setInput({ sort: input.sort === 'desc' ? 'asc' : 'desc' })
 					}}
@@ -75,6 +74,6 @@ export function App() {
 				columns={transactionColumns}
 				pagination={pick(input, ['pageIndex', 'pageSize'])}
 			/>
-		</section>
+		</>
 	)
 }

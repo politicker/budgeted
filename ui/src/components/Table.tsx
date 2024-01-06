@@ -28,7 +28,7 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from '@/components/ui/pagination'
-import { SetInputType, SetPaginationType } from './App'
+import { SetInputType, SetPaginationType } from './TransactionsTable'
 
 export type PagesType = (number | '...')[]
 
@@ -98,47 +98,40 @@ export default function Table<T>({
 				</TableBody>
 			</UITable>
 
-			<Pagination className="p-3">
+			<Pagination className="p-3 border-t">
 				<PaginationContent>
 					{table.getCanPreviousPage() && (
-						<PaginationItem>
-							<PaginationFirst onClick={() => table.setPageIndex(0)} />
-						</PaginationItem>
+						<PaginationFirst onClick={() => table.setPageIndex(0)} />
 					)}
 
 					{table.getCanPreviousPage() && (
-						<PaginationItem>
-							<PaginationPrevious onClick={() => table.previousPage()} />
-						</PaginationItem>
+						<PaginationPrevious onClick={() => table.previousPage()} />
 					)}
 
-					{pages.map((page) => (
-						<PaginationItem key={page}>
-							{page === '...' ? (
-								<PaginationEllipsis key={Math.random()} />
-							) : (
-								<PaginationLink
-									isActive={page === table.getState().pagination.pageIndex + 1}
-									onClick={() => table.setPageIndex(page)}
-								>
-									{page}
-								</PaginationLink>
-							)}
-						</PaginationItem>
-					))}
-
-					{table.getCanNextPage() && (
-						<PaginationItem>
-							<PaginationNext onClick={() => table.nextPage()} />
-						</PaginationItem>
+					{pages.map((page) =>
+						page === '...' ? (
+							<PaginationItem key={Math.random()}>
+								<PaginationEllipsis />
+							</PaginationItem>
+						) : (
+							<PaginationLink
+								isActive={page === table.getState().pagination.pageIndex + 1}
+								onClick={() => table.setPageIndex(page)}
+								key={page}
+							>
+								{page}
+							</PaginationLink>
+						),
 					)}
 
 					{table.getCanNextPage() && (
-						<PaginationItem>
-							<PaginationLast
-								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-							/>
-						</PaginationItem>
+						<PaginationNext onClick={() => table.nextPage()} />
+					)}
+
+					{table.getCanNextPage() && (
+						<PaginationLast
+							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+						/>
 					)}
 				</PaginationContent>
 			</Pagination>

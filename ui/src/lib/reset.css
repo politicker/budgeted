@@ -4,8 +4,8 @@ body {
     font-family: 'Rubik Variable';
 }
 
-:root {
-    --primary: #1e5d86;
+a, button {
+    cursor: default !important;
 }
 
 /* Below is Andy Bell's reset: https://piccalil.li/blog/a-more-modern-css-reset/ */

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, nativeTheme } from 'electron'
 import { join } from 'node:path'
 import { prisma } from './prisma'
 import { createIPCHandler } from 'electron-trpc/main'
@@ -24,6 +24,8 @@ let win: BrowserWindow | null = null
 const preload = join(__dirname, '../preload/index.js')
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
+
+nativeTheme.themeSource = 'dark'
 
 function createWindow() {
 	win = new BrowserWindow({
