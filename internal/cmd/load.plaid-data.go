@@ -12,10 +12,24 @@ import (
 )
 
 func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
-	return &cobra.Command{
+	command := cobra.Command{
 		Use:   "plaid-data",
 		Short: "load data from plaid",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			isSandBox, err := cmd.Flags().GetBool("sandbox")
+			if err != nil {
+				return err
+			}
+
+			sandboxSecret := ""
+
+			if isSandBox {
+				sandboxSecret = viper.GetString("plaid.sandbox_secret")
+				if sandboxSecret == "" {
+					return errors.New("plaid.sandbox_secret is not set")
+				}
+			}
+
 			accessToken := viper.GetString("plaid.access_token")
 			if accessToken == "" {
 				return errors.New("plaid.access_token is not set")
@@ -42,7 +56,11 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 				return errors.New("json storage is not a directory")
 			}
 
-			return plaid.LoadTransactions(ctx, accessToken, jsonStorage)
+			return plaid.LoadTransactions(ctx, accessToken, jsonStorage, sandboxSecret)
 		},
 	}
+
+	command.PersistentFlags().Bool("sandbox", false, "Use sandbox credentials")
+
+	return &command
 }

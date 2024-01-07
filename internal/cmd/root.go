@@ -77,7 +77,6 @@ func Execute(ctx context.Context) error {
 	rootCmd.AddCommand(SchedulerCmd(ctx))
 	rootCmd.AddCommand(WorkerCmd(ctx))
 	rootCmd.AddCommand(LoadCmd(ctx))
-	rootCmd.AddCommand(PlaidCmd(ctx))
 
 	// I'm not sure what this is for.
 	// go func() {

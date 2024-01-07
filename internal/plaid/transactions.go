@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -15,6 +16,43 @@ import (
 )
 
 func (pc *APIClient) LoadTransactions(ctx context.Context) error {
+func LoadTransactions(ctx context.Context, accessToken string, jsonStorage string, sandboxSecret string) error {
+	var client *plaid.APIClient
+
+	if sandboxSecret == "" {
+		client = NewClient()
+	} else {
+		client = NewClient(UseSandbox)
+		sandboxPublicTokenResp, _, err := client.PlaidApi.SandboxPublicTokenCreate(ctx).SandboxPublicTokenCreateRequest(
+			*plaid.NewSandboxPublicTokenCreateRequest(
+				"ins_109508",
+				[]plaid.Products{plaid.PRODUCTS_TRANSACTIONS},
+			),
+		).Execute()
+
+		if err != nil {
+			if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
+				return errors.New(plaidErr.GetErrorMessage())
+			} else {
+				return err
+			}
+		}
+
+		exchangePublicTokenResp, _, err := client.PlaidApi.ItemPublicTokenExchange(ctx).ItemPublicTokenExchangeRequest(
+			*plaid.NewItemPublicTokenExchangeRequest(sandboxPublicTokenResp.GetPublicToken()),
+		).Execute()
+		if err != nil {
+			return err
+		}
+
+		accessToken = exchangePublicTokenResp.GetAccessToken()
+		jsonStorage = path.Join(jsonStorage, "__SANDBOX__")
+
+		if err := os.MkdirAll(jsonStorage, 0755); err != nil {
+			return err
+		}
+	}
+
 	var lastEntry os.DirEntry
 	var syncResponse *plaid.TransactionsSyncResponse
 	var cursor string
