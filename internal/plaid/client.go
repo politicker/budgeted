@@ -11,17 +11,25 @@ import (
 type APIClient struct {
 	*plaid.APIClient
 	accessToken string
+	cacheDir    string
 }
 
-func NewClient(accessToken string) APIClient {
+func NewClient() APIClient {
 	configuration := plaid.NewConfiguration()
 	configuration.AddDefaultHeader("PLAID-CLIENT-ID", viper.GetString("plaid.client_id"))
 	configuration.AddDefaultHeader("PLAID-SECRET", viper.GetString("plaid.secret"))
 	configuration.UseEnvironment(plaid.Development)
 
 	return APIClient{
-		accessToken: accessToken,
-		APIClient:   plaid.NewAPIClient(configuration)}
+		APIClient: plaid.NewAPIClient(configuration)}
+}
+
+func (pc *APIClient) SetCacheStorage(path string) {
+	pc.cacheDir = path
+}
+
+func (pc *APIClient) SetAccessToken(token string) {
+	pc.accessToken = token
 }
 
 func GetNextCursor(ctx context.Context, bytes []byte) (string, error) {

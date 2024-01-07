@@ -14,13 +14,13 @@ import (
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func (pc *APIClient) LoadTransactions(ctx context.Context, jsonStorage string) error {
+func (pc *APIClient) LoadTransactions(ctx context.Context) error {
 	var lastEntry os.DirEntry
 	var syncResponse *plaid.TransactionsSyncResponse
 	var cursor string
 	hasMore := true
 
-	entries, err := os.ReadDir(jsonStorage)
+	entries, err := os.ReadDir(pc.cacheDir)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (pc *APIClient) LoadTransactions(ctx context.Context, jsonStorage string) e
 
 	// read the file
 	if lastEntry != nil {
-		bytes, err := os.ReadFile(fmt.Sprintf("%s/%s", jsonStorage, lastEntry.Name()))
+		bytes, err := os.ReadFile(fmt.Sprintf("%s/%s", pc.cacheDir, lastEntry.Name()))
 		if err != nil {
 			return err
 		}
@@ -86,7 +86,7 @@ func (pc *APIClient) LoadTransactions(ctx context.Context, jsonStorage string) e
 		cursor = nextCursor
 		timestamp := strings.Replace(time.Now().Format(time.RFC3339Nano), ":", "X", -1)
 
-		fileName := fmt.Sprintf("%s/%s_%s.json", jsonStorage, timestamp, cursor)
+		fileName := fmt.Sprintf("%s/%s_%s.json", pc.cacheDir, timestamp, cursor)
 		log.Println("writing", fileName)
 		if err := os.WriteFile(fileName, body, 0644); err != nil {
 			return err
