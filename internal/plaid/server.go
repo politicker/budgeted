@@ -1,7 +1,6 @@
 package plaid
 
 import (
-	"context"
 	"embed"
 	"fmt"
 	"html/template"
@@ -27,9 +26,7 @@ func init() {
 	}
 }
 
-func Routes(ctx context.Context, router *mux.Router) error {
-	client := NewClient()
-
+func (pc *APIClient) Routes(router *mux.Router) error {
 	if viper.GetString("plaid.client_user_id") == "" {
 		return errors.New("plaid.client_user_id must be set")
 	}
@@ -50,7 +47,7 @@ func Routes(ctx context.Context, router *mux.Router) error {
 
 	request.SetProducts([]plaid.Products{plaid.PRODUCTS_TRANSACTIONS})
 
-	linkTokenCreateResp, _, err := client.PlaidApi.LinkTokenCreate(ctx).LinkTokenCreateRequest(*request).Execute()
+	linkTokenCreateResp, _, err := pc.PlaidApi.LinkTokenCreate(pc.ctx).LinkTokenCreateRequest(*request).Execute()
 	if err != nil {
 		if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
 			return errors.New(plaidErr.GetErrorMessage())
@@ -88,7 +85,7 @@ func Routes(ctx context.Context, router *mux.Router) error {
 			panic(err)
 		}
 
-		err = ExchangeToken(ctx, token)
+		err = pc.ExchangeToken(token)
 		if err != nil {
 			panic(err)
 		}

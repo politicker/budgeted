@@ -1,16 +1,14 @@
 package plaid
 
 import (
-	"context"
 	"github.com/pkg/errors"
 	"github.com/plaid/plaid-go/v20/plaid"
 	"github.com/spf13/viper"
 )
 
-func ExchangeToken(ctx context.Context, publicToken string) error {
-	client := NewClient()
-	res, _, err := client.PlaidApi.
-		ItemPublicTokenExchange(ctx).
+func (pc *APIClient) ExchangeToken(publicToken string) error {
+	res, _, err := pc.PlaidApi.
+		ItemPublicTokenExchange(pc.ctx).
 		ItemPublicTokenExchangeRequest(*plaid.NewItemPublicTokenExchangeRequest(publicToken)).
 		Execute()
 	if err != nil {

@@ -56,7 +56,12 @@ func (a *API) Routes() (*mux.Router, error) {
 
 	r.HandleFunc("/health", a.healthCheckHandler).Methods("GET")
 
-	if err := plaid.Routes(a.ctx, r.PathPrefix("/plaid").Subrouter()); err != nil {
+	client, err := plaid.NewClientFromConfig(a.ctx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := client.Routes(r.PathPrefix("/plaid").Subrouter()); err != nil {
 		return nil, err
 	}
 
