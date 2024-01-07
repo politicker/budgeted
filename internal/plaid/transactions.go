@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/plaid/plaid-go/v20/plaid"
 	"io"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func LoadTransactions(ctx context.Context, accessToken string, jsonStorage string) error {
-	client := NewClient()
+func (pc *APIClient) LoadTransactions(ctx context.Context, jsonStorage string) error {
 	var lastEntry os.DirEntry
 	var syncResponse *plaid.TransactionsSyncResponse
 	var cursor string
@@ -52,14 +52,14 @@ func LoadTransactions(ctx context.Context, accessToken string, jsonStorage strin
 		options := plaid.TransactionsSyncRequestOptions{
 			IncludePersonalFinanceCategory: &IncludePersonalFinanceCategory,
 		}
-		request := plaid.NewTransactionsSyncRequest(accessToken)
+		request := plaid.NewTransactionsSyncRequest(pc.accessToken)
 		request.SetOptions(options)
 
 		if cursor != "" {
 			request.SetCursor(cursor)
 		}
 
-		resp, raw, err := client.PlaidApi.TransactionsSync(
+		resp, raw, err := pc.PlaidApi.TransactionsSync(
 			ctx,
 		).TransactionsSyncRequest(*request).Execute()
 
