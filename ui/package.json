@@ -1,6 +1,7 @@
 {
 	"name": "budgeted-ui",
 	"version": "1.0.0",
+	"homepage": "https://budgeted.politicker.info",
 	"description": "a gui for your budget data",
 	"main": "dist-electron/main/index.js",
 	"debug": {
@@ -9,9 +10,8 @@
 		}
 	},
 	"scripts": {
-		"build": "tsc && vite build && electron-builder",
+		"build": "vite build && electron-builder --config electron-builder.yaml",
 		"dev": "vite",
-		"download-fonts": "tsx bin/download-fonts.mts",
 		"format": "prettier --write .",
 		"preview": "vite preview"
 	},
@@ -22,6 +22,7 @@
 		"@types/react-dom": "^18.2.18",
 		"autoprefixer": "^10.4.16",
 		"electron": "^28.1.0",
+		"electron-builder": "^24.9.1",
 		"esbuild-css-modules-plugin": "^3.1.0",
 		"postcss": "^8.4.32",
 		"prettier": "^3.1.1",
