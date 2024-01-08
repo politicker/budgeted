@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+
 	"github.com/politicker/budgeted/internal/plaid"
 	"github.com/spf13/cobra"
 )
@@ -16,12 +17,22 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 				return err
 			}
 
-			client, err := plaid.NewClientFromConfig(ctx, isSandBox)
+			pc, err := plaid.NewClientFromConfig(ctx, isSandBox)
 			if err != nil {
 				return err
 			}
 
-			return client.LoadTransactions()
+			err = pc.LoadTransactions(ctx)
+			if err != nil {
+				return err
+			}
+
+			err = pc.LoadAccounts(ctx)
+			if err != nil {
+				return err
+			}
+
+			return nil
 		},
 	}
 

@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path"
+
+	"github.com/spf13/viper"
 
 	"github.com/plaid/plaid-go/v20/plaid"
 )
@@ -68,10 +69,10 @@ func NewClientFromConfig(ctx context.Context, isSandbox bool) (*APIClient, error
 		return nil, errors.New("json storage is not a directory")
 	}
 
-	return NewClient(ctx, clientID, secret, accessToken, jsonStorage, isSandbox)
+	return newClient(ctx, clientID, secret, accessToken, jsonStorage, isSandbox)
 }
 
-func NewClient(ctx context.Context, clientID string, secret string, accessToken string, cacheDir string, isSandbox bool) (*APIClient, error) {
+func newClient(ctx context.Context, clientID string, secret string, accessToken string, cacheDir string, isSandbox bool) (*APIClient, error) {
 	configuration := plaid.NewConfiguration()
 	configuration.AddDefaultHeader("PLAID-CLIENT-ID", clientID)
 	configuration.AddDefaultHeader("PLAID-SECRET", secret)

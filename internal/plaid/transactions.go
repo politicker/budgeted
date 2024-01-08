@@ -1,48 +1,21 @@
 package plaid
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
-	"fmt"
 	"io"
 	"log"
-	"os"
-	"strings"
-	"time"
 
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func (pc *APIClient) LoadTransactions() error {
-	var lastEntry os.DirEntry
-	var syncResponse *plaid.TransactionsSyncResponse
-	var cursor string
-	hasMore := true
+func (pc *APIClient) LoadTransactions(ctx context.Context) error {
+	var hasMore bool = true
 
-	entries, err := os.ReadDir(pc.cacheDir)
+	// Get previous cursor from the latest cached response
+	cursor, err := pc.GetNextCursor(ctx, "transactions")
 	if err != nil {
 		return err
-	}
-
-	for _, entry := range entries {
-		if lastEntry == nil || lastEntry.Name() < entry.Name() {
-			lastEntry = entry
-		}
-	}
-
-	// read the file
-	if lastEntry != nil {
-		bytes, err := os.ReadFile(fmt.Sprintf("%s/%s", pc.cacheDir, lastEntry.Name()))
-		if err != nil {
-			return err
-		}
-
-		syncResponse = &plaid.TransactionsSyncResponse{}
-		if err := json.Unmarshal(bytes, syncResponse); err != nil {
-			return err
-		}
-
-		cursor = syncResponse.GetNextCursor()
 	}
 
 	// Iterate through each page of new transaction updates for item
@@ -83,11 +56,8 @@ func (pc *APIClient) LoadTransactions() error {
 		hasMore = resp.GetHasMore()
 		nextCursor := resp.GetNextCursor()
 		cursor = nextCursor
-		timestamp := strings.Replace(time.Now().Format(time.RFC3339Nano), ":", "X", -1)
 
-		fileName := fmt.Sprintf("%s/%s_%s.json", pc.cacheDir, timestamp, cursor)
-		log.Println("writing", fileName)
-		if err := os.WriteFile(fileName, body, 0644); err != nil {
+		if err := pc.SetCache(ctx, "transactions", cursor, body); err != nil {
 			return err
 		}
 	}
