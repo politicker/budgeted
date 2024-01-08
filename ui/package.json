@@ -12,8 +12,7 @@
 	"scripts": {
 		"build": "vite build && electron-builder --config electron-builder.yaml",
 		"dev": "vite",
-		"format": "prettier --write .",
-		"preview": "vite preview"
+		"format": "prettier --write ."
 	},
 	"author": "politicker",
 	"license": "MIT",
