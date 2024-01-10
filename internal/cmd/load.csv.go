@@ -3,11 +3,12 @@ package cmd
 import (
 	"context"
 	"errors"
+	"log"
+	"os"
+
 	"github.com/politicker/budgeted/internal/csv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
-	"os"
 )
 
 func LoadCsvCmd(ctx context.Context) *cobra.Command {
@@ -36,6 +37,10 @@ func LoadCsvCmd(ctx context.Context) *cobra.Command {
 				return err
 			} else if !info.IsDir() {
 				return errors.New("csv storage is not a directory")
+			}
+
+			if err = csv.LoadAccounts(ctx, jsonStorage, csvStorage); err != nil {
+				return err
 			}
 
 			return csv.LoadTransactions(ctx, jsonStorage, csvStorage)

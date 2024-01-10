@@ -34,21 +34,17 @@ type Transaction struct {
 }
 
 type Account struct {
-	AccountID string `csv:"accountId"`
-	Balances  struct {
-		Available              float64 `csv:"available"`
-		Current                float64 `csv:"current"`
-		ISOCurrencyCode        string  `csv:"isoCurrencyCode"`
-		Limit                  float64 `csv:"limit"`
-		UnofficialCurrencyCode string  `csv:"unofficialCurrencyCode"`
-	} `csv:"balances"`
-	Mask         string               `csv:"mask"`
-	Name         string               `csv:"name"`
-	OfficialName string               `csv:"officialName"`
-	Subtype      plaid.AccountSubtype `csv:"subtype"`
-	Type         plaid.AccountType    `csv:"type"`
-	PlaidItemID  string               `csv:"plaidItemId"`
-	// PlaidItemName string `csv:"plaidItemName"`
+	AccountID        string               `csv:"accountId"`
+	AvailableBalance float64              `csv:"availableBalance"`
+	CurrentBalance   float64              `csv:"currentBalance"`
+	ISOCurrencyCode  string               `csv:"isoCurrencyCode"`
+	Limit            float64              `csv:"limit"`
+	Mask             string               `csv:"mask"`
+	Name             string               `csv:"name"`
+	OfficialName     string               `csv:"officialName"`
+	Subtype          plaid.AccountSubtype `csv:"subtype"`
+	Type             plaid.AccountType    `csv:"type"`
+	PlaidItemID      string               `csv:"plaidItemId"`
 }
 
 func LoadTransactions(ctx context.Context, jsonStorage string, csvStorage string) error {
@@ -160,44 +156,49 @@ func LoadTransactions(ctx context.Context, jsonStorage string, csvStorage string
 
 func LoadAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
 	var accountsCSV []Account
-
 	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
-	bytes, err := os.ReadFile(accountsPath)
+
+	err := filepath.WalkDir(accountsPath, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		bytes, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		response := plaid.AccountsGetResponse{}
+		if err = json.Unmarshal(bytes, &response); err != nil {
+			return err
+		}
+
+		for _, account := range response.GetAccounts() {
+			balance := account.GetBalances()
+			item := response.GetItem()
+
+			accountsCSV = append(accountsCSV, Account{
+				AccountID:        account.GetAccountId(),
+				AvailableBalance: balance.GetAvailable(),
+				CurrentBalance:   balance.GetCurrent(),
+				ISOCurrencyCode:  balance.GetIsoCurrencyCode(),
+				Limit:            balance.GetLimit(),
+				Mask:             account.GetMask(),
+				Name:             account.GetName(),
+				OfficialName:     account.GetOfficialName(),
+				Subtype:          account.GetSubtype(),
+				Type:             account.GetType(),
+				PlaidItemID:      item.GetItemId(),
+			})
+		}
+
+		return nil
+	})
 	if err != nil {
 		return err
-	}
-
-	response := plaid.AccountsGetResponse{}
-	if err = json.Unmarshal(bytes, &response); err != nil {
-		return err
-	}
-
-	for _, account := range response.GetAccounts() {
-		available := account.GetBalances()
-		item := response.GetItem()
-
-		accountsCSV = append(accountsCSV, Account{
-			AccountID: account.GetAccountId(),
-			Balances: struct {
-				Available              float64 `csv:"available"`
-				Current                float64 `csv:"current"`
-				ISOCurrencyCode        string  `csv:"isoCurrencyCode"`
-				Limit                  float64 `csv:"limit"`
-				UnofficialCurrencyCode string  `csv:"unofficialCurrencyCode"`
-			}{
-				Available:              available.GetAvailable(),
-				Current:                available.GetCurrent(),
-				ISOCurrencyCode:        available.GetIsoCurrencyCode(),
-				Limit:                  available.GetLimit(),
-				UnofficialCurrencyCode: available.GetUnofficialCurrencyCode(),
-			},
-			Mask:         account.GetMask(),
-			Name:         account.GetName(),
-			OfficialName: account.GetOfficialName(),
-			Subtype:      account.GetSubtype(),
-			Type:         account.GetType(),
-			PlaidItemID:  item.GetItemId(),
-		})
 	}
 
 	csvContent, err := gocsv.MarshalString(&accountsCSV)
