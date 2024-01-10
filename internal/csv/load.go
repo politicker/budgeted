@@ -3,12 +3,14 @@ package csv
 import (
 	"context"
 	"encoding/json"
-	"github.com/gocarina/gocsv"
-	"github.com/plaid/plaid-go/v20/plaid"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/gocarina/gocsv"
+	"github.com/plaid/plaid-go/v20/plaid"
 )
 
 type Transaction struct {
@@ -31,14 +33,33 @@ type Transaction struct {
 	PostalCode      string   `csv:"postalCode"`
 }
 
+type Account struct {
+	AccountID string `csv:"accountId"`
+	Balances  struct {
+		Available              float64 `csv:"available"`
+		Current                float64 `csv:"current"`
+		ISOCurrencyCode        string  `csv:"isoCurrencyCode"`
+		Limit                  float64 `csv:"limit"`
+		UnofficialCurrencyCode string  `csv:"unofficialCurrencyCode"`
+	} `csv:"balances"`
+	Mask         string               `csv:"mask"`
+	Name         string               `csv:"name"`
+	OfficialName string               `csv:"officialName"`
+	Subtype      plaid.AccountSubtype `csv:"subtype"`
+	Type         plaid.AccountType    `csv:"type"`
+	PlaidItemID  string               `csv:"plaidItemId"`
+	// PlaidItemName string `csv:"plaidItemName"`
+}
+
 func LoadTransactions(ctx context.Context, jsonStorage string, csvStorage string) error {
 	var added []plaid.Transaction
 	var deleted []plaid.RemovedTransaction
 	var modified []plaid.Transaction
 	transactionsByID := make(map[string]plaid.Transaction)
 	transactionsByDate := make(map[string][]plaid.Transaction)
+	transactionsPath := fmt.Sprintf("%s/transactions", jsonStorage)
 
-	err := filepath.WalkDir(jsonStorage, func(path string, d os.DirEntry, err error) error {
+	err := filepath.WalkDir(transactionsPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -132,6 +153,61 @@ func LoadTransactions(ctx context.Context, jsonStorage string, csvStorage string
 		if err := os.WriteFile(filePath, []byte(csvContent), 0644); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func LoadAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
+	var accountsCSV []Account
+
+	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
+	bytes, err := os.ReadFile(accountsPath)
+	if err != nil {
+		return err
+	}
+
+	response := plaid.AccountsGetResponse{}
+	if err = json.Unmarshal(bytes, &response); err != nil {
+		return err
+	}
+
+	for _, account := range response.GetAccounts() {
+		available := account.GetBalances()
+		item := response.GetItem()
+
+		accountsCSV = append(accountsCSV, Account{
+			AccountID: account.GetAccountId(),
+			Balances: struct {
+				Available              float64 `csv:"available"`
+				Current                float64 `csv:"current"`
+				ISOCurrencyCode        string  `csv:"isoCurrencyCode"`
+				Limit                  float64 `csv:"limit"`
+				UnofficialCurrencyCode string  `csv:"unofficialCurrencyCode"`
+			}{
+				Available:              available.GetAvailable(),
+				Current:                available.GetCurrent(),
+				ISOCurrencyCode:        available.GetIsoCurrencyCode(),
+				Limit:                  available.GetLimit(),
+				UnofficialCurrencyCode: available.GetUnofficialCurrencyCode(),
+			},
+			Mask:         account.GetMask(),
+			Name:         account.GetName(),
+			OfficialName: account.GetOfficialName(),
+			Subtype:      account.GetSubtype(),
+			Type:         account.GetType(),
+			PlaidItemID:  item.GetItemId(),
+		})
+	}
+
+	csvContent, err := gocsv.MarshalString(&accountsCSV)
+	if err != nil {
+		return err
+	}
+
+	filePath := filepath.Join(csvStorage, "accounts.csv")
+	if err := os.WriteFile(filePath, []byte(csvContent), 0644); err != nil {
+		return err
 	}
 
 	return nil
