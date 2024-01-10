@@ -33,6 +33,20 @@ interface CSVTransaction {
 	postalCode: string
 }
 
+interface CSVAccount {
+	plaidId: string
+	plaidItemId: string
+	name: string
+	officialName: string
+	subtype: string
+	type: string
+	mask: string
+	currentBalance: string
+	availableBalance: string
+	isoCurrencyCode: string
+	unofficialCurrencyCode: string
+}
+
 function safeParseFloat(str: string): number | undefined {
 	if (str === '') return undefined
 	const num = parseFloat(str)
@@ -70,7 +84,7 @@ export async function loadTransactionsFromCSV() {
 	}
 
 	for await (const filepath of walk(
-		`${process.env.HOME}/.config/budgeted/csv`,
+		`${process.env.HOME}/.config/budgeted/csv/transactions`,
 	)) {
 		const data = await fs.readFile(filepath, 'utf-8')
 		const parser = new Parser<CSVTransaction>()
@@ -121,6 +135,65 @@ export async function loadTransactionsFromCSV() {
 					categoryIconUrl,
 					logoUrl,
 					...rest,
+				},
+			})
+		}
+	}
+}
+
+export async function loadAccountsFromCSV() {
+	for await (const filepath of walk(
+		`${process.env.HOME}/.config/budgeted/csv/accounts`,
+	)) {
+		const data = await fs.readFile(filepath, 'utf-8')
+		const parser = new Parser<CSVAccount>()
+		parser.parse(data)
+
+		for (const account of parser.json) {
+			let {
+				plaidId,
+				plaidItemId,
+				name,
+				officialName,
+				subtype,
+				type,
+				mask,
+				currentBalance,
+				availableBalance,
+				isoCurrencyCode,
+				unofficialCurrencyCode,
+				...rest
+			} = account
+
+			const currBalance = safeParseFloat(currentBalance)
+			const availBalance = safeParseFloat(availableBalance)
+
+			await prisma.account.upsert({
+				where: { plaidId },
+				update: {
+					plaidItemId,
+					name,
+					officialName,
+					subtype,
+					type,
+					mask,
+					currentBalance: currBalance,
+					availableBalance: availBalance,
+					isoCurrencyCode,
+					unofficialCurrencyCode,
+				},
+				create: {
+					plaidId,
+					plaidItemId,
+					name,
+					officialName,
+					subtype,
+					type,
+					mask,
+					currentBalance: currBalance,
+					availableBalance: availBalance,
+					isoCurrencyCode,
+					unofficialCurrencyCode,
 				},
 			})
 		}
