@@ -1,6 +1,6 @@
 import z from 'zod'
 import { initTRPC } from '@trpc/server'
-import { loadCSV } from './loadCSV'
+import { loadTransactionsFromCSV } from './loadCSV'
 import {
 	FetchTransactionsInput,
 	fetchTransactions,
@@ -23,7 +23,7 @@ export const router = t.router({
 			return await fetchTransactions(input)
 		}),
 	rebuildTransactions: t.procedure.mutation(async () => {
-		await loadCSV()
+		await loadTransactionsFromCSV()
 		return { success: true }
 	}),
 })

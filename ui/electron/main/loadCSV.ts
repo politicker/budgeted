@@ -59,7 +59,7 @@ async function cacheFile(cache: Record<string, string>, url: string) {
 	return `./cache/${name}`
 }
 
-export async function loadCSV() {
+export async function loadTransactionsFromCSV() {
 	const cache: Record<string, string> = {}
 
 	for await (const cachepath of walk(
