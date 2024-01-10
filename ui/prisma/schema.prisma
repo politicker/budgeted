@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Transaction {
-  plaidId         String @id
+  plaidId         String   @id
   plaidAccountId  String
   date            String
   name            String
@@ -28,4 +28,20 @@ model Transaction {
   lat             Float?
   lon             Float?
   postalCode      String
+  Account         Account? @relation(fields: [accountPlaidId], references: [plaidId])
+  accountPlaidId  String?
+}
+
+model Account {
+  plaidId          String        @id
+  plaidItemId      String
+  name             String
+  officialName     String
+  subtype          String
+  type             String
+  mask             String
+  currentBalance   Float?
+  availableBalance Float?
+  isoCurrencyCode  String
+  transactions     Transaction[]
 }
