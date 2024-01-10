@@ -3,10 +3,10 @@ package plaid
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -18,6 +18,10 @@ func (pc *APIClient) GetNextCursor(ctx context.Context, prefix string) (string, 
 	data, err := pc.GetCache(ctx, prefix)
 	if err != nil {
 		return "", err
+	}
+
+	if len(data) == 0 {
+		return "", nil
 	}
 
 	syncResponse := &plaid.TransactionsSyncResponse{}
@@ -51,13 +55,12 @@ func (pc *APIClient) GetCache(ctx context.Context, path string) ([]byte, error) 
 		return bytes, nil
 	}
 
-	return nil, errors.New("no cached response found")
+	return nil, nil
 }
 
 func (pc *APIClient) SetCache(ctx context.Context, path string, cursor string, bytes []byte) error {
 	timestamp := strings.Replace(time.Now().Format(time.RFC3339Nano), ":", "X", -1)
-	cachePath := pc.cacheDir + "/" + path
-	fileName := fmt.Sprintf("%s/%s_%s.json", cachePath, timestamp, cursor)
+	fileName := filepath.Join(pc.cacheDir, path, fmt.Sprintf("%s_%s.json", timestamp, cursor))
 
 	log.Println("writing", fileName)
 	if err := os.WriteFile(fileName, bytes, 0644); err != nil {

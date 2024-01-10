@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	"github.com/politicker/budgeted/internal/plaid"
 	"github.com/spf13/cobra"
 )
@@ -24,12 +25,12 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 
 			err = pc.LoadTransactions(ctx)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "failed to load transactions")
 			}
 
 			err = pc.LoadAccounts(ctx)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "failed to load accounts")
 			}
 
 			return nil

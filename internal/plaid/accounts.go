@@ -2,7 +2,6 @@ package plaid
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"io"
 
@@ -12,16 +11,6 @@ import (
 func (pc *APIClient) LoadAccounts(ctx context.Context) error {
 	accountsGetRequest := plaid.NewAccountsGetRequest(pc.accessToken)
 	accountsGetRequest.SetOptions(plaid.AccountsGetRequestOptions{})
-
-	data, err := pc.GetCache(ctx, "accounts")
-	if err != nil {
-		return err
-	}
-
-	accountsResponse := &plaid.AccountsGetResponse{}
-	if err = json.Unmarshal(data, accountsResponse); err != nil {
-		return err
-	}
 
 	resp, raw, err := pc.PlaidApi.AccountsGet(ctx).AccountsGetRequest(
 		*accountsGetRequest,
