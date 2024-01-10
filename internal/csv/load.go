@@ -34,7 +34,7 @@ type Transaction struct {
 }
 
 type Account struct {
-	AccountID        string               `csv:"accountId"`
+	PlaidID          string               `csv:"plaidId"`
 	AvailableBalance float64              `csv:"availableBalance"`
 	CurrentBalance   float64              `csv:"currentBalance"`
 	ISOCurrencyCode  string               `csv:"isoCurrencyCode"`
@@ -181,7 +181,7 @@ func LoadAccounts(ctx context.Context, jsonStorage string, csvStorage string) er
 			item := response.GetItem()
 
 			accountsCSV = append(accountsCSV, Account{
-				AccountID:        account.GetAccountId(),
+				PlaidID:          account.GetAccountId(),
 				AvailableBalance: balance.GetAvailable(),
 				CurrentBalance:   balance.GetCurrent(),
 				ISOCurrencyCode:  balance.GetIsoCurrencyCode(),
