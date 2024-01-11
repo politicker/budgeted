@@ -1,9 +1,12 @@
 import { PathLike, promises as fs } from 'node:fs'
 import * as path from 'path'
-import Parser from '@gregoranders/csv'
+import BrokenParser from '@gregoranders/csv'
 import { prisma } from './prisma'
 import { invariant } from '../../src/lib/invariant'
 import { Readable } from 'node:stream'
+
+const Parser = (BrokenParser as unknown as { default: typeof BrokenParser })
+	.default
 
 async function* walk(dir: string): AsyncGenerator<string> {
 	for await (const d of await fs.opendir(dir as PathLike)) {
@@ -62,7 +65,7 @@ async function cacheFile(cache: Record<string, string>, url: string) {
 
 		// Readable.fromWeb(data.body)
 		await fs.writeFile(
-			path.join(__dirname, '..', '..', '..', 'public', 'cache', name),
+			path.join(__dirname, '..', '..', 'public', 'cache', name),
 			// @ts-ignore https://stackoverflow.com/questions/63630114/argument-of-type-readablestreamany-is-not-assignable-to-parameter-of-type-r
 			Readable.fromWeb(data.body),
 		)
@@ -86,11 +89,11 @@ export async function loadTransactionsFromCSV() {
 	for await (const filepath of walk(
 		`${process.env.HOME}/.config/budgeted/csv`,
 	)) {
-		if (path.extname(filepath).toLowerCase() == '.csv') continue
+		if (filepath.endsWith('accounts.csv')) continue
+		console.log('filepath', filepath)
 
 		const data = await fs.readFile(filepath, 'utf-8')
-		const parser2 = (Parser as unknown as { default: typeof Parser }).default
-		const parser = new parser2<CSVTransaction>()
+		const parser = new Parser<CSVTransaction>()
 		parser.parse(data)
 
 		for (const transaction of parser.json) {
@@ -146,6 +149,7 @@ export async function loadTransactionsFromCSV() {
 
 export async function loadAccountsFromCSV() {
 	const csvDir = `${process.env.HOME}/.config/budgeted/csv`
+
 	fs.readdir(csvDir)
 		.then(async (files) => {
 			const csvFiles = files.filter(
@@ -154,9 +158,7 @@ export async function loadAccountsFromCSV() {
 
 			for (const file of csvFiles) {
 				const data = await fs.readFile(`${csvDir}/${file}`, 'utf-8')
-				const parser2 = (Parser as unknown as { default: typeof Parser })
-					.default
-				const parser = new parser2<CSVAccount>()
+				const parser = new Parser<CSVAccount>()
 				parser.parse(data)
 
 				for (const account of parser.json) {
