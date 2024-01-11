@@ -35,16 +35,16 @@ interface CSVTransaction {
 
 interface CSVAccount {
 	plaidId: string
-	plaidItemId: string
+	availableBalance: string
+	currentBalance: string
+	isoCurrencyCode: string
+	limit: string
+	mask: string
 	name: string
 	officialName: string
 	subtype: string
 	type: string
-	mask: string
-	currentBalance: string
-	availableBalance: string
-	isoCurrencyCode: string
-	unofficialCurrencyCode: string
+	plaidItemId: string
 }
 
 function safeParseFloat(str: string): number | undefined {
@@ -86,6 +86,8 @@ export async function loadTransactionsFromCSV() {
 	for await (const filepath of walk(
 		`${process.env.HOME}/.config/budgeted/csv`,
 	)) {
+		if (path.extname(filepath).toLowerCase() == '.csv') continue
+
 		const data = await fs.readFile(filepath, 'utf-8')
 		const parser2 = (Parser as unknown as { default: typeof Parser }).default
 		const parser = new parser2<CSVTransaction>()
@@ -143,60 +145,67 @@ export async function loadTransactionsFromCSV() {
 }
 
 export async function loadAccountsFromCSV() {
-	for await (const filepath of walk(
-		`${process.env.HOME}/.config/budgeted/csv/accounts`,
-	)) {
-		const data = await fs.readFile(filepath, 'utf-8')
-		const parser = new Parser<CSVAccount>()
-		parser.parse(data)
+	const csvDir = `${process.env.HOME}/.config/budgeted/csv`
+	fs.readdir(csvDir)
+		.then(async (files) => {
+			const csvFiles = files.filter(
+				(file) => path.extname(file).toLowerCase() === '.csv',
+			)
 
-		for (const account of parser.json) {
-			let {
-				plaidId,
-				plaidItemId,
-				name,
-				officialName,
-				subtype,
-				type,
-				mask,
-				currentBalance,
-				availableBalance,
-				isoCurrencyCode,
-				unofficialCurrencyCode,
-				...rest
-			} = account
+			for (const file of csvFiles) {
+				const data = await fs.readFile(`${csvDir}/${file}`, 'utf-8')
+				const parser2 = (Parser as unknown as { default: typeof Parser })
+					.default
+				const parser = new parser2<CSVAccount>()
+				parser.parse(data)
 
-			const currBalance = safeParseFloat(currentBalance)
-			const availBalance = safeParseFloat(availableBalance)
+				for (const account of parser.json) {
+					let {
+						plaidId,
+						plaidItemId,
+						name,
+						officialName,
+						subtype,
+						type,
+						mask,
+						currentBalance,
+						availableBalance,
+						isoCurrencyCode,
+					} = account
 
-			await prisma.account.upsert({
-				where: { plaidId },
-				update: {
-					plaidItemId,
-					name,
-					officialName,
-					subtype,
-					type,
-					mask,
-					currentBalance: currBalance,
-					availableBalance: availBalance,
-					isoCurrencyCode,
-					unofficialCurrencyCode,
-				},
-				create: {
-					plaidId,
-					plaidItemId,
-					name,
-					officialName,
-					subtype,
-					type,
-					mask,
-					currentBalance: currBalance,
-					availableBalance: availBalance,
-					isoCurrencyCode,
-					unofficialCurrencyCode,
-				},
-			})
-		}
-	}
+					const currBalance = safeParseFloat(currentBalance)
+					const availBalance = safeParseFloat(availableBalance)
+
+					await prisma.account.upsert({
+						where: { plaidId },
+						update: {
+							plaidItemId,
+							name,
+							officialName,
+							subtype,
+							type,
+							mask,
+							currentBalance: currBalance,
+							availableBalance: availBalance,
+							isoCurrencyCode,
+						},
+						create: {
+							plaidId,
+							plaidItemId,
+							name,
+							officialName,
+							subtype,
+							type,
+							mask,
+							currentBalance: currBalance,
+							availableBalance: availBalance,
+							isoCurrencyCode,
+						},
+					})
+				}
+			}
+		})
+		.catch((err) => {
+			console.error('error parsing account CSVs', err)
+		})
 }

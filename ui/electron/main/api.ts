@@ -1,6 +1,6 @@
 import z from 'zod'
 import { initTRPC } from '@trpc/server'
-import { loadTransactionsFromCSV } from './loadCSV'
+import { loadAccountsFromCSV, loadTransactionsFromCSV } from './loadCSV'
 import {
 	FetchTransactionsInput,
 	fetchTransactions,
@@ -29,9 +29,19 @@ export const router = t.router({
 			return await fetchTransactions(input)
 		}),
 	rebuildTransactions: t.procedure.mutation(async () => {
-		console.log('@trpc: rebuilding transactions')
-		await loadTransactionsFromCSV()
-		console.log('@trpc: rebuilding transactions', { success: true })
+		try {
+			await loadTransactionsFromCSV()
+		} catch (e) {
+			console.error('@trpc: error loading transactions', e)
+		}
+
+		try {
+			await loadAccountsFromCSV()
+		} catch (e) {
+			console.error('@trpc: error loading accounts', e)
+		}
+
+		console.log('@trpc: loaded transactions and accounts')
 		return { success: true }
 	}),
 })
