@@ -12,6 +12,7 @@ export const FetchTransactionsInput = z.object({
 	sort: z.union([z.literal('asc'), z.literal('desc')]),
 	pageSize: z.number(),
 	pageIndex: z.number(),
+	minDate: z.string().optional(),
 })
 
 export async function fetchTransactions({
@@ -19,14 +20,16 @@ export async function fetchTransactions({
 	sortColumn,
 	pageIndex,
 	pageSize,
+	minDate,
 }: z.infer<typeof FetchTransactionsInput>) {
 	const [results, total] = await Promise.all([
 		prisma.transaction.findMany({
 			orderBy: {
 				[sortColumn]: sort,
 			},
-			take: pageSize,
-			skip: pageIndex * pageSize,
+			take: pageSize === Infinity ? undefined : pageSize,
+			skip: pageIndex === 0 ? 0 : pageIndex * pageSize,
+			where: { date: { gte: minDate } },
 		}),
 		prisma.transaction.count(),
 	])
