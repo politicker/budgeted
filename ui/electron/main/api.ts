@@ -24,6 +24,7 @@ export const router = t.router({
 		}),
 	rebuildTransactions: t.procedure.mutation(async () => {
 		await loadTransactionsFromCSV()
+		console.log('@trpc: rebuilding transactions', { success: true })
 		return { success: true }
 	}),
 })
