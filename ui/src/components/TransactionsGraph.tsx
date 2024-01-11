@@ -1,6 +1,6 @@
 import { trpc } from '@/lib/trpc'
 import useDimensions from '@/lib/useDimensions'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
 	VictoryLine,
 	VictoryChart,
@@ -8,8 +8,11 @@ import {
 	VictoryLabel,
 	VictoryBar,
 	Line,
+	Bar,
 } from 'victory'
 import { sub, add, format } from 'date-fns'
+import { Dialog } from '@headlessui/react'
+import { Button } from './ui/button'
 
 const data = [
 	{ quarter: 1, earnings: 13000 },
@@ -22,6 +25,7 @@ const DayRange = 50
 
 export function TransactionsGraph() {
 	const [ref, dimensions] = useDimensions({ liveMeasure: true })
+	const [date, setDate] = useState<string>()
 	const { data } = trpc.transactions.useQuery(
 		{
 			sort: 'asc',
@@ -61,6 +65,14 @@ export function TransactionsGraph() {
 
 		return frames
 	}, [data])
+
+	const transactionsForDate = useMemo(() => {
+		if (!date) return null
+		if (!filteredData) return null
+		const frame = filteredData.find((frame) => frame.date === date)
+		if (!frame) return null
+		return frame.transactions
+	}, [date, filteredData])
 
 	return (
 		<>
@@ -119,6 +131,17 @@ export function TransactionsGraph() {
 												},
 											]
 										},
+										onClick: () => {
+											return [
+												{
+													target: 'tickLabels',
+													mutation: (tick: { text: string }) => {
+														setDate(tick.text)
+														return {}
+													},
+												},
+											]
+										},
 									},
 								},
 							]}
@@ -174,6 +197,32 @@ export function TransactionsGraph() {
 						<VictoryLine data={filteredData} x="date" y="amount" />
 					</VictoryChart>
 				)}
+
+				<Dialog open={Boolean(date)} onClose={() => setDate(undefined)}>
+					<div className="fixed inset-0 bg-background/50" aria-hidden="true" />
+					<Dialog.Panel>
+						<div className="fixed h-[100vh] w-[300px] top-0 right-0 border-l bg-background grid grid-rows-[min-content_1fr_min-content]">
+							<div className="p-3 border-b">{date}</div>
+							<div className="overflow-y-auto">
+								{transactionsForDate?.map((transaction) => (
+									<div
+										key={transaction.plaidId}
+										className="p-3 border-b flex justify-between"
+									>
+										<div>{transaction.name}</div>
+										<div>{transaction.amount}</div>
+									</div>
+								))}
+							</div>
+							<div className="p-3 border-t">
+								{' '}
+								<Button onClick={() => setDate(undefined)} variant="outline">
+									Close
+								</Button>
+							</div>
+						</div>
+					</Dialog.Panel>
+				</Dialog>
 			</div>
 		</>
 	)
