@@ -8,6 +8,12 @@ import {
 
 const t = initTRPC.create({ isServer: true })
 
+const withLogging = t.middleware(async ({ ctx, next, path, type }) => {
+	console.log('@trpc: request', type, path)
+	return next()
+})
+t.procedure.use(withLogging)
+
 export const router = t.router({
 	greeting: t.procedure.input(z.object({ name: z.string() })).query((req) => {
 		const { input } = req
@@ -23,6 +29,7 @@ export const router = t.router({
 			return await fetchTransactions(input)
 		}),
 	rebuildTransactions: t.procedure.mutation(async () => {
+		console.log('@trpc: rebuilding transactions')
 		await loadTransactionsFromCSV()
 		console.log('@trpc: rebuilding transactions', { success: true })
 		return { success: true }

@@ -84,7 +84,7 @@ export async function loadTransactionsFromCSV() {
 	}
 
 	for await (const filepath of walk(
-		`${process.env.HOME}/.config/budgeted/csv/transactions`,
+		`${process.env.HOME}/.config/budgeted/csv`,
 	)) {
 		const data = await fs.readFile(filepath, 'utf-8')
 		const parser2 = (Parser as unknown as { default: typeof Parser }).default
