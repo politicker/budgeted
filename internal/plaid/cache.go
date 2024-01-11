@@ -60,7 +60,7 @@ func (pc *APIClient) GetCache(ctx context.Context, path string) ([]byte, error) 
 
 func (pc *APIClient) SetCache(ctx context.Context, path string, cursor string, bytes []byte) error {
 	timestamp := strings.Replace(time.Now().Format(time.RFC3339Nano), ":", "X", -1)
-	fileName := filepath.Join(pc.cacheDir, path, fmt.Sprintf("%s_%s.json", timestamp, cursor))
+	fileName := filepath.Join(pc.cacheDir, path, fmt.Sprintf("%s_%s.json", timestamp, strings.Replace(cursor, "/", "_", -1)))
 
 	log.Println("writing", fileName)
 	if err := os.WriteFile(fileName, bytes, 0644); err != nil {
