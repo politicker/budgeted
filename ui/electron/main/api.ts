@@ -30,15 +30,15 @@ export const router = t.router({
 		}),
 	rebuildTransactions: t.procedure.mutation(async () => {
 		try {
-			await loadTransactionsFromCSV()
-		} catch (e) {
-			console.error('@trpc: error loading transactions', e)
-		}
-
-		try {
 			await loadAccountsFromCSV()
 		} catch (e) {
 			console.error('@trpc: error loading accounts', e)
+		}
+
+		try {
+			await loadTransactionsFromCSV()
+		} catch (e) {
+			console.error('@trpc: error loading transactions', e)
 		}
 
 		console.log('@trpc: loaded transactions and accounts')
