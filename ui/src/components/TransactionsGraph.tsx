@@ -9,10 +9,14 @@ import {
 	VictoryBar,
 	Line,
 	Bar,
+	LineSegment,
 } from 'victory'
 import { sub, add, format } from 'date-fns'
 import { Dialog } from '@headlessui/react'
 import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { useLocalStorage } from '@/lib/useLocalStorage'
+import { z } from 'zod'
 
 const data = [
 	{ quarter: 1, earnings: 13000 },
@@ -21,18 +25,40 @@ const data = [
 	{ quarter: 4, earnings: 19000 },
 ]
 
-const DayRange = 50
+const DEFAULT_DAY_RANGE = 50
+const DEFAULT_BUDGET = '$10,000'
+
+function parseMoney(money: string) {
+	return parseInt(money.replace(/\D/g, ''))
+}
 
 export function TransactionsGraph() {
 	const [ref, dimensions] = useDimensions({ liveMeasure: true })
 	const [date, setDate] = useState<string>()
+
+	const [dayRange, setDayRange] = useLocalStorage(
+		z.number(),
+		'dayRange',
+		DEFAULT_DAY_RANGE,
+	)
+
+	const [budget, setBudget] = useLocalStorage(
+		z.string(),
+		'budget',
+		DEFAULT_BUDGET,
+	)
+
+	const minDate = useMemo(() => {
+		return format(sub(new Date(), { days: dayRange }), 'yyyy-MM-dd')
+	}, [dayRange])
+
 	const { data } = trpc.transactions.useQuery(
 		{
 			sort: 'asc',
 			sortColumn: 'date',
 			pageIndex: 0,
 			pageSize: Infinity,
-			minDate: format(sub(new Date(), { days: DayRange }), 'yyyy-MM-dd'),
+			minDate,
 		},
 		{
 			keepPreviousData: true,
@@ -43,11 +69,11 @@ export function TransactionsGraph() {
 		if (!data) return null
 		let amount = 0
 
-		const startDate = sub(new Date(), { days: DayRange })
+		const startDate = sub(new Date(), { days: dayRange })
 		const frames = []
 		const results = [...data.results]
 
-		for (let i = 0; i < DayRange; i++) {
+		for (let i = 0; i < dayRange; i++) {
 			const date = format(add(startDate, { days: i }), 'yyyy-MM-dd')
 			const transactions = []
 
@@ -64,25 +90,78 @@ export function TransactionsGraph() {
 		}
 
 		return frames
-	}, [data])
+	}, [data, dayRange])
+
+	const budgetData = useMemo(() => {
+		if (!filteredData) return []
+		const budgetValue = parseMoney(budget)
+		const firstFrame = filteredData[0]
+		if (!firstFrame) return []
+		const lastFrame = filteredData[filteredData.length - 1]
+		if (!lastFrame) return []
+
+		return [
+			{
+				date: firstFrame.date,
+				amount: 0,
+			},
+			{
+				date: lastFrame.date,
+				amount: budgetValue,
+			},
+		]
+	}, [filteredData, budget])
 
 	const transactionsForDate = useMemo(() => {
 		if (!date) return null
 		if (!filteredData) return null
+
 		const frame = filteredData.find((frame) => frame.date === date)
 		if (!frame) return null
+
 		return frame.transactions
 	}, [date, filteredData])
 
 	return (
 		<>
-			<div className="p-3 border-b">Controls</div>
+			<div className="p-3 border-b">
+				<span>Showing</span> the last{' '}
+				<Input
+					className="inline-block w-10 px-2 mx-1 text-center"
+					value={dayRange}
+					onChange={(e) => {
+						if (!e.target.value) {
+							setDayRange(0)
+							return
+						}
+
+						const value = parseInt(e.target.value)
+						if (isNaN(value)) return
+
+						setDayRange(value)
+					}}
+				/>{' '}
+				days. Budget:{' '}
+				<Input
+					className="inline-block w-20 px-2 mx-1 text-right"
+					value={budget}
+					onChange={(e) => {
+						if (!e.target.value) {
+							return setBudget(DEFAULT_BUDGET)
+						}
+
+						const value = parseMoney(e.target.value)
+						if (isNaN(value)) {
+							return setBudget(DEFAULT_BUDGET)
+						}
+
+						setBudget(`$${value.toLocaleString()}`)
+					}}
+				/>
+			</div>
 			<div ref={ref} className="row-span-2">
 				{'width' in dimensions && filteredData && (
 					<VictoryChart
-						// domainPadding will add space to each side of VictoryBar to
-						// prevent it from overlapping the axis
-						// domainPadding={20}
 						domainPadding={{ y: [0, 0] }}
 						width={dimensions.width}
 						height={dimensions.height}
@@ -96,11 +175,6 @@ export function TransactionsGraph() {
 									style={{ fill: '#444' }}
 								/>
 							}
-							// // tickValues specifies both the number of ticks and where
-							// // they are placed on the axis
-							// tickValues={[1, 2, 3, 4]}
-							// tickFormat={['Quarter 1', 'Quarter 2', 'Quarter 3', 'Quarter 4']}
-
 							events={[
 								{
 									target: 'tickLabels',
@@ -145,7 +219,9 @@ export function TransactionsGraph() {
 									},
 								},
 							]}
-							gridComponent={<Line style={{ stroke: 'rgba(0,0,0,0)' }} />}
+							gridComponent={
+								<LineSegment style={{ stroke: 'rgba(0,0,0,0)' }} />
+							}
 						/>
 						<VictoryAxis
 							dependentAxis
@@ -153,48 +229,13 @@ export function TransactionsGraph() {
 							tickFormat={(x) => `$${x / 1000}k`}
 						/>
 
-						{/* <VictoryBar
-							data={filteredData}
+						<VictoryLine data={filteredData} x="date" y="amount" />
+						<VictoryLine
+							data={budgetData}
 							x="date"
 							y="amount"
-							style={{
-								data: { fill: 'tomato', width: 20 },
-							}}
-							events={[
-								{
-									target: 'data',
-									eventHandlers: {
-										onMouseOver: () => {
-											return [
-												{
-													target: 'data',
-													mutation: () => ({
-														style: { fill: 'gold', width: 30 },
-													}),
-												},
-												{
-													target: 'labels',
-													mutation: () => ({ active: true }),
-												},
-											]
-										},
-										onMouseOut: () => {
-											return [
-												{
-													target: 'data',
-													mutation: () => {},
-												},
-												{
-													target: 'labels',
-													mutation: () => ({ active: false }),
-												},
-											]
-										},
-									},
-								},
-							]}
-						/> */}
-						<VictoryLine data={filteredData} x="date" y="amount" />
+							style={{ data: { stroke: 'red', strokeDasharray: '4' } }}
+						/>
 					</VictoryChart>
 				)}
 
