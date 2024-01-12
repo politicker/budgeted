@@ -4,6 +4,7 @@ import { loadAccountsFromCSV, loadTransactionsFromCSV } from './loadCSV'
 import {
 	FetchTransactionsInput,
 	fetchTransactions,
+	hideTransaction,
 } from './models/transactions'
 
 const t = initTRPC.create({ isServer: true })
@@ -15,19 +16,13 @@ const withLogging = t.middleware(async ({ ctx, next, path, type }) => {
 t.procedure.use(withLogging)
 
 export const router = t.router({
-	greeting: t.procedure.input(z.object({ name: z.string() })).query((req) => {
-		const { input } = req
-
-		return {
-			text: `Hello ${input.name}` as const,
-		}
-	}),
 	transactions: t.procedure
 		.input(FetchTransactionsInput)
 		.query(async ({ input }) => {
 			console.log('@trpc: fetching transactions', input)
 			return await fetchTransactions(input)
 		}),
+
 	rebuildTransactions: t.procedure.mutation(async () => {
 		try {
 			await loadAccountsFromCSV()
@@ -44,6 +39,14 @@ export const router = t.router({
 		console.log('@trpc: loaded transactions and accounts')
 		return { success: true }
 	}),
+
+	hideTransaction: t.procedure
+		.input(z.object({ plaidId: z.string() }))
+		.mutation(async ({ input }) => {
+			await hideTransaction(input.plaidId)
+			console.log('@trpc: hiding transaction', input)
+			return { success: true }
+		}),
 })
 
 export type AppRouter = typeof router

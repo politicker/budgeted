@@ -13,6 +13,7 @@ export const FetchTransactionsInput = z.object({
 	pageSize: z.number(),
 	pageIndex: z.number(),
 	minDate: z.string().optional(),
+	showHidden: z.boolean().default(true),
 })
 
 export async function fetchTransactions({
@@ -21,6 +22,7 @@ export async function fetchTransactions({
 	pageIndex,
 	pageSize,
 	minDate,
+	showHidden,
 }: z.infer<typeof FetchTransactionsInput>) {
 	const [results, total] = await Promise.all([
 		prisma.transaction.findMany({
@@ -29,7 +31,10 @@ export async function fetchTransactions({
 			},
 			take: pageSize === Infinity ? undefined : pageSize,
 			skip: pageIndex === 0 ? 0 : pageIndex * pageSize,
-			where: { date: { gte: minDate } },
+			where: {
+				date: { gte: minDate },
+				hidden: showHidden ? undefined : false,
+			},
 		}),
 		prisma.transaction.count(),
 	])
@@ -56,4 +61,11 @@ export async function fetchTransactions({
 	}
 
 	return { results, total, pageCount, pages }
+}
+
+export async function hideTransaction(plaidId: string) {
+	return await prisma.transaction.update({
+		where: { plaidId },
+		data: { hidden: true },
+	})
 }

@@ -33,6 +33,10 @@ function parseMoney(money: string) {
 	return parseInt(money.replace(/\D/g, ''))
 }
 
+function formatMoney(money: number) {
+	return `$${money.toLocaleString()}`
+}
+
 export function TransactionsGraph() {
 	const [ref, dimensions] = useDimensions({ liveMeasure: true })
 	const [date, setDate] = useState<string>()
@@ -54,18 +58,23 @@ export function TransactionsGraph() {
 		return format(sub(new Date(), { days: dayRange }), 'yyyy-MM-dd')
 	}, [dayRange])
 
-	const { data } = trpc.transactions.useQuery(
+	const { data, refetch } = trpc.transactions.useQuery(
 		{
 			sort: 'asc',
 			sortColumn: 'date',
 			pageIndex: 0,
 			pageSize: Infinity,
 			minDate,
+			showHidden: false,
 		},
 		{
 			keepPreviousData: true,
 		},
 	)
+
+	const { mutate } = trpc.hideTransaction.useMutation({
+		onSuccess: () => refetch(),
+	})
 
 	const filteredData = useMemo(() => {
 		if (!data) return null
@@ -157,7 +166,7 @@ export function TransactionsGraph() {
 							return setBudget(DEFAULT_BUDGET)
 						}
 
-						setBudget(`$${value.toLocaleString()}`)
+						setBudget(formatMoney(value))
 					}}
 				/>
 			</div>
@@ -260,10 +269,10 @@ export function TransactionsGraph() {
 						/>
 
 						<Transition.Child
-							className="transition-[right] fixed h-[100vh] w-[300px] top-0 right-0 border-l bg-background grid grid-rows-[min-content_1fr_min-content]"
-							enterFrom="right-[-300px]"
+							className="transition-[right] fixed h-[100vh] min-w-[300px] w-[75%] top-0 right-0 border-l bg-background grid grid-rows-[min-content_1fr_min-content]"
+							enterFrom="right-[-100%]"
 							enter="right-0"
-							leave="right-[-300px]"
+							leave="right-[-100%]"
 							afterLeave={() => {
 								setDate(undefined)
 								setCloseModal(false)
@@ -274,18 +283,33 @@ export function TransactionsGraph() {
 								{transactionsForDate?.map((transaction) => (
 									<div
 										key={transaction.plaidId}
-										className="p-3 border-b flex justify-between"
+										className="p-3 border-b flex justify-between items-center"
 									>
 										<div>{transaction.name}</div>
-										<div>{transaction.amount}</div>
+										<div className="flex items-center">
+											<div>{formatMoney(transaction.amount)}</div>
+											<Button
+												size="sm"
+												variant="destructive"
+												className="ml-3"
+												onClick={() => mutate({ plaidId: transaction.plaidId })}
+											>
+												Hide
+											</Button>
+										</div>
 									</div>
 								))}
 							</div>
-							<div className="p-3 border-t">
-								{' '}
+							<div className="p-3 border-t flex justify-between items-center">
 								<Button onClick={() => setCloseModal(true)} variant="outline">
 									Close
 								</Button>
+								<div>
+									Total:{' '}
+									{formatMoney(
+										transactionsForDate?.reduce((a, b) => a + b.amount, 0) ?? 0,
+									)}
+								</div>
 							</div>
 						</Transition.Child>
 					</Dialog>

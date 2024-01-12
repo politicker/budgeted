@@ -30,6 +30,9 @@ model Transaction {
   postalCode      String
   Account         Account? @relation(fields: [accountPlaidId], references: [plaidId])
   accountPlaidId  String?
+
+  // extra attrs: not set by import
+  hidden Boolean @default(false)
 }
 
 model Account {
