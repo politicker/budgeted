@@ -22,4 +22,20 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 )
 Input.displayName = 'Input'
 
-export { Input }
+const InlineInput = React.forwardRef<HTMLInputElement, InputProps>(
+	({ className, ...props }, ref) => {
+		return (
+			<Input
+				className={cn(
+					'inline-block py-1 my-[-0.25rem] h-[initial] px-2 mx-1',
+					className,
+				)}
+				ref={ref}
+				{...props}
+			/>
+		)
+	},
+)
+InlineInput.displayName = 'InlineInput'
+
+export { Input, InlineInput }

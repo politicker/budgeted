@@ -1,6 +1,6 @@
 import { trpc } from '@/lib/trpc'
 import useDimensions from '@/lib/useDimensions'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import {
 	VictoryLine,
 	VictoryChart,
@@ -12,11 +12,12 @@ import {
 	LineSegment,
 } from 'victory'
 import { sub, add, format } from 'date-fns'
-import { Dialog } from '@headlessui/react'
+import { Dialog, Transition } from '@headlessui/react'
 import { Button } from './ui/button'
-import { Input } from './ui/input'
+import { InlineInput, Input } from './ui/input'
 import { useLocalStorage } from '@/lib/useLocalStorage'
 import { z } from 'zod'
+import { colors } from '@/lib/colors'
 
 const data = [
 	{ quarter: 1, earnings: 13000 },
@@ -35,6 +36,7 @@ function parseMoney(money: string) {
 export function TransactionsGraph() {
 	const [ref, dimensions] = useDimensions({ liveMeasure: true })
 	const [date, setDate] = useState<string>()
+	const [closeModal, setCloseModal] = useState(false)
 
 	const [dayRange, setDayRange] = useLocalStorage(
 		z.number(),
@@ -126,8 +128,8 @@ export function TransactionsGraph() {
 		<>
 			<div className="p-3 border-b">
 				<span>Showing</span> the last{' '}
-				<Input
-					className="inline-block w-10 px-2 mx-1 text-center"
+				<InlineInput
+					className="w-10 text-center"
 					value={dayRange}
 					onChange={(e) => {
 						if (!e.target.value) {
@@ -142,8 +144,8 @@ export function TransactionsGraph() {
 					}}
 				/>{' '}
 				days. Budget:{' '}
-				<Input
-					className="inline-block w-20 px-2 mx-1 text-right"
+				<InlineInput
+					className="w-20 text-right"
 					value={budget}
 					onChange={(e) => {
 						if (!e.target.value) {
@@ -159,6 +161,7 @@ export function TransactionsGraph() {
 					}}
 				/>
 			</div>
+
 			<div ref={ref} className="row-span-2">
 				{'width' in dimensions && filteredData && (
 					<VictoryChart
@@ -172,7 +175,7 @@ export function TransactionsGraph() {
 								<VictoryLabel
 									angle={-45}
 									textAnchor="end"
-									style={{ fill: '#444' }}
+									style={{ fill: colors.secondary.DEFAULT }}
 								/>
 							}
 							events={[
@@ -183,11 +186,15 @@ export function TransactionsGraph() {
 											return [
 												{
 													target: 'tickLabels',
-													mutation: () => ({ style: { fill: 'white' } }),
+													mutation: () => ({
+														style: { fill: colors.secondary.foreground },
+													}),
 												},
 												{
 													target: 'grid',
-													mutation: () => ({ style: { stroke: 'white' } }),
+													mutation: () => ({
+														style: { stroke: colors.secondary.foreground },
+													}),
 												},
 											]
 										},
@@ -234,15 +241,34 @@ export function TransactionsGraph() {
 							data={budgetData}
 							x="date"
 							y="amount"
-							style={{ data: { stroke: 'red', strokeDasharray: '4' } }}
+							style={{
+								data: {
+									stroke: colors.destructive.DEFAULT,
+									strokeDasharray: '4',
+								},
+							}}
 						/>
 					</VictoryChart>
 				)}
 
-				<Dialog open={Boolean(date)} onClose={() => setDate(undefined)}>
-					<div className="fixed inset-0 bg-background/50" aria-hidden="true" />
-					<Dialog.Panel>
-						<div className="fixed h-[100vh] w-[300px] top-0 right-0 border-l bg-background grid grid-rows-[min-content_1fr_min-content]">
+				<Transition show={Boolean(date) && !closeModal} as={Fragment}>
+					<Dialog onClose={() => setCloseModal(true)}>
+						<div
+							className="fixed inset-0 bg-background/50"
+							aria-hidden="true"
+							onClick={() => setCloseModal(true)}
+						/>
+
+						<Transition.Child
+							className="transition-[right] fixed h-[100vh] w-[300px] top-0 right-0 border-l bg-background grid grid-rows-[min-content_1fr_min-content]"
+							enterFrom="right-[-300px]"
+							enter="right-0"
+							leave="right-[-300px]"
+							afterLeave={() => {
+								setDate(undefined)
+								setCloseModal(false)
+							}}
+						>
 							<div className="p-3 border-b">{date}</div>
 							<div className="overflow-y-auto">
 								{transactionsForDate?.map((transaction) => (
@@ -257,13 +283,13 @@ export function TransactionsGraph() {
 							</div>
 							<div className="p-3 border-t">
 								{' '}
-								<Button onClick={() => setDate(undefined)} variant="outline">
+								<Button onClick={() => setCloseModal(true)} variant="outline">
 									Close
 								</Button>
 							</div>
-						</div>
-					</Dialog.Panel>
-				</Dialog>
+						</Transition.Child>
+					</Dialog>
+				</Transition>
 			</div>
 		</>
 	)
