@@ -6,6 +6,7 @@ import {
 	fetchTransactions,
 	hideTransaction,
 } from './models/transactions'
+import { fetchAccounts } from './models/accounts'
 
 const t = initTRPC.create({ isServer: true })
 
@@ -47,6 +48,11 @@ export const router = t.router({
 			console.log('@trpc: hiding transaction', input)
 			return { success: true }
 		}),
+
+	accounts: t.procedure.query(async () => {
+		console.log('@trpc: fetching accounts')
+		return await fetchAccounts()
+	}),
 })
 
 export type AppRouter = typeof router
