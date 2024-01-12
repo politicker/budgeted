@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import styles from './Root.module.css'
 import { Button } from './ui/button'
-import { BarChartIcon, TableIcon } from '@radix-ui/react-icons'
+import { BarChartIcon, TableIcon, IdCardIcon } from '@radix-ui/react-icons'
 import { Link, Outlet } from 'react-router-dom'
 import { Page } from '@/lib/types'
 
@@ -30,6 +30,11 @@ export function Root() {
 				<Button variant="ghost" size="icon" asChild>
 					<Link to={Page.GRAPH}>
 						<BarChartIcon />
+					</Link>
+				</Button>
+				<Button variant="ghost" size="icon" asChild>
+					<Link to={Page.ACCOUNTS}>
+						<IdCardIcon />
 					</Link>
 				</Button>
 			</div>

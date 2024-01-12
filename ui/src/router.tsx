@@ -8,6 +8,7 @@ import { Root } from './components/Root'
 import { TransactionsTable } from './components/TransactionsTable'
 import { TransactionsGraph } from './components/TransactionsGraph'
 import { Page } from './lib/types'
+import { AccountsPage } from './components/AccountsPage'
 
 export const router = createMemoryRouter(
 	createRoutesFromElements(
@@ -15,6 +16,7 @@ export const router = createMemoryRouter(
 			<Route index loader={() => redirect(Page.TABLE)} />
 			<Route path={Page.TABLE} element={<TransactionsTable />} />
 			<Route path={Page.GRAPH} element={<TransactionsGraph />} />
+			<Route path={Page.ACCOUNTS} element={<AccountsPage />} />
 		</Route>,
 	),
 )
