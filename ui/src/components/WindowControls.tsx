@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { DragHandleDots1Icon } from '@radix-ui/react-icons'
-import { titlebar } from 'electron/main/contexts/titlebar'
+import { titlebar } from '~electron/main/contexts/titlebar'
 import { HTMLAttributes } from 'react'
 
 function WindowControlItem({
