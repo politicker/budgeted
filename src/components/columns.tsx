@@ -5,7 +5,7 @@ import { ColumnDef } from '@tanstack/react-table'
 export const transactionColumns: ColumnDef<Transaction>[] = [
 	{
 		header: 'Icon',
-		accessorFn: (row) => row.logoUrl ?? row.categoryIconUrl,
+		accessorFn: (row) => row.logoUrl || row.categoryIconUrl,
 		cell: (ctx) => {
 			const value = ctx.getValue()
 			if (!value || typeof value !== 'string') return null
