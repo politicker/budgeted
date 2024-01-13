@@ -10,25 +10,32 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    env:
+      NodeVersion: 20.x
+      GoVersion: ^2
 
-    defaults:
-      run:
-        working-directory: ./ui
+    # defaults:
+    #   run:
+    #     working-directory: ./ui
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: ./ui
-    - run: npm i
-    - run: npx vite build
-    - run: npx electron-builder -p always
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v3
+
+      - name: Use Go ${{ env.GoVersion }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GoVersion }}
+          cache: 'go'
+          cache-dependency-path: ./cli
+      - run: go mod download
+
+      - name: Use Node.js ${{ env.NodeVersion }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NodeVersion }}
+          cache: 'npm'
+      - run: npm i
+      - run: npx vite build
+      - run: npx electron-builder -p always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

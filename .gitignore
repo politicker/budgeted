@@ -4,3 +4,4 @@ node_modules
 /public/cache
 .env.dev
 /dist-electron
+/bin/budgeted-cli

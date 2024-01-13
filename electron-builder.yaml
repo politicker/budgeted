@@ -9,6 +9,7 @@ extraResources:
   - "prisma/**/*"
   - "node_modules/.prisma/**/*"
   - "node_modules/@prisma/client/**/*"
+  - "bin/budgeted-cli"
 asarUnpack:
   - resources/**
 win:
