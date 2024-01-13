@@ -29,7 +29,7 @@ export function AccountsPage(props) {
 			{data?.map((account) => (
 				<Card className={cn('w-[380px]')} {...props}>
 					<CardHeader>
-						<CardTitle className="flex justify-between items-center">
+						<CardTitle className="flex justify-between items-center ">
 							{isEditing ? (
 								<form
 									onSubmit={(e) => {
@@ -46,7 +46,7 @@ export function AccountsPage(props) {
 								>
 									<InlineInput
 										type="text"
-										className="font-bold"
+										className="mx-[-9px] text-lg font-semibold leading-none tracking-tight"
 										defaultValue={account.name}
 										ref={accountNameRef}
 									/>
