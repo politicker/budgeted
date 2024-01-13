@@ -6,7 +6,7 @@ import {
 	fetchTransactions,
 	hideTransaction,
 } from './models/transactions'
-import { fetchAccounts } from './models/accounts'
+import { fetchAccounts, setAccountName, updateAccount } from './models/accounts'
 
 const t = initTRPC.create({ isServer: true })
 
@@ -53,6 +53,12 @@ export const router = t.router({
 		console.log('@trpc: fetching accounts')
 		return await fetchAccounts()
 	}),
+	setAccountName: t.procedure
+		.input(z.object({ id: z.string(), name: z.string() }))
+		.mutation(async ({ input }) => {
+			console.log('@trpc: setting account name', input)
+			return await updateAccount(input.id, { name: input.name })
+		}),
 })
 
 export type AppRouter = typeof router
