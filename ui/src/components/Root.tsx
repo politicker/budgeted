@@ -4,6 +4,7 @@ import { Button } from './ui/button'
 import { BarChartIcon, TableIcon, IdCardIcon } from '@radix-ui/react-icons'
 import { Link, Outlet } from 'react-router-dom'
 import { Page } from '@/lib/types'
+import { WindowControls } from './WindowControls'
 
 export function Root() {
 	useEffect(() => {
@@ -19,26 +20,31 @@ export function Root() {
 	}, [])
 
 	return (
-		<section className={styles.root}>
-			<div className="row-span-3 p-3 border-r text-center">
-				<div className="pb-3">🤑</div>
-				<Button variant="ghost" size="icon">
-					<Link to={Page.TABLE}>
-						<TableIcon />
-					</Link>
-				</Button>
-				<Button variant="ghost" size="icon" asChild>
-					<Link to={Page.GRAPH}>
-						<BarChartIcon />
-					</Link>
-				</Button>
-				<Button variant="ghost" size="icon" asChild>
-					<Link to={Page.ACCOUNTS}>
-						<IdCardIcon />
-					</Link>
-				</Button>
-			</div>
-			<Outlet />
-		</section>
+		<>
+			<WindowControls />
+
+			<section className={styles.root}>
+				<div className="row-span-3 p-3 border-r text-center">
+					<div className="pb-3">🤑</div>
+					<Button variant="ghost" size="icon">
+						<Link to={Page.TABLE}>
+							<TableIcon />
+						</Link>
+					</Button>
+					<Button variant="ghost" size="icon" asChild>
+						<Link to={Page.GRAPH}>
+							<BarChartIcon />
+						</Link>
+					</Button>
+					<Button variant="ghost" size="icon" asChild>
+						<Link to={Page.ACCOUNTS}>
+							<IdCardIcon />
+						</Link>
+					</Button>
+				</div>
+
+				<Outlet />
+			</section>
+		</>
 	)
 }

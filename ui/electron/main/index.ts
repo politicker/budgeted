@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { prisma } from './prisma'
 import { createIPCHandler } from 'electron-trpc/main'
 import { router } from './api'
+import { titlebar } from './contexts/titlebar.js'
 
 // The built directory structure
 //
@@ -32,6 +33,7 @@ function createWindow() {
 		title: 'Budgeted',
 		height: 1200,
 		width: 1400,
+		frame: false,
 		webPreferences: {
 			preload,
 			sandbox: false,
@@ -43,7 +45,7 @@ function createWindow() {
 		// electron-vite-vue#298
 		win.loadURL(url)
 		// Open devTool if the app is not packaged
-		// win.webContents.openDevTools()
+		win.webContents.openDevTools()
 	} else {
 		win.loadFile(indexHtml)
 	}
@@ -64,6 +66,8 @@ app.whenReady().then(async () => {
 		// dock icon is clicked and there are no other windows open.
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
 	})
+
+	titlebar.main()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
