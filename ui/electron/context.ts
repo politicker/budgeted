@@ -32,7 +32,7 @@ export const createContextBridge = <
 
 		contextBridge.exposeInMainWorld(apiKey, bridge)
 	},
-	renderer() {
+	get api() {
 		return (window as any)[apiKey] as T
 	},
 })

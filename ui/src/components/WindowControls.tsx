@@ -1,6 +1,6 @@
-import { TitlebarContext } from '@/contexts/titlebar'
 import { cn } from '@/lib/utils'
 import { DragHandleDots1Icon } from '@radix-ui/react-icons'
+import { titlebar } from 'electron/main/contexts/titlebar'
 import { HTMLAttributes } from 'react'
 
 function WindowControlItem({
@@ -29,7 +29,7 @@ export function WindowControls() {
 			</WindowControlItem>
 			<WindowControlItem
 				aria-label="Minimize"
-				onClick={() => TitlebarContext.minimize()}
+				onClick={() => titlebar.api.minimize()}
 			>
 				<svg aria-hidden="false" width="10" height="10" viewBox="0 0 12 12">
 					<rect fill="currentColor" width="10" height="1" x="1" y="6" />
@@ -38,7 +38,7 @@ export function WindowControls() {
 
 			<WindowControlItem
 				aria-label="Restore down"
-				onClick={() => TitlebarContext.maximize()}
+				onClick={() => titlebar.api.maximize()}
 			>
 				<svg aria-hidden="false" width="10" height="10" viewBox="0 0 12 12">
 					<rect
@@ -54,7 +54,7 @@ export function WindowControls() {
 
 			<WindowControlItem
 				aria-label="Close window"
-				onClick={() => TitlebarContext.close()}
+				onClick={() => titlebar.api.close()}
 			>
 				<svg aria-hidden="false" width="10" height="10" viewBox="0 0 12 12">
 					<polygon
