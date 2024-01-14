@@ -33,7 +33,7 @@ function parseMoney(money: string) {
 	return parseInt(money.replace(/\D/g, ''))
 }
 
-function formatMoney(money: number) {
+export function formatMoney(money: number) {
 	return `$${money.toLocaleString()}`
 }
 

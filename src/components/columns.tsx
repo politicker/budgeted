@@ -5,6 +5,7 @@ import { Checkbox } from './ui/checkbox'
 import { DataTableColumnHeader } from './ui/data-table/data-table-column-header'
 import { Badge } from './ui/badge'
 import { cn } from '@/lib/utils'
+import { formatMoney } from './TransactionsGraph'
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
 	{
@@ -59,11 +60,17 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 		header: ({ column }) => {
 			return <DataTableColumnHeader column={column} title="Amount" />
 		},
-		accessorKey: 'amount',
+		id: 'amount',
+		accessorFn: (row) => formatMoney(row.amount),
 	},
 	{
 		header: 'Name',
-		accessorKey: 'name',
+		id: 'name',
+		accessorFn: (row) =>
+			row.name
+				.split(/\s/)
+				.map((word) => word[0]?.toUpperCase() + word.slice(1).toLowerCase())
+				.join(' '),
 	},
 	{
 		header: 'Merchant',
