@@ -49,9 +49,14 @@ export function TransactionsTable() {
 	})
 
 	return (
-		<div className="p-3">
-			<DataTable data={data?.results ?? []} columns={transactionColumns} />
-		</div>
+		<DataTable
+			pageCount={data?.pageCount ?? 0}
+			pages={data?.pages ?? []}
+			data={data?.results ?? []}
+			columns={transactionColumns}
+			pagination={pick(input, ['pageIndex', 'pageSize'])}
+			setPagination={setInput as SetPaginationType}
+		/>
 	)
 }
 

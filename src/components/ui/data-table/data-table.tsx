@@ -4,6 +4,7 @@ import * as React from 'react'
 import {
 	ColumnDef,
 	ColumnFiltersState,
+	PaginationState,
 	SortingState,
 	VisibilityState,
 	flexRender,
@@ -27,15 +28,24 @@ import {
 
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
+import { PagesType } from '@/components/Table'
+import { SetPaginationType } from '@/components/TransactionsTable'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
+	pageCount: number
+	pagination: PaginationState
+	pages: PagesType
 	data: TData[]
+	setPagination: SetPaginationType
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
+	pageCount,
+	pagination,
+	setPagination,
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({})
 	const [columnVisibility, setColumnVisibility] =
@@ -48,13 +58,17 @@ export function DataTable<TData, TValue>({
 	const table = useReactTable({
 		data,
 		columns,
+		manualPagination: true,
+		pageCount,
 		state: {
+			pagination,
 			sorting,
 			columnVisibility,
 			rowSelection,
 			columnFilters,
 		},
 		enableRowSelection: true,
+		onPaginationChange: setPagination,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -68,9 +82,9 @@ export function DataTable<TData, TValue>({
 	})
 
 	return (
-		<div className="space-y-4">
+		<>
 			<DataTableToolbar table={table} />
-			<div className="rounded-md border">
+			<div className="rounded-md border overflow-auto">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -121,6 +135,6 @@ export function DataTable<TData, TValue>({
 				</Table>
 			</div>
 			<DataTablePagination table={table} />
-		</div>
+		</>
 	)
 }
