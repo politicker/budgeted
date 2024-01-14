@@ -15,16 +15,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       NodeVersion: 20.x
-      GoVersion: ^2
+      GoVersion: ^1.21.4
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Use Go ${{ env.GoVersion }}
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GoVersion }}
+
       - run: go mod download
+        working-directory: ./cli
 
       - name: Use Node.js ${{ env.NodeVersion }}
         uses: actions/setup-node@v3
