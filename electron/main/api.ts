@@ -6,25 +6,23 @@ import {
 	fetchTransactions,
 	hideTransaction,
 } from './models/transactions'
-import { fetchAccounts, setAccountName, updateAccount } from './models/accounts'
+import { fetchAccounts, updateAccount } from './models/accounts'
 
 const t = initTRPC.create({ isServer: true })
-
-const withLogging = t.middleware(async ({ ctx, next, path, type }) => {
-	console.log('@trpc: request', type, path)
+const procedure = t.procedure
+const loggedProcedure = procedure.use(async ({ ctx, next, path, type }) => {
+	console.log('[trpc] request -', `type=${type}`, `path=/${path}`)
 	return next()
 })
-t.procedure.use(withLogging)
 
 export const router = t.router({
-	transactions: t.procedure
+	transactions: loggedProcedure
 		.input(FetchTransactionsInput)
 		.query(async ({ input }) => {
-			console.log('@trpc: fetching transactions', input)
 			return await fetchTransactions(input)
 		}),
 
-	rebuildTransactions: t.procedure.mutation(async () => {
+	rebuildTransactions: loggedProcedure.mutation(async () => {
 		try {
 			await loadAccountsFromCSV()
 		} catch (e) {
@@ -37,26 +35,22 @@ export const router = t.router({
 			console.error('@trpc: error loading transactions', e)
 		}
 
-		console.log('@trpc: loaded transactions and accounts')
 		return { success: true }
 	}),
 
-	hideTransaction: t.procedure
+	hideTransaction: loggedProcedure
 		.input(z.object({ plaidId: z.string() }))
 		.mutation(async ({ input }) => {
 			await hideTransaction(input.plaidId)
-			console.log('@trpc: hiding transaction', input)
 			return { success: true }
 		}),
 
-	accounts: t.procedure.query(async () => {
-		console.log('@trpc: fetching accounts')
+	accounts: loggedProcedure.query(async () => {
 		return await fetchAccounts()
 	}),
-	setAccountName: t.procedure
+	setAccountName: loggedProcedure
 		.input(z.object({ id: z.string(), name: z.string() }))
 		.mutation(async ({ input }) => {
-			console.log('@trpc: setting account name', input)
 			return await updateAccount(input.id, { name: input.name })
 		}),
 })
