@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from './ui/checkbox'
 import { DataTableColumnHeader } from './ui/data-table/data-table-column-header'
 import { Badge } from './ui/badge'
+import { cn } from '@/lib/utils'
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
 	{
@@ -36,7 +37,16 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 		cell: (ctx) => {
 			const value = ctx.getValue()
 			if (!value || typeof value !== 'string') return null
-			return <img src={value} alt="icon" className="max-w-8" />
+			return (
+				<img
+					src={value}
+					alt="icon"
+					className={cn(
+						'max-w-8',
+						Boolean(ctx.row.original.logoUrl) && 'rounded-full',
+					)}
+				/>
+			)
 		},
 	},
 	{
