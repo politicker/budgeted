@@ -21,21 +21,22 @@ export function Root() {
 
 	return (
 		<>
-			<WindowControls />
-
 			<section className={styles.root}>
+				<WindowControls />
+
 				<div className="row-span-3 p-3 border-r text-center">
-					<div className="pb-3">🤑</div>
 					<Button variant="ghost" size="icon">
 						<Link to={Page.TABLE}>
 							<TableIcon />
 						</Link>
 					</Button>
+
 					<Button variant="ghost" size="icon" asChild>
 						<Link to={Page.GRAPH}>
 							<BarChartIcon />
 						</Link>
 					</Button>
+
 					<Button variant="ghost" size="icon" asChild>
 						<Link to={Page.ACCOUNTS}>
 							<IdCardIcon />

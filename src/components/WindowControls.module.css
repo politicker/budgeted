@@ -1,0 +1,17 @@
+.fill {
+	color: hsl(var(--secondary-foreground));
+	background-color: hsl(var(--secondary));
+	background-image: url('./drag.svg');
+	background-repeat: repeat-x;
+	background-position: center;
+	-webkit-user-select: none;
+	-webkit-app-region: drag;
+}
+
+.brand {
+	font-family: 'Cutive Mono', sans-serif;
+	display: flex;
+	align-items: center;
+	-webkit-user-select: none;
+	-webkit-app-region: drag;
+}

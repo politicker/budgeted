@@ -3,10 +3,12 @@ import { useState } from 'react'
 import { ipcLink } from 'electron-trpc/renderer'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { trpc } from './lib/trpc'
-import '@fontsource-variable/rubik'
-import './index.css'
 import { router } from './router'
 import { RouterProvider } from 'react-router-dom'
+
+import '@fontsource-variable/rubik'
+import '@fontsource/cutive-mono'
+import './index.css'
 
 function RenderRoot() {
 	const [queryClient] = useState(() => new QueryClient())

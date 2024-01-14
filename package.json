@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@canvasjs/react-charts": "^1.0.0",
 		"@fontsource-variable/rubik": "^5.0.20",
+		"@fontsource/cutive-mono": "^5.0.18",
 		"@gregoranders/csv": "^0.0.13",
 		"@headlessui/react": "^1.7.18",
 		"@prisma/client": "^5.7.1",

@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils'
 import { DragHandleDots1Icon } from '@radix-ui/react-icons'
 import { titlebar } from '~electron/main/contexts/titlebar'
 import { HTMLAttributes } from 'react'
+import styles from './WindowControls.module.css'
 
 function WindowControlItem({
 	children,
@@ -17,16 +18,17 @@ function WindowControlItem({
 		</div>
 	)
 }
-
+// fixed right-0 z-10
 export function WindowControls() {
 	return (
-		<div className="fixed right-0 flex bg-secondary z-10 rounded-bl-sm">
-			<WindowControlItem
-				aria-label="Drag"
-				className="[-webkit-user-select: none] [-webkit-app-region:drag] cursor-move"
-			>
-				<DragHandleDots1Icon />
-			</WindowControlItem>
+		<div
+			className={cn('flex bg-secondary col-span-2 items-stretch', styles.root)}
+		>
+			<div className={cn('ml-3 w-3', styles.fill)} />
+
+			<div className={cn('px-3', styles.brand)}>budgeted</div>
+			<div className={cn('mr-3 grow', styles.fill)} />
+
 			<WindowControlItem
 				aria-label="Minimize"
 				onClick={() => titlebar.api.minimize()}
