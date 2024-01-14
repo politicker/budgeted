@@ -33,8 +33,11 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 		enableHiding: false,
 	},
 	{
-		header: 'Icon',
+		id: 'icon',
 		accessorFn: (row) => row.logoUrl || row.categoryIconUrl,
+		header: ({ column }) => {
+			return <span className="text-xs">Icon</span>
+		},
 		cell: (ctx) => {
 			const value = ctx.getValue()
 			if (!value || typeof value !== 'string') return null
@@ -64,24 +67,33 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 		accessorFn: (row) => formatMoney(row.amount),
 	},
 	{
-		header: 'Name',
 		id: 'name',
 		accessorFn: (row) =>
 			row.name
 				.split(/\s/)
 				.map((word) => word[0]?.toUpperCase() + word.slice(1).toLowerCase())
 				.join(' '),
+		accessorKey: 'name',
+		header: ({ column }) => {
+			return <DataTableColumnHeader column={column} title="Name" />
+		},
 	},
 	{
-		header: 'Merchant',
+		header: ({ column }) => {
+			return <DataTableColumnHeader column={column} title="Merchant Name" />
+		},
 		accessorKey: 'merchantName',
 	},
 	{
-		header: 'City',
+		header: ({ column }) => {
+			return <DataTableColumnHeader column={column} title="City" />
+		},
 		accessorKey: 'city',
 	},
 	{
-		header: 'Category',
+		header: ({ column }) => {
+			return <span className="text-xs">Category</span>
+		},
 		accessorKey: 'category',
 		cell: ({ row }) => {
 			return (
