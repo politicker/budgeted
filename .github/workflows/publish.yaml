@@ -9,14 +9,13 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     env:
       NodeVersion: 20.x
       GoVersion: ^2
-
-    # defaults:
-    #   run:
-    #     working-directory: ./ui
 
     steps:
       - uses: actions/checkout@v3
@@ -25,8 +24,6 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.GoVersion }}
-          cache: 'go'
-          cache-dependency-path: ./cli
       - run: go mod download
 
       - name: Use Node.js ${{ env.NodeVersion }}
