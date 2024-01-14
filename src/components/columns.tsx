@@ -1,8 +1,35 @@
 import React from 'react'
 import type { Transaction } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
+import { Checkbox } from './ui/checkbox'
+import { DataTableColumnHeader } from './ui/data-table/data-table-column-header'
+import { Badge } from './ui/badge'
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
+	{
+		id: 'select',
+		header: ({ table }) => (
+			<Checkbox
+				checked={
+					table.getIsAllPageRowsSelected() ||
+					(table.getIsSomePageRowsSelected() && 'indeterminate')
+				}
+				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+				aria-label="Select all"
+				className="translate-y-[2px]"
+			/>
+		),
+		cell: ({ row }) => (
+			<Checkbox
+				checked={row.getIsSelected()}
+				onCheckedChange={(value) => row.toggleSelected(!!value)}
+				aria-label="Select row"
+				className="translate-y-[2px]"
+			/>
+		),
+		enableSorting: false,
+		enableHiding: false,
+	},
 	{
 		header: 'Icon',
 		accessorFn: (row) => row.logoUrl || row.categoryIconUrl,
@@ -13,11 +40,15 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 		},
 	},
 	{
-		header: 'Date',
+		header: ({ column }) => {
+			return <DataTableColumnHeader column={column} title="Date" />
+		},
 		accessorKey: 'date',
 	},
 	{
-		header: 'Amount',
+		header: ({ column }) => {
+			return <DataTableColumnHeader column={column} title="Amount" />
+		},
 		accessorKey: 'amount',
 	},
 	{
@@ -35,5 +66,16 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 	{
 		header: 'Category',
 		accessorKey: 'category',
+		cell: ({ row }) => {
+			return (
+				<div className="flex space-x-1">
+					{row.original.category.split(',').map((category) => (
+						<Badge variant="outline">
+							<span>{category}</span>
+						</Badge>
+					))}
+				</div>
+			)
+		},
 	},
 ]
