@@ -44,8 +44,13 @@ export function TransactionsTable() {
 		},
 		[setInputSimple],
 	)
+
 	const { data, refetch, isPreviousData } = trpc.transactions.useQuery(input, {
 		keepPreviousData: true,
+	})
+
+	const { mutate } = trpc.rebuildTransactions.useMutation({
+		onSuccess: () => refetch(),
 	})
 
 	return (
@@ -61,36 +66,6 @@ export function TransactionsTable() {
 }
 
 // export function TransactionsTable() {
-// 	const [input, setInputSimple] = useState<
-// 		z.infer<typeof FetchTransactionsInput>
-// 	>({
-// 		sort: 'desc',
-// 		sortColumn: 'date',
-// 		pageIndex: 0,
-// 		pageSize: 10,
-// 		showHidden: true,
-// 	})
-
-// 	const setInput: SetInputType = useCallback(
-// 		(inp) => {
-// 			// campitible with Updater
-// 			if (typeof inp === 'function') {
-// 				setInputSimple((prev) => ({ ...prev, ...inp(prev) }))
-// 				return
-// 			}
-
-// 			setInputSimple((prev) => ({ ...prev, ...inp }))
-// 		},
-// 		[setInputSimple],
-// 	)
-
-// const { data, refetch, isPreviousData } = trpc.transactions.useQuery(input, {
-// 	keepPreviousData: true,
-// })
-// 	const { mutate } = trpc.rebuildTransactions.useMutation({
-// 		onSuccess: () => refetch(),
-// 	})
-
 // 	return (
 // 		<>
 // 			<div className="p-3 border-b">
