@@ -7,6 +7,11 @@ import {
 	hideTransaction,
 } from './models/transactions'
 import { fetchAccounts, updateAccount } from './models/accounts'
+import {
+	PLAID_COUNTRY_CODES,
+	PLAID_PRODUCTS,
+	plaidClient,
+} from '~electron/lib/plaid/plaid/client'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -52,6 +57,28 @@ export const router = t.router({
 		.input(z.object({ id: z.string(), name: z.string() }))
 		.mutation(async ({ input }) => {
 			return await updateAccount(input.id, { name: input.name })
+		}),
+	plaidLinkToken: loggedProcedure.query(async () => {
+		const linkResponse = await plaidClient.linkTokenCreate({
+			user: {
+				client_user_id: 'user-id',
+			},
+			client_name: 'Plaid Quickstart',
+			products: PLAID_PRODUCTS,
+			country_codes: PLAID_COUNTRY_CODES,
+			language: 'en',
+		})
+
+		return linkResponse.data.link_token
+	}),
+	setPlaidPublicToken: loggedProcedure
+		.input(z.string())
+		.mutation(async ({ input: publicToken }) => {
+			const tokenResponse = await plaidClient.itemPublicTokenExchange({
+				public_token: publicToken,
+			})
+
+			return tokenResponse.data
 		}),
 })
 
