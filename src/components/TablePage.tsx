@@ -6,6 +6,7 @@ import { Updater } from '@tanstack/react-table'
 import { transactionColumns } from './columns'
 import { pick } from 'remeda'
 import { DataTable } from './ui/data-table/data-table'
+import { useDataTable } from '@/lib/useDataTable'
 
 export type SetInputType = (
 	inp: Updater<Partial<z.infer<typeof FetchTransactionsInput>>>,
@@ -30,7 +31,7 @@ export function TablePage() {
 
 	const setInput: SetInputType = useCallback(
 		(inp) => {
-			// campitible with Updater
+			// compatible with Updater
 			if (typeof inp === 'function') {
 				setInputSimple((prev) => ({ ...prev, ...inp(prev) }))
 				return
@@ -45,19 +46,30 @@ export function TablePage() {
 		keepPreviousData: true,
 	})
 
+	const table = useDataTable({
+		data: data?.results ?? [],
+		columns: transactionColumns,
+		manualPagination: true,
+		pageCount: data?.pageCount ?? 0,
+		state: { pagination: pick(input, ['pageIndex', 'pageSize']) },
+		onPaginationChange: setInput as SetPaginationType,
+	})
+
 	// const { mutate } = trpc.rebuildTransactions.useMutation({
 	// 	onSuccess: () => refetch(),
 	// })
 
 	return (
-		<DataTable
-			pageCount={data?.pageCount ?? 0}
-			pages={data?.pages ?? []}
-			data={data?.results ?? []}
-			columns={transactionColumns}
-			pagination={pick(input, ['pageIndex', 'pageSize'])}
-			setPagination={setInput as SetPaginationType}
-		/>
+		<>
+			<DataTable
+				pageCount={data?.pageCount ?? 0}
+				pages={data?.pages ?? []}
+				data={data?.results ?? []}
+				columns={transactionColumns}
+				pagination={pick(input, ['pageIndex', 'pageSize'])}
+				setPagination={setInput as SetPaginationType}
+			/>
+		</>
 	)
 }
 

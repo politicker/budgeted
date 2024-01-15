@@ -70,6 +70,8 @@ export function DataTable<TData, TValue>({
 			columnFilters,
 		},
 		enableRowSelection: true,
+		// @ts-ignore
+		getRowId: (data) => data.plaidId,
 		onPaginationChange: setPagination,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,

@@ -12,6 +12,25 @@ export const FetchTransactionsInput = z.object({
 	sort: z.union([z.literal('asc'), z.literal('desc')]),
 	pageSize: z.number(),
 	pageIndex: z.number(),
+	rowSelection: z.record(z.string(), z.boolean()).optional(),
+	sorting: z
+		.array(
+			z.object({
+				id: z.string(),
+				desc: z.boolean(),
+			}),
+		)
+		.optional(),
+	selection: z.array(z.string()).optional(),
+	columnFilters: z
+		.array(
+			z.object({
+				id: z.string(),
+				value: z.string(),
+			}),
+		)
+		.optional(),
+	columnVisibility: z.record(z.string(), z.boolean()).optional(),
 	minDate: z.string().optional(),
 	showHidden: z.boolean().default(true),
 })

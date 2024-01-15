@@ -9,6 +9,7 @@ export function DataTableSelectionOverlay<TData>({
 	table,
 }: DataTableSelectionOverlayProps<TData>) {
 	const selected = table.getSelectedRowModel().rows
+	debugger
 	const sum = selected.reduce((acc, row) => {
 		// @ts-ignore
 		return acc + row.original.amount
