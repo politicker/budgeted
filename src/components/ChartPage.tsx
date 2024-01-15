@@ -37,7 +37,7 @@ export function formatMoney(money: number) {
 	return `$${money.toLocaleString()}`
 }
 
-export function TransactionsGraph() {
+export function ChartPage() {
 	const [ref, dimensions] = useDimensions({ liveMeasure: true })
 	const [date, setDate] = useState<string>()
 	const [closeModal, setCloseModal] = useState(false)

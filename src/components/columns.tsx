@@ -5,7 +5,7 @@ import { Checkbox } from './ui/checkbox'
 import { DataTableColumnHeader } from './ui/data-table/data-table-column-header'
 import { Badge } from './ui/badge'
 import { cn } from '@/lib/utils'
-import { formatMoney } from './TransactionsGraph'
+import { formatMoney } from './ChartPage'
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
 	{

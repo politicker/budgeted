@@ -21,7 +21,7 @@ export type SetPaginationType = (
 	>,
 ) => void
 
-export function TransactionsTable() {
+export function TablePage() {
 	const [input, setInputSimple] = useState<
 		z.infer<typeof FetchTransactionsInput>
 	>({

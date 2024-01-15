@@ -32,7 +32,7 @@ export function Root() {
 					</Button>
 
 					<Button variant="ghost" size="icon" asChild>
-						<Link to={Page.GRAPH}>
+						<Link to={Page.CHART}>
 							<BarChartIcon />
 						</Link>
 					</Button>

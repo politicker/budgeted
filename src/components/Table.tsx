@@ -28,7 +28,7 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from '@/components/ui/pagination'
-import { SetInputType, SetPaginationType } from './TransactionsTable'
+import { SetInputType, SetPaginationType } from './TablePage'
 
 export type PagesType = (number | '...')[]
 
