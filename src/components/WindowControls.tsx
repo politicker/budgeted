@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils'
-import { DragHandleDots1Icon } from '@radix-ui/react-icons'
 import { titlebar } from '~electron/main/contexts/titlebar'
 import { HTMLAttributes } from 'react'
 import styles from './WindowControls.module.css'
@@ -66,32 +65,6 @@ export function WindowControls() {
 					/>
 				</svg>
 			</WindowControlItem>
-		</div>
-	)
-}
-import { useEffect, useState } from 'react'
-
-interface Props {
-	results?: string[]
-}
-
-function BadComponent({ results = [] }: Props) {
-	const [resultsSideEffect, setResultsSideEffect] = useState<Props['results']>()
-	useEffect(() => {
-		console.log('hello')
-		// ... calculate some value off of results
-		setResultsSideEffect(results)
-	}, [results])
-
-	return <div />
-}
-
-export default function App() {
-	return (
-		<div className="App">
-			<BadComponent />
-			<h1>Hello CodeSandbox</h1>
-			<h2>Start editing to see some magic happen!</h2>
 		</div>
 	)
 }

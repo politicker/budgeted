@@ -35,7 +35,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 	{
 		id: 'icon',
 		accessorFn: (row) => row.logoUrl || row.categoryIconUrl,
-		header: ({ column }) => {
+		header: () => {
 			return <span className="text-xs">Icon</span>
 		},
 		cell: (ctx) => {
@@ -91,7 +91,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 		accessorKey: 'city',
 	},
 	{
-		header: ({ column }) => {
+		header: () => {
 			return <span className="text-xs">Category</span>
 		},
 		accessorKey: 'category',

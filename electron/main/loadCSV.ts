@@ -66,7 +66,7 @@ async function cacheFile(cache: Record<string, string>, url: string) {
 		// Readable.fromWeb(data.body)
 		await fs.writeFile(
 			path.join(__dirname, '..', '..', 'public', 'cache', name),
-			// @ts-ignore https://stackoverflow.com/questions/63630114/argument-of-type-readablestreamany-is-not-assignable-to-parameter-of-type-r
+			// @ts-expect-error https://stackoverflow.com/questions/63630114/argument-of-type-readablestreamany-is-not-assignable-to-parameter-of-type-r
 			Readable.fromWeb(data.body),
 		)
 
@@ -97,6 +97,7 @@ export async function loadTransactionsFromCSV() {
 		parser.parse(data)
 
 		for (const transaction of parser.json) {
+			/* eslint-disable prefer-const */
 			let {
 				plaidId,
 				lat: strLat,
@@ -106,6 +107,7 @@ export async function loadTransactionsFromCSV() {
 				logoUrl,
 				...rest
 			} = transaction
+			/* eslint-enable prefer-const */
 
 			const lat = safeParseFloat(strLat)
 			const lon = safeParseFloat(strLon)
@@ -149,65 +151,59 @@ export async function loadTransactionsFromCSV() {
 
 export async function loadAccountsFromCSV() {
 	const csvDir = `${process.env.HOME}/.config/budgeted/csv`
+	const files = await fs.readdir(csvDir)
+	const csvFiles = files.filter(
+		(file) => path.extname(file).toLowerCase() === '.csv',
+	)
 
-	fs.readdir(csvDir)
-		.then(async (files) => {
-			const csvFiles = files.filter(
-				(file) => path.extname(file).toLowerCase() === '.csv',
-			)
+	for (const file of csvFiles) {
+		const data = await fs.readFile(`${csvDir}/${file}`, 'utf-8')
+		const parser = new Parser<CSVAccount>()
+		parser.parse(data)
 
-			for (const file of csvFiles) {
-				const data = await fs.readFile(`${csvDir}/${file}`, 'utf-8')
-				const parser = new Parser<CSVAccount>()
-				parser.parse(data)
+		for (const account of parser.json) {
+			const {
+				plaidId,
+				plaidItemId,
+				name,
+				officialName,
+				subtype,
+				type,
+				mask,
+				currentBalance,
+				availableBalance,
+				isoCurrencyCode,
+			} = account
 
-				for (const account of parser.json) {
-					let {
-						plaidId,
-						plaidItemId,
-						name,
-						officialName,
-						subtype,
-						type,
-						mask,
-						currentBalance,
-						availableBalance,
-						isoCurrencyCode,
-					} = account
+			const currBalance = safeParseFloat(currentBalance)
+			const availBalance = safeParseFloat(availableBalance)
 
-					const currBalance = safeParseFloat(currentBalance)
-					const availBalance = safeParseFloat(availableBalance)
-
-					await prisma.account.upsert({
-						where: { plaidId },
-						update: {
-							plaidItemId,
-							name,
-							officialName,
-							subtype,
-							type,
-							mask,
-							currentBalance: currBalance,
-							availableBalance: availBalance,
-							isoCurrencyCode,
-						},
-						create: {
-							plaidId,
-							plaidItemId,
-							name,
-							officialName,
-							subtype,
-							type,
-							mask,
-							currentBalance: currBalance,
-							availableBalance: availBalance,
-							isoCurrencyCode,
-						},
-					})
-				}
-			}
-		})
-		.catch((err) => {
-			console.error('error parsing account CSVs', err)
-		})
+			await prisma.account.upsert({
+				where: { plaidId },
+				update: {
+					plaidItemId,
+					name,
+					officialName,
+					subtype,
+					type,
+					mask,
+					currentBalance: currBalance,
+					availableBalance: availBalance,
+					isoCurrencyCode,
+				},
+				create: {
+					plaidId,
+					plaidItemId,
+					name,
+					officialName,
+					subtype,
+					type,
+					mask,
+					currentBalance: currBalance,
+					availableBalance: availBalance,
+					isoCurrencyCode,
+				},
+			})
+		}
+	}
 }

@@ -46,7 +46,7 @@ export async function fetchTransactions({
 	const startPage = Math.max(1, page - 3)
 	const endPage = Math.min(pageCount, page + 3)
 
-	let pages: PagesType = []
+	const pages: PagesType = []
 
 	if (startPage !== 1) {
 		pages.unshift('...')

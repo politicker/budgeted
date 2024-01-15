@@ -1,10 +1,8 @@
 import { cn } from '@/lib/utils'
-import { Switch } from '@headlessui/react'
 import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from './ui/card'
@@ -12,10 +10,9 @@ import { trpc } from '@/lib/trpc'
 import { useRef, useState } from 'react'
 import { Pencil1Icon } from '@radix-ui/react-icons'
 import { Button } from './ui/button'
-import { InlineInput, Input } from './ui/input'
+import { InlineInput } from './ui/input'
 
-// @ts-ignore
-export function AccountsPage(props) {
+export function AccountsPage() {
 	const { data, refetch } = trpc.accounts.useQuery()
 	const { mutate } = trpc.setAccountName.useMutation({
 		onSuccess: () => refetch(),
@@ -27,7 +24,7 @@ export function AccountsPage(props) {
 	return (
 		<div className="p-6">
 			{data?.map((account) => (
-				<Card className={cn('w-[380px]')} {...props}>
+				<Card className={cn('w-[380px]')}>
 					<CardHeader>
 						<CardTitle className="flex justify-between items-center ">
 							{isEditing ? (

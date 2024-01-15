@@ -1,14 +1,6 @@
 // https://github.com/Swizec/useDimensions/tree/master
 
-import {
-	useState,
-	useLayoutEffect,
-	useRef,
-	MutableRefObject,
-	RefObject,
-	useEffect,
-	useCallback,
-} from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export interface DimensionObject {
 	width: number
@@ -23,7 +15,7 @@ export interface DimensionObject {
 
 export type UseDimensionsHook = [
 	(node: HTMLDivElement) => void,
-	DimensionObject | {},
+	DimensionObject | Record<string, never>,
 	HTMLDivElement | null,
 ]
 
@@ -45,7 +37,7 @@ function getDimensionObject(node: HTMLDivElement): DimensionObject {
 	}
 }
 
-function useDimensions({
+export function useDimensions({
 	liveMeasure = true,
 }: UseDimensionsArgs = {}): UseDimensionsHook {
 	const [dimensions, setDimensions] = useState({})
@@ -57,10 +49,14 @@ function useDimensions({
 
 	useEffect(() => {
 		if (node) {
-			const measure = () =>
+			function measure() {
+				if (!node) return
+
 				window.requestAnimationFrame(() =>
 					setDimensions(getDimensionObject(node)),
 				)
+			}
+
 			measure()
 
 			if (liveMeasure) {
@@ -77,5 +73,3 @@ function useDimensions({
 
 	return [ref, dimensions, node]
 }
-
-export default useDimensions

@@ -1,15 +1,11 @@
 import { useCallback, useState } from 'react'
 import { trpc } from '@/lib/trpc'
-import { Button } from '@/components/ui/button'
-import Table from './Table'
 import { FetchTransactionsInput } from 'electron/main/models/transactions'
 import { z } from 'zod'
 import { Updater } from '@tanstack/react-table'
 import { transactionColumns } from './columns'
 import { pick } from 'remeda'
 import { DataTable } from './ui/data-table/data-table'
-import tasks from './ui/data/tasks.json'
-import { columns } from './ui/data-table/columns'
 
 export type SetInputType = (
 	inp: Updater<Partial<z.infer<typeof FetchTransactionsInput>>>,
@@ -45,13 +41,13 @@ export function TablePage() {
 		[setInputSimple],
 	)
 
-	const { data, refetch, isPreviousData } = trpc.transactions.useQuery(input, {
+	const { data /*, refetch*/ } = trpc.transactions.useQuery(input, {
 		keepPreviousData: true,
 	})
 
-	const { mutate } = trpc.rebuildTransactions.useMutation({
-		onSuccess: () => refetch(),
-	})
+	// const { mutate } = trpc.rebuildTransactions.useMutation({
+	// 	onSuccess: () => refetch(),
+	// })
 
 	return (
 		<DataTable

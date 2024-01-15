@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-restricted-syntax */
 import * as React from 'react'
 import {
 	ChevronLeftIcon,
@@ -6,7 +8,7 @@ import {
 } from '@radix-ui/react-icons'
 
 import { cn } from '@/lib/utils'
-import { Button, ButtonProps, buttonVariants } from '@/components/ui/button'
+import { Button, ButtonProps } from '@/components/ui/button'
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
 	<nav

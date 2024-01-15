@@ -12,7 +12,7 @@ export function useLocalStorage<T extends Zod.Schema>(
 		if (json) {
 			const parsed = schema.safeParse(JSON.parse(json))
 			if (parsed.success) {
-				return parsed.data
+				return parsed.data as typeof defaultValue
 			} else {
 				console.error(parsed.error)
 				return defaultValue

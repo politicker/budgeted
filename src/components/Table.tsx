@@ -1,14 +1,10 @@
-import type { Transaction } from '@prisma/client'
 import {
 	ColumnDef,
 	PaginationState,
-	Table as ReactTable,
-	Updater,
 	flexRender,
 	getCoreRowModel,
 	useReactTable,
 } from '@tanstack/react-table'
-import { transactionColumns } from './columns'
 import {
 	Table as UITable,
 	TableBody,
@@ -38,14 +34,14 @@ interface Props<T> {
 	setInput: SetInputType
 	pageCount: number
 	pages: PagesType
-	columns: ColumnDef<T, any>[]
+	columns: ColumnDef<T, unknown>[]
 	pagination: PaginationState
 }
 
-export default function Table<T>({
+export function Table<T>({
 	results,
 	setPagination,
-	setInput,
+	// setInput,
 	pageCount,
 	pages,
 	columns,
@@ -81,7 +77,7 @@ export default function Table<T>({
 
 				<TableBody>
 					{rows.length ? (
-						rows.map((row, i) => (
+						rows.map((row) => (
 							<TableRow key={row.id}>
 								{row.getVisibleCells().map((cell) => (
 									<TableCell key={cell.id}>

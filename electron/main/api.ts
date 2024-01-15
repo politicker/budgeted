@@ -10,7 +10,7 @@ import { fetchAccounts, updateAccount } from './models/accounts'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
-const loggedProcedure = procedure.use(async ({ ctx, next, path, type }) => {
+const loggedProcedure = procedure.use(async ({ next, path, type }) => {
 	console.log('[trpc] request -', `type=${type}`, `path=/${path}`)
 	return next()
 })

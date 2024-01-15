@@ -43,18 +43,18 @@ function createWindow() {
 	if (url) {
 		console.log('loadURL', url)
 		// electron-vite-vue#298
-		win.loadURL(url)
+		void win.loadURL(url)
 		// Open devTool if the app is not packaged
 		// win.webContents.openDevTools()
 	} else {
-		win.loadFile(indexHtml)
+		void win.loadFile(indexHtml)
 	}
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(async () => {
+void app.whenReady().then(() => {
 	createWindow()
 
 	if (win) {
@@ -67,15 +67,15 @@ app.whenReady().then(async () => {
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
 	})
 
-	titlebar.main()
+	void titlebar.main()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', async () => {
+app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
 		app.quit()
-		await prisma.$disconnect()
+		void prisma.$disconnect()
 	}
 })

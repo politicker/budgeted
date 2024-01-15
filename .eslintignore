@@ -1,0 +1,5 @@
+/.eslintrc.js
+*.js
+/node_modules
+/vite.config.ts
+/tailwind.config.ts

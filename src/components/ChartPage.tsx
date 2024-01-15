@@ -1,30 +1,20 @@
 import { trpc } from '@/lib/trpc'
-import useDimensions from '@/lib/useDimensions'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useDimensions } from '@/lib/useDimensions'
+import { Fragment, useMemo, useState } from 'react'
 import {
 	VictoryLine,
 	VictoryChart,
 	VictoryAxis,
 	VictoryLabel,
-	VictoryBar,
-	Line,
-	Bar,
 	LineSegment,
 } from 'victory'
 import { sub, add, format } from 'date-fns'
 import { Dialog, Transition } from '@headlessui/react'
 import { Button } from './ui/button'
-import { InlineInput, Input } from './ui/input'
+import { InlineInput } from './ui/input'
 import { useLocalStorage } from '@/lib/useLocalStorage'
 import { z } from 'zod'
 import { colors } from '@/lib/colors'
-
-const data = [
-	{ quarter: 1, earnings: 13000 },
-	{ quarter: 2, earnings: 16500 },
-	{ quarter: 3, earnings: 14250 },
-	{ quarter: 4, earnings: 19000 },
-]
 
 const DEFAULT_DAY_RANGE = 50
 const DEFAULT_BUDGET = '$10,000'
