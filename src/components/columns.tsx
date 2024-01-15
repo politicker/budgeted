@@ -10,6 +10,7 @@ import { formatMoney } from './ChartPage'
 export const transactionColumns: ColumnDef<Transaction>[] = [
 	{
 		id: 'select',
+		accessorKey: 'plaidId',
 		header: ({ table }) => (
 			<Checkbox
 				checked={

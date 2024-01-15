@@ -1,17 +1,14 @@
 import z from 'zod'
 import { initTRPC } from '@trpc/server'
 import { loadAccountsFromCSV, loadTransactionsFromCSV } from './loadCSV'
-import {
-	FetchTransactionsInput,
-	fetchTransactions,
-	hideTransaction,
-} from './models/transactions'
+import { fetchTransactions, hideTransaction } from './models/transactions'
 import { fetchAccounts, updateAccount } from './models/accounts'
 import {
 	PLAID_COUNTRY_CODES,
 	PLAID_PRODUCTS,
 	plaidClient,
 } from '../lib/plaid/client'
+import { TableStateInput } from '../../src/lib/useDataTable'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -22,7 +19,7 @@ const loggedProcedure = procedure.use(async ({ next, path, type }) => {
 
 export const router = t.router({
 	transactions: loggedProcedure
-		.input(FetchTransactionsInput)
+		.input(TableStateInput)
 		.query(async ({ input }) => {
 			return await fetchTransactions(input)
 		}),

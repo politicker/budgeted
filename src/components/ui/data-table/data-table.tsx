@@ -1,25 +1,9 @@
 'use client'
 
-import * as React from 'react'
-import {
-	ColumnDef,
-	ColumnFiltersState,
-	PaginationState,
-	RowSelectionState,
-	SortingState,
-	VisibilityState,
-	flexRender,
-	getCoreRowModel,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable,
-} from '@tanstack/react-table'
+import { Table, flexRender } from '@tanstack/react-table'
 
 import {
-	Table,
+	Table as UITable,
 	TableBody,
 	TableCell,
 	TableHead,
@@ -29,67 +13,17 @@ import {
 
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
-import { PagesType } from '@/components/Table'
-import { SetPaginationType } from '@/components/TablePage'
-import { DataTableSelectionOverlay } from './data-table-selection-overlay'
 
-interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[]
-	pageCount: number
-	pagination: PaginationState
-	pages: PagesType
-	data: TData[]
-	setPagination: SetPaginationType
+interface DataTableProps<TData> {
+	table: Table<TData>
 }
 
-export function DataTable<TData, TValue>({
-	columns,
-	data,
-	pageCount,
-	pagination,
-	setPagination,
-}: DataTableProps<TData, TValue>) {
-	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
-	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({})
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[],
-	)
-	const [sorting, setSorting] = React.useState<SortingState>([])
-
-	const table = useReactTable({
-		data,
-		columns,
-		manualPagination: true,
-		pageCount,
-		state: {
-			pagination,
-			sorting,
-			columnVisibility,
-			rowSelection,
-			columnFilters,
-		},
-		enableRowSelection: true,
-		// @ts-ignore
-		getRowId: (data) => data.plaidId,
-		onPaginationChange: setPagination,
-		onRowSelectionChange: setRowSelection,
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		onColumnVisibilityChange: setColumnVisibility,
-		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
-	})
-
+export function DataTable<TData>({ table }: DataTableProps<TData>) {
 	return (
 		<>
 			<DataTableToolbar table={table} />
 			<div className="rounded-md border overflow-auto mx-3 mb-3">
-				<Table>
+				<UITable>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
@@ -128,7 +62,7 @@ export function DataTable<TData, TValue>({
 						) : (
 							<TableRow>
 								<TableCell
-									colSpan={columns.length}
+									colSpan={table.getAllColumns().length}
 									className="h-24 text-center"
 								>
 									No results.
@@ -136,10 +70,7 @@ export function DataTable<TData, TValue>({
 							</TableRow>
 						)}
 					</TableBody>
-				</Table>
-				{Object.keys(rowSelection).length > 1 ? (
-					<DataTableSelectionOverlay table={table} key={Math.random()} />
-				) : null}
+				</UITable>
 			</div>
 
 			<DataTablePagination table={table} />

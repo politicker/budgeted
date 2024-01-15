@@ -1,39 +1,6 @@
-import { PagesType } from '@/components/Table'
 import { prisma } from '../prisma'
 import { z } from 'zod'
-
-export const FetchTransactionsInput = z.object({
-	sortColumn: z.union([
-		z.literal('date'),
-		z.literal('description'),
-		z.literal('amount'),
-		z.literal('balance'),
-	]),
-	sort: z.union([z.literal('asc'), z.literal('desc')]),
-	pageSize: z.number(),
-	pageIndex: z.number(),
-	rowSelection: z.record(z.string(), z.boolean()).optional(),
-	sorting: z
-		.array(
-			z.object({
-				id: z.string(),
-				desc: z.boolean(),
-			}),
-		)
-		.optional(),
-	selection: z.array(z.string()).optional(),
-	columnFilters: z
-		.array(
-			z.object({
-				id: z.string(),
-				value: z.string(),
-			}),
-		)
-		.optional(),
-	columnVisibility: z.record(z.string(), z.boolean()).optional(),
-	minDate: z.string().optional(),
-	showHidden: z.boolean().default(true),
-})
+import { TableStateInput } from '@/lib/useDataTable'
 
 export async function fetchTransactions({
 	sort,
@@ -42,7 +9,7 @@ export async function fetchTransactions({
 	pageSize,
 	minDate,
 	showHidden,
-}: z.infer<typeof FetchTransactionsInput>) {
+}: z.infer<typeof TableStateInput>) {
 	const [results, total] = await Promise.all([
 		prisma.transaction.findMany({
 			orderBy: {
@@ -60,26 +27,7 @@ export async function fetchTransactions({
 
 	const pageCount = Math.ceil(total / pageSize)
 
-	const page = pageIndex + 1
-
-	const startPage = Math.max(1, page - 3)
-	const endPage = Math.min(pageCount, page + 3)
-
-	const pages: PagesType = []
-
-	if (startPage !== 1) {
-		pages.unshift('...')
-	}
-
-	pages.push(
-		...Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i),
-	)
-
-	if (endPage !== pageCount) {
-		pages.push('...')
-	}
-
-	return { results, total, pageCount, pages }
+	return { results, total, pageCount }
 }
 
 export async function hideTransaction(plaidId: string) {
