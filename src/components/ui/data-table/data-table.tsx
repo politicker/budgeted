@@ -5,6 +5,7 @@ import {
 	ColumnDef,
 	ColumnFiltersState,
 	PaginationState,
+	RowSelectionState,
 	SortingState,
 	VisibilityState,
 	flexRender,
@@ -30,6 +31,7 @@ import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { PagesType } from '@/components/Table'
 import { SetPaginationType } from '@/components/TablePage'
+import { DataTableSelectionOverlay } from './data-table-selection-overlay'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
@@ -47,7 +49,7 @@ export function DataTable<TData, TValue>({
 	pagination,
 	setPagination,
 }: DataTableProps<TData, TValue>) {
-	const [rowSelection, setRowSelection] = React.useState({})
+	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({})
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -133,7 +135,11 @@ export function DataTable<TData, TValue>({
 						)}
 					</TableBody>
 				</Table>
+				{Object.keys(rowSelection).length > 1 ? (
+					<DataTableSelectionOverlay table={table} key={Math.random()} />
+				) : null}
 			</div>
+
 			<DataTablePagination table={table} />
 		</>
 	)
