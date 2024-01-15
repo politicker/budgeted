@@ -1,7 +1,12 @@
 import { useEffect } from 'react'
 import styles from './Root.module.css'
 import { Button } from './ui/button'
-import { BarChartIcon, TableIcon, IdCardIcon } from '@radix-ui/react-icons'
+import {
+	BarChartIcon,
+	TableIcon,
+	IdCardIcon,
+	GearIcon,
+} from '@radix-ui/react-icons'
 import { Link, Outlet } from 'react-router-dom'
 import { Page } from '@/lib/types'
 import { WindowControls } from './WindowControls'
@@ -25,23 +30,35 @@ export function Root() {
 				<WindowControls />
 
 				<div className="row-span-3 p-3 border-r text-center">
-					<Button variant="ghost" size="icon">
-						<Link to={Page.TABLE}>
-							<TableIcon />
-						</Link>
-					</Button>
+					<div className="flex flex-col justify-between h-full">
+						<div>
+							<Button variant="ghost" size="icon">
+								<Link to={Page.TABLE}>
+									<TableIcon />
+								</Link>
+							</Button>
 
-					<Button variant="ghost" size="icon" asChild>
-						<Link to={Page.CHART}>
-							<BarChartIcon />
-						</Link>
-					</Button>
+							<Button variant="ghost" size="icon" asChild>
+								<Link to={Page.CHART}>
+									<BarChartIcon />
+								</Link>
+							</Button>
 
-					<Button variant="ghost" size="icon" asChild>
-						<Link to={Page.ACCOUNTS}>
-							<IdCardIcon />
-						</Link>
-					</Button>
+							<Button variant="ghost" size="icon" asChild>
+								<Link to={Page.ACCOUNTS}>
+									<IdCardIcon />
+								</Link>
+							</Button>
+						</div>
+
+						<div>
+							<Button variant="ghost" size="icon" asChild>
+								<Link to={Page.SETTINGS}>
+									<GearIcon />
+								</Link>
+							</Button>
+						</div>
+					</div>
 				</div>
 
 				<Outlet />

@@ -9,6 +9,7 @@ import { TablePage } from './components/TablePage'
 import { ChartPage } from './components/ChartPage'
 import { Page } from './lib/types'
 import { AccountsPage } from './components/AccountsPage'
+import { SettingsPage } from './components/SettingsPage'
 
 export const router = createMemoryRouter(
 	createRoutesFromElements(
@@ -17,6 +18,7 @@ export const router = createMemoryRouter(
 			<Route path={Page.TABLE} element={<TablePage />} />
 			<Route path={Page.CHART} element={<ChartPage />} />
 			<Route path={Page.ACCOUNTS} element={<AccountsPage />} />
+			<Route path={Page.SETTINGS} element={<SettingsPage />} />
 		</Route>,
 	),
 )
