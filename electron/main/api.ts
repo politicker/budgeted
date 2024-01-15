@@ -11,7 +11,7 @@ import {
 	PLAID_COUNTRY_CODES,
 	PLAID_PRODUCTS,
 	plaidClient,
-} from '~electron/lib/plaid/plaid/client'
+} from '../lib/plaid/client'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
