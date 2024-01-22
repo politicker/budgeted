@@ -6,9 +6,10 @@ import { fetchAccounts, updateAccount } from './models/accounts'
 import {
 	PLAID_COUNTRY_CODES,
 	PLAID_PRODUCTS,
-	plaidClient,
+	createPlaidClient,
 } from '../lib/plaid/client'
 import { TableStateInput } from '../../src/lib/useDataTable'
+import { readConfig, updateConfig } from '../lib/config'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -56,26 +57,55 @@ export const router = t.router({
 			return await updateAccount(input.id, { name: input.name })
 		}),
 	plaidLinkToken: loggedProcedure.query(async () => {
-		const linkResponse = await plaidClient.linkTokenCreate({
-			user: {
-				client_user_id: 'user-id',
-			},
-			client_name: 'Plaid Quickstart',
-			products: PLAID_PRODUCTS,
-			country_codes: PLAID_COUNTRY_CODES,
-			language: 'en',
-		})
+		const config = readConfig()
+		const plaidClient = createPlaidClient(
+			config.plaid.clientId,
+			config.plaid.secret,
+		)
 
-		return linkResponse.data.link_token
+		try {
+			const linkResponse = await plaidClient.linkTokenCreate({
+				user: {
+					client_user_id: 'user-id',
+				},
+				client_name: 'Plaid Quickstart',
+				products: PLAID_PRODUCTS,
+				country_codes: PLAID_COUNTRY_CODES,
+				language: 'en',
+			})
+
+			console.log(linkResponse)
+			return linkResponse.data.link_token
+		} catch (e) {
+			console.error(e)
+		}
 	}),
 	setPlaidPublicToken: loggedProcedure
 		.input(z.string())
 		.mutation(async ({ input: publicToken }) => {
+			const config = readConfig()
+			const plaidClient = createPlaidClient(
+				config.plaid.clientId,
+				config.plaid.secret,
+			)
+
 			const tokenResponse = await plaidClient.itemPublicTokenExchange({
 				public_token: publicToken,
 			})
 
 			return tokenResponse.data
+		}),
+	setPlaidSecret: loggedProcedure
+		.input(z.string())
+		.mutation(({ input: secret }) => {
+			updateConfig({ plaid: { secret } })
+			return { success: true }
+		}),
+	setPlaidClientId: loggedProcedure
+		.input(z.string())
+		.mutation(({ input: clientId }) => {
+			updateConfig({ plaid: { clientId } })
+			return { success: true }
 		}),
 })
 
