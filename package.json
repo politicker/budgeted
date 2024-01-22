@@ -18,7 +18,8 @@
 		"dev": "vite",
 		"format": "prettier --write .",
 		"lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
-		"lint:unused": "eslint --cache --cache-location ./node_modules/.cache/eslint . --fix --rule 'unused-imports/no-unused-imports: \"error\"'"
+		"lint:unused": "eslint --cache --cache-location ./node_modules/.cache/eslint . --fix --rule 'unused-imports/no-unused-imports: \"error\"'",
+		"typecheck": "tsc --noEmit"
 	},
 	"author": "politicker",
 	"license": "MIT",
