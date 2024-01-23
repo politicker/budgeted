@@ -8,7 +8,7 @@ import { TableStateInput } from '../../src/lib/useDataTable'
 import { prisma } from './prisma'
 import { createConfig, setPlaidAccessToken } from './models/config'
 import { CountryCode } from 'plaid'
-import { FormSchema } from '@/components/SettingsPage'
+import { CreateConfigInput } from './api-inputs'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -122,7 +122,7 @@ export const router = t.router({
 			return tokenResponse.data
 		}),
 	createConfig: loggedProcedure
-		.input(FormSchema)
+		.input(CreateConfigInput)
 		.mutation(async ({ input }) => {
 			try {
 				await createConfig(input.plaidClientId, input.plaidSecret)

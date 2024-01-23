@@ -15,20 +15,16 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-
-export const FormSchema = z.object({
-	plaidClientId: z.string(),
-	plaidSecret: z.string(),
-})
+import { CreateConfigInput } from '~electron/main/api-inputs'
 
 export function SettingsPage() {
 	const { mutateAsync } = trpc.createConfig.useMutation({})
 
-	const form = useForm<z.infer<typeof FormSchema>>({
-		resolver: zodResolver(FormSchema),
+	const form = useForm<z.infer<typeof CreateConfigInput>>({
+		resolver: zodResolver(CreateConfigInput),
 	})
 
-	async function onSubmit(data: z.infer<typeof FormSchema>) {
+	async function onSubmit(data: z.infer<typeof CreateConfigInput>) {
 		const result = await mutateAsync({
 			plaidClientId: data.plaidClientId,
 			plaidSecret: data.plaidSecret,
