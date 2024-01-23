@@ -123,8 +123,13 @@ export const router = t.router({
 	createConfig: loggedProcedure
 		.input(z.object({ plaidSecret: z.string(), plaidClientId: z.string() }))
 		.mutation(async ({ input }) => {
-			await createConfig(input.plaidClientId, input.plaidSecret)
-			return { success: true }
+			try {
+				await createConfig(input.plaidClientId, input.plaidSecret)
+				return { success: true }
+			} catch (e) {
+				console.error(e)
+				return { success: false }
+			}
 		}),
 })
 

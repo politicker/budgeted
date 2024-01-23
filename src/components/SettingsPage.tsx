@@ -17,7 +17,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 
 export function SettingsPage() {
-	const { mutate /*, refetch*/ } = trpc.createConfig.useMutation({})
+	const { mutate, mutateAsync /*, refetch*/ } = trpc.createConfig.useMutation(
+		{},
+	)
 	const formSchema = z.object({
 		plaidClientId: z.string(),
 		plaidSecret: z.string(),
@@ -27,13 +29,17 @@ export function SettingsPage() {
 		resolver: zodResolver(formSchema),
 	})
 
-	function onSubmit(data: z.infer<typeof formSchema>) {
-		mutate({
+	async function onSubmit(data: z.infer<typeof formSchema>) {
+		const result = await mutateAsync({
 			plaidClientId: data.plaidClientId,
 			plaidSecret: data.plaidSecret,
 		})
 
-		toast.success('Settings saved')
+		if (result.success) {
+			toast.success('Settings saved')
+		} else {
+			toast.error('Error saving settings')
+		}
 	}
 
 	return (
