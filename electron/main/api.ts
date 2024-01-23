@@ -3,11 +3,7 @@ import { initTRPC } from '@trpc/server'
 import { loadAccountsFromCSV, loadTransactionsFromCSV } from './loadCSV'
 import { fetchTransactions, hideTransaction } from './models/transactions'
 import { fetchAccounts, updateAccount } from './models/accounts'
-import {
-	PLAID_COUNTRY_CODES,
-	PLAID_PRODUCTS,
-	createPlaidClient,
-} from '../lib/plaid/client'
+import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
 import { TableStateInput } from '../../src/lib/useDataTable'
 import { prisma } from './prisma'
 import { createConfig, setPlaidAccessToken } from './models/config'
@@ -108,14 +104,19 @@ export const router = t.router({
 				config.plaidSecret,
 			)
 
+			console.log('exchanging public token for access token')
 			const tokenResponse = await plaidClient.itemPublicTokenExchange({
 				public_token: publicToken,
 			})
 
-			await setPlaidAccessToken(
-				config.plaidClientId,
-				tokenResponse.data.access_token,
-			)
+			try {
+				await setPlaidAccessToken(
+					config.plaidClientId,
+					tokenResponse.data.access_token,
+				)
+			} catch (e) {
+				console.error(e)
+			}
 
 			return tokenResponse.data
 		}),
