@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Config {
+  plaidAccessToken String?
+  plaidClientId    String  @id
+  plaidSecret      String
+}
+
 model Transaction {
   plaidId         String   @id
   plaidAccountId  String
@@ -47,4 +53,5 @@ model Account {
   availableBalance Float?
   isoCurrencyCode  String
   transactions     Transaction[]
+  userId           Int?
 }

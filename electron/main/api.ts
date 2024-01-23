@@ -9,7 +9,8 @@ import {
 	createPlaidClient,
 } from '../lib/plaid/client'
 import { TableStateInput } from '../../src/lib/useDataTable'
-import { readConfig, updateConfig } from '../lib/config'
+import { prisma } from './prisma'
+import { createConfig, setPlaidAccessToken } from './models/config'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -56,11 +57,21 @@ export const router = t.router({
 		.mutation(async ({ input }) => {
 			return await updateAccount(input.id, { name: input.name })
 		}),
+
+	/**
+	 * Client hits this to initiate the Plaid link UI flow. The response from
+	 * this endpoint is the link token that the client uses to initialize the
+	 * Plaid link UI.
+	 */
 	plaidLinkToken: loggedProcedure.query(async () => {
-		const config = readConfig()
+		const config = await prisma.config.findFirst()
+		if (!config) {
+			throw new Error('Config not found')
+		}
+
 		const plaidClient = createPlaidClient(
-			config.plaid.clientId,
-			config.plaid.secret,
+			config.plaidClientId,
+			config.plaidSecret,
 		)
 
 		try {
@@ -80,31 +91,37 @@ export const router = t.router({
 			console.error(e)
 		}
 	}),
+
+	/**
+	 * Client hits this after the Plaid link UI flow is complete. The response
+	 * from this endpoint is the public token that the client uses to retrieve
+	 * the access token.
+	 */
 	setPlaidPublicToken: loggedProcedure
 		.input(z.string())
 		.mutation(async ({ input: publicToken }) => {
-			const config = readConfig()
+			const config = await prisma.config.findFirstOrThrow()
+
 			const plaidClient = createPlaidClient(
-				config.plaid.clientId,
-				config.plaid.secret,
+				config.plaidClientId,
+				config.plaidSecret,
 			)
 
 			const tokenResponse = await plaidClient.itemPublicTokenExchange({
 				public_token: publicToken,
 			})
 
+			await setPlaidAccessToken(
+				config.plaidClientId,
+				tokenResponse.data.access_token,
+			)
+
 			return tokenResponse.data
 		}),
-	setPlaidSecret: loggedProcedure
-		.input(z.string())
-		.mutation(({ input: secret }) => {
-			updateConfig({ plaid: { secret } })
-			return { success: true }
-		}),
-	setPlaidClientId: loggedProcedure
-		.input(z.string())
-		.mutation(({ input: clientId }) => {
-			updateConfig({ plaid: { clientId } })
+	createConfig: loggedProcedure
+		.input(z.object({ secret: z.string(), clientId: z.string() }))
+		.mutation(async ({ input }) => {
+			await createConfig(input.clientId, input.secret)
 			return { success: true }
 		}),
 })
