@@ -119,9 +119,9 @@ export const router = t.router({
 			return tokenResponse.data
 		}),
 	createConfig: loggedProcedure
-		.input(z.object({ secret: z.string(), clientId: z.string() }))
+		.input(z.object({ plaidSecret: z.string(), plaidClientId: z.string() }))
 		.mutation(async ({ input }) => {
-			await createConfig(input.clientId, input.secret)
+			await createConfig(input.plaidClientId, input.plaidSecret)
 			return { success: true }
 		}),
 })
