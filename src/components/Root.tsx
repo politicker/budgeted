@@ -10,6 +10,7 @@ import {
 import { Link, Outlet } from 'react-router-dom'
 import { Page } from '@/lib/types'
 import { WindowControls } from './WindowControls'
+import { Toaster } from './ui/sonner'
 
 export function Root() {
 	useEffect(() => {
@@ -62,6 +63,7 @@ export function Root() {
 				</div>
 
 				<Outlet />
+				<Toaster />
 			</section>
 		</>
 	)

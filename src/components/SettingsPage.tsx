@@ -14,6 +14,7 @@ import {
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
 
 export function SettingsPage() {
 	const { mutate /*, refetch*/ } = trpc.createConfig.useMutation({})
@@ -31,6 +32,8 @@ export function SettingsPage() {
 			plaidClientId: data.plaidClientId,
 			plaidSecret: data.plaidSecret,
 		})
+
+		toast.success('Settings saved')
 	}
 
 	return (
@@ -44,7 +47,7 @@ export function SettingsPage() {
 							<FormItem>
 								<FormLabel>Plaid Client ID</FormLabel>
 								<FormControl>
-									<Input placeholder="34534lkjjjkl345" {...field} />
+									<Input {...field} />
 								</FormControl>
 								<FormDescription>
 									The Plaid Client ID from the devtools dashboard
@@ -60,7 +63,7 @@ export function SettingsPage() {
 							<FormItem>
 								<FormLabel>Plaid Secret</FormLabel>
 								<FormControl>
-									<Input placeholder="plaid-secret" {...field} />
+									<Input {...field} />
 								</FormControl>
 								<FormDescription>
 									The Plaid Secret from the devtools dashboard
