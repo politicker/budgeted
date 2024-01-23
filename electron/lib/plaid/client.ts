@@ -17,7 +17,6 @@ export function createPlaidClient(clientId: string, secret: string) {
 		new Configuration({
 			basePath: PlaidEnvironments.sandbox,
 			baseOptions: {
-				products: PLAID_PRODUCTS,
 				headers: {
 					'PLAID-CLIENT-ID': clientId,
 					'PLAID-SECRET': secret,

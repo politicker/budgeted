@@ -11,6 +11,7 @@ import {
 import { TableStateInput } from '../../src/lib/useDataTable'
 import { prisma } from './prisma'
 import { createConfig, setPlaidAccessToken } from './models/config'
+import { CountryCode } from 'plaid'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -81,7 +82,7 @@ export const router = t.router({
 				},
 				client_name: 'Plaid Quickstart',
 				products: PLAID_PRODUCTS,
-				country_codes: PLAID_COUNTRY_CODES,
+				country_codes: [CountryCode.Us],
 				language: 'en',
 			})
 

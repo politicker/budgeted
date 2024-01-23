@@ -1,5 +1,6 @@
 import { trpc } from '@/lib/trpc'
 import { Input } from './ui/input'
+import { PlaidLinkPage } from './PlaidLinkPage'
 
 export function SettingsPage() {
 	const { mutate /*, refetch*/ } = trpc.createConfig.useMutation({})
@@ -20,14 +21,18 @@ export function SettingsPage() {
 	}
 
 	return (
-		<form onSubmit={onSubmit}>
-			<p>Plaid Client ID </p>
-			<Input type="text" name="plaidClientId" />
+		<>
+			<form onSubmit={onSubmit}>
+				<p>Plaid Client ID </p>
+				<Input type="text" name="plaidClientId" />
 
-			<p>Plaid Secret </p>
-			<Input type="text" name="plaidSecret" />
+				<p>Plaid Secret </p>
+				<Input type="text" name="plaidSecret" />
 
-			<button type="submit">Submit</button>
-		</form>
+				<button type="submit">Submit</button>
+			</form>
+
+			<PlaidLinkPage />
+		</>
 	)
 }
