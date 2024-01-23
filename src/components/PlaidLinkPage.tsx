@@ -6,6 +6,8 @@ export function PlaidLinkPage() {
 	const { mutate } = trpc.setPlaidPublicToken.useMutation({})
 
 	const onSuccess: PlaidLinkOnSuccess = function (publicToken) {
+		console.log('onsuccess plaid')
+		debugger
 		mutate(publicToken)
 	}
 
