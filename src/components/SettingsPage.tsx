@@ -16,20 +16,19 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 
+export const FormSchema = z.object({
+	plaidClientId: z.string(),
+	plaidSecret: z.string(),
+})
+
 export function SettingsPage() {
-	const { mutate, mutateAsync /*, refetch*/ } = trpc.createConfig.useMutation(
-		{},
-	)
-	const formSchema = z.object({
-		plaidClientId: z.string(),
-		plaidSecret: z.string(),
+	const { mutateAsync } = trpc.createConfig.useMutation({})
+
+	const form = useForm<z.infer<typeof FormSchema>>({
+		resolver: zodResolver(FormSchema),
 	})
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
-	})
-
-	async function onSubmit(data: z.infer<typeof formSchema>) {
+	async function onSubmit(data: z.infer<typeof FormSchema>) {
 		const result = await mutateAsync({
 			plaidClientId: data.plaidClientId,
 			plaidSecret: data.plaidSecret,
@@ -45,7 +44,10 @@ export function SettingsPage() {
 	return (
 		<div className="flex flex-col gap-12 p-8 w-1/2">
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+				<form
+					onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
+					className="space-y-8"
+				>
 					<FormField
 						control={form.control}
 						name="plaidClientId"
