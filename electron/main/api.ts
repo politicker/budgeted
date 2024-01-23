@@ -132,6 +132,9 @@ export const router = t.router({
 				return { success: false }
 			}
 		}),
+	config: loggedProcedure.query(async () => {
+		return await prisma.config.findFirst()
+	}),
 })
 
 export type AppRouter = typeof router
