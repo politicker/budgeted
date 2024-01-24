@@ -15,6 +15,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+
 import { CreateConfigInput } from '~electron/main/api-inputs'
 
 function SettingsForm({

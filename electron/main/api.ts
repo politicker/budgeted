@@ -83,7 +83,6 @@ export const router = t.router({
 				language: 'en',
 			})
 
-			console.log(linkResponse)
 			return linkResponse.data.link_token
 		} catch (e) {
 			console.error(e)
@@ -105,7 +104,6 @@ export const router = t.router({
 				config.plaidSecret,
 			)
 
-			console.log('exchanging public token for access token')
 			const tokenResponse = await plaidClient.itemPublicTokenExchange({
 				public_token: publicToken,
 			})
