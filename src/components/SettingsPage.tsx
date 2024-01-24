@@ -91,7 +91,7 @@ export function SettingsPage() {
 
 	return (
 		<div className="flex flex-col gap-12 p-8 w-1/2">
-			{data && <SettingsForm defaultValues={data} />}
+			<SettingsForm defaultValues={data || {}} />
 			<PlaidLinkButton />
 		</div>
 	)
