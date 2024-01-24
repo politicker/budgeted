@@ -1,6 +1,7 @@
-import { prisma } from '../prisma'
-import { z } from 'zod'
 import { TableStateInput } from '@/lib/useDataTable'
+import { z } from 'zod'
+import { prisma } from '../prisma'
+import { Prisma } from '@prisma/client'
 
 export async function fetchTransactions({
 	sort,
@@ -9,7 +10,21 @@ export async function fetchTransactions({
 	pageSize,
 	minDate,
 	showHidden,
+	columnFilters,
 }: z.infer<typeof TableStateInput>) {
+	const where: Prisma.TransactionWhereInput = {
+		date: { gte: minDate },
+		hidden: showHidden ? undefined : false,
+	}
+
+	if (columnFilters.length) {
+		where.OR = columnFilters.map((filter) => ({
+			[filter.id]: {
+				contains: filter.value as string,
+			},
+		}))
+	}
+
 	const [results, total] = await Promise.all([
 		prisma.transaction.findMany({
 			orderBy: {
@@ -17,12 +32,11 @@ export async function fetchTransactions({
 			},
 			take: pageSize === Infinity ? undefined : pageSize,
 			skip: pageIndex === 0 ? 0 : pageIndex * pageSize,
-			where: {
-				date: { gte: minDate },
-				hidden: showHidden ? undefined : false,
-			},
+			where,
 		}),
-		prisma.transaction.count(),
+		prisma.transaction.count({
+			where,
+		}),
 	])
 
 	const pageCount = Math.ceil(total / pageSize)

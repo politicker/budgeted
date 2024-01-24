@@ -103,6 +103,7 @@ export function useDataTable<TData>({
 		data,
 		columns,
 		manualPagination: true,
+		manualFiltering: true,
 		pageCount,
 		state: {
 			pagination: {
