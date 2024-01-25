@@ -15,7 +15,7 @@ export const PLAID_COUNTRY_CODES: CountryCode[] = []
 export function createPlaidClient(clientId: string, secret: string) {
 	return new PlaidApi(
 		new Configuration({
-			basePath: PlaidEnvironments.sandbox,
+			basePath: PlaidEnvironments.development,
 			baseOptions: {
 				headers: {
 					'PLAID-CLIENT-ID': clientId,

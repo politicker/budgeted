@@ -1,8 +1,8 @@
 import { trpc } from '@/lib/trpc'
-import { transactionColumns } from './columns'
-import { DataTable } from './ui/data-table/data-table'
+import { transactionColumns } from '../columns'
+import { DataTable } from '../ui/data-table/data-table'
 import { useDataTable, useDataTableInput } from '@/lib/useDataTable'
-import { SelectionOverlay } from './SelectionOverlay'
+import { SelectionOverlay } from '../SelectionOverlay'
 import { useEffect, useState } from 'react'
 import { Transaction } from '@prisma/client'
 

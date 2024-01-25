@@ -86,6 +86,7 @@ export const router = t.router({
 			return linkResponse.data.link_token
 		} catch (e) {
 			console.error(e)
+			return null
 		}
 	}),
 

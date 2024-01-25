@@ -5,12 +5,12 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from './ui/card'
+} from '../ui/card'
 import { trpc } from '@/lib/trpc'
 import { useRef, useState } from 'react'
 import { Pencil1Icon } from '@radix-ui/react-icons'
-import { Button } from './ui/button'
-import { InlineInput } from './ui/input'
+import { Button } from '../ui/button'
+import { InlineInput } from '../ui/input'
 
 export function AccountsPage() {
 	const { data, refetch } = trpc.accounts.useQuery()

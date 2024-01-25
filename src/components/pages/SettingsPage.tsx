@@ -1,7 +1,7 @@
 import { trpc } from '@/lib/trpc'
-import { Input } from './ui/input'
-import { PlaidLinkButton } from './PlaidLinkPage'
-import { Button } from './ui/button'
+import { Input } from '../ui/input'
+import { PlaidLinkButton } from '../PlaidLinkButton'
+import { Button } from '../ui/button'
 import {
 	Form,
 	FormControl,
@@ -10,7 +10,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from './ui/form'
+} from '../ui/form'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,6 +24,7 @@ function SettingsForm({
 	defaultValues: NonNullable<ReturnType<typeof trpc.config.useQuery>['data']>
 }) {
 	const { mutateAsync } = trpc.createConfig.useMutation({})
+	const { data: config } = trpc.config.useQuery()
 
 	const form = useForm<z.infer<typeof CreateConfigInput>>({
 		resolver: zodResolver(CreateConfigInput),
@@ -56,7 +57,7 @@ function SettingsForm({
 						<FormItem>
 							<FormLabel>Plaid Client ID</FormLabel>
 							<FormControl>
-								<Input {...field} />
+								<Input {...field} defaultValue={config?.plaidClientId} />
 							</FormControl>
 							<FormDescription>
 								The Plaid Client ID from the devtools dashboard
@@ -72,7 +73,7 @@ function SettingsForm({
 						<FormItem>
 							<FormLabel>Plaid Secret</FormLabel>
 							<FormControl>
-								<Input {...field} />
+								<Input {...field} defaultValue={config?.plaidSecret} />
 							</FormControl>
 							<FormDescription>
 								The Plaid Secret from the devtools dashboard

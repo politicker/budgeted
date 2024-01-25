@@ -10,8 +10,8 @@ import {
 } from 'victory'
 import { sub, add, format } from 'date-fns'
 import { Dialog, Transition } from '@headlessui/react'
-import { Button } from './ui/button'
-import { InlineInput } from './ui/input'
+import { Button } from '../ui/button'
+import { InlineInput } from '../ui/input'
 import { useLocalStorage } from '@/lib/useLocalStorage'
 import { z } from 'zod'
 import { colors } from '@/lib/colors'
@@ -56,6 +56,11 @@ export function ChartPage() {
 			pageSize: Infinity,
 			minDate,
 			showHidden: false,
+			rowSelection: {},
+			sorting: [],
+			selection: [],
+			columnFilters: [],
+			columnVisibility: {},
 		},
 		{
 			keepPreviousData: true,

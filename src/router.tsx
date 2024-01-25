@@ -5,11 +5,11 @@ import {
 	redirect,
 } from 'react-router-dom'
 import { Root } from './components/Root'
-import { TablePage } from './components/TablePage'
-import { ChartPage } from './components/ChartPage'
+import { TablePage } from './components/pages/TablePage'
+import { ChartPage } from './components/pages/ChartPage'
 import { Page } from './lib/types'
-import { AccountsPage } from './components/AccountsPage'
-import { SettingsPage } from './components/SettingsPage'
+import { AccountsPage } from './components/pages/AccountsPage'
+import { SettingsPage } from './components/pages/SettingsPage'
 
 export const router = createMemoryRouter(
 	createRoutesFromElements(
