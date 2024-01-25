@@ -24,7 +24,7 @@ function SettingsForm({
 	defaultValues: NonNullable<ReturnType<typeof trpc.config.useQuery>['data']>
 }) {
 	const { mutateAsync } = trpc.createConfig.useMutation({})
-	const { data: config } = trpc.config.useQuery()
+	const { data: config, status } = trpc.config.useQuery()
 
 	const form = useForm<z.infer<typeof CreateConfigInput>>({
 		resolver: zodResolver(CreateConfigInput),
@@ -45,46 +45,62 @@ function SettingsForm({
 	}
 
 	return (
-		<Form {...form}>
-			<form
-				onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
-				className="space-y-8"
-			>
-				<FormField
-					control={form.control}
-					name="plaidClientId"
-					render={({ field }) => (
+		status === 'success' && (
+			<Form {...form}>
+				<form
+					onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
+					className="space-y-8"
+				>
+					<FormField
+						control={form.control}
+						name="plaidClientId"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Plaid Client ID</FormLabel>
+								<FormControl>
+									<Input {...field} defaultValue={config?.plaidClientId} />
+								</FormControl>
+								<FormDescription>
+									The Plaid Client ID from the devtools dashboard
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="plaidSecret"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Plaid Secret</FormLabel>
+								<FormControl>
+									<Input {...field} defaultValue={config?.plaidSecret} />
+								</FormControl>
+								<FormDescription>
+									The Plaid Secret from the devtools dashboard
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					{config?.plaidAccessToken && (
 						<FormItem>
-							<FormLabel>Plaid Client ID</FormLabel>
+							<FormLabel>Plaid Access Token</FormLabel>
 							<FormControl>
-								<Input {...field} defaultValue={config?.plaidClientId} />
+								<Input value={config?.plaidAccessToken} disabled />
 							</FormControl>
 							<FormDescription>
-								The Plaid Client ID from the devtools dashboard
+								Your Plaid access token. Click the button below to generate a
+								new one.
 							</FormDescription>
-							<FormMessage />
 						</FormItem>
 					)}
-				/>
-				<FormField
-					control={form.control}
-					name="plaidSecret"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Plaid Secret</FormLabel>
-							<FormControl>
-								<Input {...field} defaultValue={config?.plaidSecret} />
-							</FormControl>
-							<FormDescription>
-								The Plaid Secret from the devtools dashboard
-							</FormDescription>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<Button type="submit">Submit</Button>
-			</form>
-		</Form>
+
+					<Button type="submit">Submit</Button>
+				</form>
+			</Form>
+		)
 	)
 }
 

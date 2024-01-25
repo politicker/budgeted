@@ -6,7 +6,6 @@ import { Button } from './ui/button'
 export function PlaidLinkButton() {
 	const { data } = trpc.plaidLinkToken.useQuery()
 	const { mutate } = trpc.setPlaidPublicToken.useMutation({})
-	console.log({ data })
 
 	const onSuccess: PlaidLinkOnSuccess = function (publicToken) {
 		mutate(publicToken)
@@ -27,7 +26,9 @@ export function PlaidLinkButton() {
 						borderRadius: 'initial',
 					}}
 				>
-					<Button>Link your bank account</Button>
+					<Button asChild>
+						<div>Link your bank account</div>
+					</Button>
 				</PlaidLink>
 			</div>
 		)

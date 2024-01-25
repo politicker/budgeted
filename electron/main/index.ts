@@ -31,8 +31,8 @@ nativeTheme.themeSource = 'dark'
 function createWindow() {
 	win = new BrowserWindow({
 		title: 'Budgeted',
-		height: 1200,
-		width: 1400,
+		height: 900,
+		width: 1000,
 		frame: false,
 		webPreferences: {
 			preload,
