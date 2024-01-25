@@ -2,13 +2,18 @@ import z from 'zod'
 import { initTRPC } from '@trpc/server'
 import { loadAccountsFromCSV, loadTransactionsFromCSV } from './loadCSV'
 import { fetchTransactions, hideTransaction } from './models/transactions'
-import { fetchAccounts, updateAccount } from './models/accounts'
+import {
+	fetchAccounts,
+	setPlaidAccessToken,
+	updateAccount,
+} from './models/accounts'
 import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
 import { TableStateInput } from '../../src/lib/useDataTable'
 import { prisma } from './prisma'
-import { createConfig, setPlaidAccessToken } from './models/config'
+import { createConfig } from './models/config'
 import { CountryCode } from 'plaid'
 import { CreateConfigInput } from './api-inputs'
+import { createInstitution } from './models/institutions'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -26,13 +31,11 @@ export const router = t.router({
 
 	rebuildTransactions: loggedProcedure.mutation(async () => {
 		try {
-			await loadAccountsFromCSV()
 		} catch (e) {
 			console.error('@trpc: error loading accounts', e)
 		}
 
 		try {
-			await loadTransactionsFromCSV()
 		} catch (e) {
 			console.error('@trpc: error loading transactions', e)
 		}
@@ -96,8 +99,23 @@ export const router = t.router({
 	 * the access token.
 	 */
 	setPlaidPublicToken: loggedProcedure
-		.input(z.string())
-		.mutation(async ({ input: publicToken }) => {
+		.input(
+			z.object({
+				publicToken: z.string(),
+				institutionName: z.string(),
+				institutionId: z.string(),
+				accounts: z.array(
+					z.object({
+						id: z.string(),
+						name: z.string(),
+						mask: z.string(),
+						type: z.string(),
+						subtype: z.string(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ input }) => {
 			const config = await prisma.config.findFirstOrThrow()
 
 			const plaidClient = createPlaidClient(
@@ -106,8 +124,24 @@ export const router = t.router({
 			)
 
 			const tokenResponse = await plaidClient.itemPublicTokenExchange({
-				public_token: publicToken,
+				public_token: input.publicToken,
 			})
+
+			await createInstitution({
+				plaidId: input.institutionId,
+				name: input.institutionName,
+				plaidAccessToken: tokenResponse.data.access_token,
+			})
+
+			for (const account of input.accounts) {
+				await updateAccount({
+					plaidId: account.id,
+					name: account.name,
+					mask: account.mask,
+					type: account.type,
+					subtype: account.subtype,
+				})
+			}
 
 			try {
 				await setPlaidAccessToken(
