@@ -8,17 +8,3 @@ export async function createConfig(clientId: string, secret: string) {
 		},
 	})
 }
-
-export async function setPlaidAccessToken(
-	clientId: string,
-	accessToken: string,
-) {
-	await prisma.config.update({
-		where: {
-			plaidClientId: clientId,
-		},
-		data: {
-			plaidAccessToken: accessToken,
-		},
-	})
-}
