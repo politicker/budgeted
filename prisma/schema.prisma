@@ -11,8 +11,14 @@ datasource db {
 }
 
 model Config {
-  plaidClientId    String  @id
-  plaidSecret      String
+  plaidClientId String @id
+  plaidSecret   String
+}
+
+model Institution {
+  plaidId          String @id
+  name             String
+  plaidAccessToken String
 }
 
 model Transaction {
@@ -42,16 +48,14 @@ model Transaction {
 
 model Account {
   plaidId          String        @id
-  plaidItemId      String
+  plaidItemId      String?
   name             String
-  officialName     String
+  officialName     String?
   subtype          String
   type             String
   mask             String
   currentBalance   Float?
   availableBalance Float?
-  isoCurrencyCode  String
+  isoCurrencyCode  String?
   transactions     Transaction[]
-  userId           Int?
-  plaidAccessToken String
 }
