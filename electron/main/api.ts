@@ -131,7 +131,8 @@ export const router = t.router({
 				where: { plaidId: input.institutionId },
 			})
 			if (instExists > 0) {
-				throw new Error('Institution already linked')
+				return { success: false }
+				// throw new Error('Institution already linked')
 			}
 
 			const config = await prisma.config.findFirstOrThrow()
@@ -170,7 +171,7 @@ export const router = t.router({
 				console.error(e)
 			}
 
-			return tokenResponse.data
+			return { success: true }
 		}),
 	createConfig: loggedProcedure
 		.input(CreateConfigInput)

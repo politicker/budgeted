@@ -5,7 +5,7 @@ import { Button } from './ui/button'
 
 export function PlaidLinkButton() {
 	const { data } = trpc.plaidLinkToken.useQuery()
-	const { mutate } = trpc.setPlaidPublicToken.useMutation({})
+	const { mutateAsync } = trpc.setPlaidPublicToken.useMutation({})
 
 	const onSuccess: PlaidLinkOnSuccess = function (publicToken, metadata) {
 		const { institution } = metadata
@@ -13,13 +13,22 @@ export function PlaidLinkButton() {
 			return
 		}
 
-		mutate({
+		mutateAsync({
 			publicToken,
 			institutionName: institution.name,
 			institutionId: institution.institution_id,
 			accounts: metadata.accounts,
 		})
-		toast.success('Bank account linked')
+			.then((result) => {
+				if (result.success) {
+					toast.success('Bank account linked')
+				} else {
+					toast.error('Failed to link account')
+				}
+			})
+			.catch(() => {
+				toast.error('Something went wrong. Please try again')
+			})
 	}
 
 	return (
