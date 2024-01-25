@@ -1,10 +1,16 @@
 import { prisma } from '../prisma'
 
-export async function createConfig(clientId: string, secret: string) {
-	await prisma.config.create({
-		data: {
+export async function upsertConfig(clientId: string, secret: string) {
+	const payload = {
+		plaidClientId: clientId,
+		plaidSecret: secret,
+	}
+
+	await prisma.config.upsert({
+		where: {
 			plaidClientId: clientId,
-			plaidSecret: secret,
 		},
+		create: payload,
+		update: payload,
 	})
 }

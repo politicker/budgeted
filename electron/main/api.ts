@@ -1,8 +1,8 @@
 import z from 'zod'
 import { initTRPC } from '@trpc/server'
-import { loadAccountsFromCSV, loadTransactionsFromCSV } from './loadCSV'
 import { fetchTransactions, hideTransaction } from './models/transactions'
 import {
+	createAccount,
 	fetchAccounts,
 	setPlaidAccessToken,
 	updateAccount,
@@ -10,7 +10,7 @@ import {
 import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
 import { TableStateInput } from '../../src/lib/useDataTable'
 import { prisma } from './prisma'
-import { createConfig } from './models/config'
+import { upsertConfig } from './models/config'
 import { CountryCode } from 'plaid'
 import { CreateConfigInput } from './api-inputs'
 import { createInstitution } from './models/institutions'
@@ -29,7 +29,7 @@ export const router = t.router({
 			return await fetchTransactions(input)
 		}),
 
-	rebuildTransactions: loggedProcedure.mutation(async () => {
+	rebuildTransactions: loggedProcedure.mutation(() => {
 		try {
 		} catch (e) {
 			console.error('@trpc: error loading accounts', e)
@@ -80,7 +80,7 @@ export const router = t.router({
 				user: {
 					client_user_id: 'user-id',
 				},
-				client_name: 'Plaid Quickstart',
+				client_name: 'Budgeted',
 				products: PLAID_PRODUCTS,
 				country_codes: [CountryCode.Us],
 				language: 'en',
@@ -134,7 +134,7 @@ export const router = t.router({
 			})
 
 			for (const account of input.accounts) {
-				await updateAccount({
+				await createAccount({
 					plaidId: account.id,
 					name: account.name,
 					mask: account.mask,
@@ -158,7 +158,7 @@ export const router = t.router({
 		.input(CreateConfigInput)
 		.mutation(async ({ input }) => {
 			try {
-				await createConfig(input.plaidClientId, input.plaidSecret)
+				await upsertConfig(input.plaidClientId, input.plaidSecret)
 				return { success: true }
 			} catch (e) {
 				console.error(e)
