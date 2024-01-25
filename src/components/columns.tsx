@@ -99,8 +99,8 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 		cell: ({ row }) => {
 			return (
 				<div className="flex space-x-1">
-					{row.original.category.split(',').map((category) => (
-						<Badge variant="outline">
+					{row.original.category.split(',').map((category, idx) => (
+						<Badge variant="outline" key={idx}>
 							<span>{category}</span>
 						</Badge>
 					))}
