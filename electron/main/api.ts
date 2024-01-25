@@ -70,8 +70,6 @@ export const router = t.router({
 			throw new Error('Config not found')
 		}
 
-		const institutions = await prisma.institution.findMany()
-
 		const plaidClient = createPlaidClient(
 			config.plaidClientId,
 			config.plaidSecret,
@@ -88,7 +86,7 @@ export const router = t.router({
 				language: 'en',
 			})
 
-			return { token: linkResponse.data.link_token, institutions }
+			return { token: linkResponse.data.link_token }
 		} catch (e) {
 			console.error(e)
 			return null
@@ -124,6 +122,20 @@ export const router = t.router({
 				config.plaidClientId,
 				config.plaidSecret,
 			)
+
+			// TODO: Do we need to dig into accounts too?
+			// I think we can push the user to the update flow
+			// if they try to link an account that's already linked.
+			// Maybe they'd do that if they want to add more bank accounts to an already-linked
+			// institution.
+
+			// Example: https://github.com/plaid/pattern/blob/master/server/routes/items.js#L41-L49
+			const instExists = await prisma.institution.count({
+				where: { plaidId: input.institutionId },
+			})
+			if (instExists) {
+				throw new Error('Institution already linked')
+			}
 
 			const tokenResponse = await plaidClient.itemPublicTokenExchange({
 				public_token: input.publicToken,
