@@ -7,8 +7,18 @@ export function PlaidLinkButton() {
 	const { data } = trpc.plaidLinkToken.useQuery()
 	const { mutate } = trpc.setPlaidPublicToken.useMutation({})
 
-	const onSuccess: PlaidLinkOnSuccess = function (publicToken) {
-		mutate(publicToken)
+	const onSuccess: PlaidLinkOnSuccess = function (publicToken, metadata) {
+		const { institution } = metadata
+		if (!institution) {
+			return
+		}
+
+		mutate({
+			publicToken,
+			institutionName: institution.name,
+			institutionId: institution.institution_id,
+			accounts: metadata.accounts,
+		})
 		toast.success('Bank account linked')
 	}
 
