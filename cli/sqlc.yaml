@@ -1,12 +1,9 @@
 version: "2"
 sql:
-  - engine: "postgresql"
+  - engine: "sqlite"
     queries: "internal/db/query.sql"
     schema: "internal/db/schema.sql"
-    database:
-      uri: "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
     gen:
       go:
         package: "db"
         out: "internal/db"
-        sql_package: "pgx/v5"

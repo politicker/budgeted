@@ -1,0 +1,5 @@
+schema:
+    sqlite3 ~/.config/budgeted/db.sqlite '.schema' > internal/db/schema.sql
+
+gen:
+    sqlc generate
