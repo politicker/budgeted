@@ -132,7 +132,6 @@ export const router = t.router({
 			})
 			if (instExists > 0) {
 				return { success: false }
-				// throw new Error('Institution already linked')
 			}
 
 			const config = await prisma.config.findFirstOrThrow()
