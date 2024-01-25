@@ -130,7 +130,7 @@ export const router = t.router({
 			const instExists = await prisma.institution.count({
 				where: { plaidId: input.institutionId },
 			})
-			if (instExists) {
+			if (instExists > 0) {
 				throw new Error('Institution already linked')
 			}
 
