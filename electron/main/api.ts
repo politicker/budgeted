@@ -1,19 +1,19 @@
-import z from 'zod'
 import { initTRPC } from '@trpc/server'
-import { fetchTransactions, hideTransaction } from './models/transactions'
+import { CountryCode } from 'plaid'
+import z from 'zod'
+import { TableStateInput } from '../../src/lib/useDataTable'
+import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
+import { CreateConfigInput } from './api-inputs'
 import {
 	createAccount,
 	fetchAccounts,
 	setPlaidAccessToken,
 	updateAccount,
 } from './models/accounts'
-import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
-import { TableStateInput } from '../../src/lib/useDataTable'
-import { prisma } from './prisma'
 import { upsertConfig } from './models/config'
-import { CountryCode } from 'plaid'
-import { CreateConfigInput } from './api-inputs'
 import { createInstitution } from './models/institutions'
+import { fetchTransactions, hideTransaction } from './models/transactions'
+import { prisma } from './prisma'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
