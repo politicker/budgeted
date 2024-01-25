@@ -116,13 +116,6 @@ export const router = t.router({
 			}),
 		)
 		.mutation(async ({ input }) => {
-			const config = await prisma.config.findFirstOrThrow()
-
-			const plaidClient = createPlaidClient(
-				config.plaidClientId,
-				config.plaidSecret,
-			)
-
 			// TODO: Do we need to dig into accounts too?
 			// I think we can push the user to the update flow
 			// if they try to link an account that's already linked.
@@ -130,12 +123,23 @@ export const router = t.router({
 			// institution.
 
 			// Example: https://github.com/plaid/pattern/blob/master/server/routes/items.js#L41-L49
+
+			/**
+			 * Check if the institution is already linked.
+			 */
 			const instExists = await prisma.institution.count({
 				where: { plaidId: input.institutionId },
 			})
 			if (instExists) {
 				throw new Error('Institution already linked')
 			}
+
+			const config = await prisma.config.findFirstOrThrow()
+
+			const plaidClient = createPlaidClient(
+				config.plaidClientId,
+				config.plaidSecret,
+			)
 
 			const tokenResponse = await plaidClient.itemPublicTokenExchange({
 				public_token: input.publicToken,
