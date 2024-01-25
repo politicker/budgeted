@@ -49,6 +49,7 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 	}
 
 	command.PersistentFlags().Bool("sandbox", false, "Use sandbox credentials")
+	command.PersistentFlags().BoolP("force", "f", false, "Force overwrite of existing data")
 
 	return &command
 }

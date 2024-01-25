@@ -31,12 +31,19 @@ func (pc *APIClient) LoadTransactions(ctx context.Context) error {
 			request.SetCursor(cursor)
 		}
 
-		resp, raw, err := pc.PlaidApi.TransactionsSync(
-			pc.ctx,
-		).TransactionsSyncRequest(*request).Execute()
+		resp, raw, err := pc.PlaidApi.
+			TransactionsSync(pc.ctx).
+			TransactionsSyncRequest(*request).
+			Execute()
 
 		if err != nil {
 			if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
+				if plaidErr.ErrorMessage == "cursor not associated with access_token" {
+					log.Println("Access token changed. Restarting sync.")
+					cursor = ""
+					continue
+				}
+
 				return errors.New(plaidErr.GetErrorMessage())
 			} else {
 				return err

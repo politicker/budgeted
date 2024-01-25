@@ -32,7 +32,7 @@ function createWindow() {
 	win = new BrowserWindow({
 		title: 'Budgeted',
 		height: 900,
-		width: 1000,
+		width: 1200,
 		frame: false,
 		webPreferences: {
 			preload,

@@ -3,7 +3,11 @@ package cmdutil
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"log"
 	"os"
+	"path"
+	"path/filepath"
 
 	"go.uber.org/zap"
 
@@ -42,4 +46,37 @@ func NewRedisConnection(ctx context.Context) *redis.Client {
 	})
 
 	return rdb
+}
+
+func Dirs() (string, string, error) {
+	jsonStorage := filepath.Join(os.Getenv("HOME"), ".config/budgeted/json")
+	info, err := os.Stat(jsonStorage)
+	if os.IsNotExist(err) {
+		log.Println("creating json storage directory", jsonStorage)
+		if err := os.MkdirAll(path.Join(jsonStorage, "transactions"), 0755); err != nil {
+			return "", "", err
+		}
+		if err := os.MkdirAll(path.Join(jsonStorage, "accounts"), 0755); err != nil {
+			return "", "", err
+		}
+	} else if err != nil {
+		return "", "", err
+	} else if !info.IsDir() {
+		return "", "", errors.New("json storage is not a directory")
+	}
+
+	csvStorage := filepath.Join(os.Getenv("HOME"), ".config/budgeted/csv")
+	info, err = os.Stat(csvStorage)
+	if os.IsNotExist(err) {
+		log.Println("creating csv storage directory", jsonStorage)
+		if err := os.MkdirAll(csvStorage, 0755); err != nil {
+			return "", "", err
+		}
+	} else if err != nil {
+		return "", "", err
+	} else if !info.IsDir() {
+		return "", "", errors.New("csv storage is not a directory")
+	}
+
+	return jsonStorage, csvStorage, nil
 }

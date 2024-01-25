@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/plaid/plaid-go/v20/plaid"
+	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/politicker/budgeted/internal/db"
 )
 
@@ -44,22 +43,9 @@ func NewClientFromConfig(ctx context.Context, isSandbox bool, queries *db.Querie
 		return nil, errors.New("Config.PlaidAccessToken is empty")
 	}
 
-	jsonStorage := filepath.Join(os.Getenv("HOME"), ".config/budgeted/json")
-
-	info, err := os.Stat(jsonStorage)
-
-	if os.IsNotExist(err) {
-		log.Println("creating json storage directory", jsonStorage)
-		if err := os.MkdirAll(path.Join(jsonStorage, "transactions"), 0755); err != nil {
-			return nil, err
-		}
-		if err := os.MkdirAll(path.Join(jsonStorage, "accounts"), 0755); err != nil {
-			return nil, err
-		}
-	} else if err != nil {
+	jsonStorage, _, err := cmdutil.Dirs()
+	if err != nil {
 		return nil, err
-	} else if !info.IsDir() {
-		return nil, errors.New("json storage is not a directory")
 	}
 
 	return newClient(ctx, clientID, secret, accessToken, jsonStorage, isSandbox)
