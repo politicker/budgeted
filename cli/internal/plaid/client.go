@@ -7,10 +7,10 @@ import (
 	"log"
 	"os"
 	"path"
-
-	"github.com/spf13/viper"
+	"path/filepath"
 
 	"github.com/plaid/plaid-go/v20/plaid"
+	"github.com/politicker/budgeted/internal/db"
 )
 
 type APIClient struct {
@@ -25,33 +25,26 @@ func UseSandbox() bool {
 	return true
 }
 
-func NewClientFromConfig(ctx context.Context, isSandbox bool) (*APIClient, error) {
-	clientID := viper.GetString("plaid.client_id")
-	if clientID == "" {
-		return nil, errors.New("plaid.client_id is not set")
+func NewClientFromConfig(ctx context.Context, isSandbox bool, queries *db.Queries) (*APIClient, error) {
+	config, err := queries.ConfigGet(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	secret := viper.GetString("plaid.secret")
-	if isSandbox {
-		sandboxSecret := viper.GetString("plaid.sandbox_secret")
-		if sandboxSecret == "" {
-			return nil, errors.New("plaid.sandbox_secret is not set")
-		}
-		secret = sandboxSecret
+	clientID := config.PlaidClientId
+	secret := config.PlaidSecret
+	accessToken := config.PlaidAccessToken.String
+	if clientID == "" {
+		return nil, errors.New("Config.PlaidClientId id is empty")
 	}
 	if secret == "" {
-		return nil, errors.New("plaid.secret is not set")
+		return nil, errors.New("Config.PlaidSecret is empty")
 	}
-
-	accessToken := viper.GetString("plaid.access_token")
 	if accessToken == "" {
-		return nil, errors.New("plaid.access_token is not set")
+		return nil, errors.New("Config.PlaidAccessToken is empty")
 	}
 
-	jsonStorage := viper.GetString("storage.json")
-	if jsonStorage == "" {
-		return nil, errors.New("storage.json is not set")
-	}
+	jsonStorage := filepath.Join(os.Getenv("HOME"), ".config/budgeted/json")
 
 	info, err := os.Stat(jsonStorage)
 

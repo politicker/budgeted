@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
+	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
+	"github.com/politicker/budgeted/internal/db"
 	"github.com/politicker/budgeted/internal/plaid"
 	"github.com/spf13/cobra"
 )
@@ -18,7 +22,14 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 				return err
 			}
 
-			pc, err := plaid.NewClientFromConfig(ctx, isSandBox)
+			driver, err := sql.Open("sqlite3", filepath.Join(os.Getenv("HOME"), ".config", "budgeted", "db.sqlite"))
+			if err != nil {
+				return err
+			}
+
+			queries := db.New(driver)
+
+			pc, err := plaid.NewClientFromConfig(ctx, isSandBox, queries)
 			if err != nil {
 				return err
 			}

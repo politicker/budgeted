@@ -3,258 +3,151 @@ package csv
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/gocarina/gocsv"
-	"github.com/plaid/plaid-go/v20/plaid"
+	"github.com/pkg/errors"
+	"github.com/politicker/budgeted/internal/db"
 )
 
-type MyNullFloat64 struct {
-	sql.NullFloat64
-}
+func LoadTransactions(ctx context.Context, queries *db.Queries) error {
+	cache := make(map[string]string)
 
-func (f *MyNullFloat64) MarshalCSV() (string, error) {
-	if f.Valid {
-		return fmt.Sprintf("%f", f.Float64), nil
-	} else {
-		return "", nil
-	}
-}
+	// Walk cache directory
+	err := filepath.WalkDir(
+		path.Join("public", "cache"),
+		func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
 
-func (f *MyNullFloat64) UnmarshalCSV(csv string) (err error) {
-	if csv == "" {
-		f.Valid = false
-		return nil
-	}
+			if d.IsDir() {
+				return nil
+			}
 
-	if n, err := strconv.ParseFloat(csv, 64); err == nil {
-		f.Float64 = n
-		f.Valid = true
-		return nil
-	}
+			cache[d.Name()] = "cached"
+			return nil
+		})
 
-	return err
-}
-
-func NullableFloat64FromPtr(n *float64) MyNullFloat64 {
-	f := MyNullFloat64{}
-	if n == nil {
-		f.Valid = false
-		return f
+	if err != nil {
+		return errors.Wrap(err, "failed to read cache directory")
 	}
 
-	f.Float64 = *n
-	f.Valid = true
-
-	return f
-}
-
-type Transaction struct {
-	PlaidID         string        `csv:"plaidId"`
-	PlaidAccountID  string        `csv:"plaidAccountId"`
-	Date            string        `csv:"date"`
-	Name            string        `csv:"name"`
-	Amount          float64       `csv:"amount"`
-	Category        string        `csv:"category"`
-	CheckNumber     string        `csv:"checkNumber"`
-	CategoryIconURL string        `csv:"categoryIconUrl"`
-	LogoURL         string        `csv:"logoUrl"`
-	PaymentChannel  string        `csv:"paymentChannel"`
-	MerchantName    string        `csv:"merchantName"`
-	Address         string        `csv:"address"`
-	City            string        `csv:"city"`
-	State           string        `csv:"state"`
-	Lat             MyNullFloat64 `csv:"lat"`
-	Lon             MyNullFloat64 `csv:"lon"`
-	PostalCode      string        `csv:"postalCode"`
-}
-
-type Account struct {
-	PlaidID          string               `csv:"plaidId"`
-	AvailableBalance float64              `csv:"availableBalance"`
-	CurrentBalance   float64              `csv:"currentBalance"`
-	ISOCurrencyCode  string               `csv:"isoCurrencyCode"`
-	Limit            float64              `csv:"limit"`
-	Mask             string               `csv:"mask"`
-	Name             string               `csv:"name"`
-	OfficialName     string               `csv:"officialName"`
-	Subtype          plaid.AccountSubtype `csv:"subtype"`
-	Type             plaid.AccountType    `csv:"type"`
-	PlaidItemID      string               `csv:"plaidItemId"`
-}
-
-func LoadTransactions(ctx context.Context, jsonStorage string, csvStorage string) error {
-	var added []plaid.Transaction
-	var deleted []plaid.RemovedTransaction
-	var modified []plaid.Transaction
-	transactionsByID := make(map[string]plaid.Transaction)
-	transactionsByDate := make(map[string][]plaid.Transaction)
-	transactionsPath := fmt.Sprintf("%s/transactions", jsonStorage)
-
-	err := filepath.WalkDir(transactionsPath, func(path string, d os.DirEntry, err error) error {
+	// Walk CSV directory
+	err = filepath.WalkDir(path.Join(os.Getenv("HOME"), ".config", "budgeted", "csv"), func(fp string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-
 		if d.IsDir() {
 			return nil
 		}
 
-		log.Println("loading", d.Name())
+		if strings.HasSuffix(fp, "accounts.csv") {
+			return nil
+		}
 
-		bytes, err := os.ReadFile(path)
+		fmt.Println("fp", fp)
+
+		data, err := os.Open(fp)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed to read file: %s", fp)
 		}
 
-		syncResponse := plaid.TransactionsSyncResponse{}
-		if err := json.Unmarshal(bytes, &syncResponse); err != nil {
-			return err
+		var transactions []Transaction
+		if err := gocsv.Unmarshal(data, &transactions); err != nil {
+			return errors.Wrapf(err, "failed to parse CSV file: %s", fp)
 		}
 
-		added = append(added, syncResponse.GetAdded()...)
-		deleted = append(deleted, syncResponse.GetRemoved()...)
-		modified = append(modified, syncResponse.GetModified()...)
+		for _, transaction := range transactions {
+			var (
+				categoryIconURL = transaction.CategoryIconURL
+				logoURL         = transaction.LogoURL
+			)
+
+			if categoryIconURL != "" {
+				categoryIconURL, err = cacheFile(cache, categoryIconURL)
+				if err != nil {
+					return err
+				}
+			}
+
+			if logoURL != "" {
+				logoURL, err = cacheFile(cache, logoURL)
+				if err != nil {
+					return err
+				}
+			}
+
+			err = queries.TransactionCreate(ctx, db.TransactionCreateParams{
+				PlaidId:         transaction.PlaidID,
+				PlaidAccountId:  transaction.PlaidAccountID,
+				Date:            transaction.Date,
+				Name:            transaction.Name,
+				Amount:          transaction.Amount,
+				Category:        transaction.Category,
+				CheckNumber:     transaction.CheckNumber,
+				CategoryIconUrl: categoryIconURL,
+				LogoUrl:         logoURL,
+				PaymentChannel:  transaction.PaymentChannel,
+				MerchantName:    transaction.MerchantName,
+				Address:         transaction.Address,
+				City:            transaction.City,
+				State:           transaction.State,
+				Lat:             transaction.Lat.NullFloat64,
+				Lon:             transaction.Lon.NullFloat64,
+				PostalCode:      transaction.PostalCode,
+			})
+			if err != nil {
+				return err
+			}
+		}
 
 		return nil
 	})
+
 	if err != nil {
-		return err
-	}
-
-	for _, transaction := range added {
-		log.Println("adding", transaction.GetTransactionId())
-		transactionsByID[transaction.GetTransactionId()] = transaction
-	}
-
-	for _, transaction := range modified {
-		log.Println("modifying", transaction.GetTransactionId())
-		transactionsByID[transaction.GetTransactionId()] = transaction
-	}
-
-	for _, transaction := range deleted {
-		log.Println("deleting", transaction.GetTransactionId())
-		delete(transactionsByID, transaction.GetTransactionId())
-	}
-
-	for _, transaction := range transactionsByID {
-		date := transaction.GetDate()
-		transactionsByDate[date] = append(transactionsByDate[date], transaction)
-	}
-
-	for date, transactions := range transactionsByDate {
-		filePath := filepath.Join(csvStorage, strings.Join(strings.Split(date, "-"), "/")+".csv")
-		log.Println("writing", filePath)
-		var transactionsCSV []Transaction
-
-		for _, transaction := range transactions {
-			location := transaction.GetLocation()
-
-			locLat, _ := location.GetLatOk()
-			lat := NullableFloat64FromPtr(locLat)
-
-			locLon, _ := location.GetLonOk()
-			lon := NullableFloat64FromPtr(locLon)
-
-			transactionsCSV = append(transactionsCSV, Transaction{
-				PlaidID:         transaction.GetTransactionId(),
-				PlaidAccountID:  transaction.GetAccountId(),
-				Date:            transaction.GetDate(),
-				Name:            transaction.GetName(),
-				Amount:          transaction.GetAmount(),
-				Category:        strings.Join(transaction.GetCategory(), ","),
-				CheckNumber:     transaction.GetCheckNumber(),
-				CategoryIconURL: transaction.GetPersonalFinanceCategoryIconUrl(),
-				LogoURL:         transaction.GetLogoUrl(),
-				PaymentChannel:  transaction.GetPaymentChannel(),
-				MerchantName:    transaction.GetMerchantName(),
-				Address:         location.GetAddress(),
-				City:            location.GetCity(),
-				State:           location.GetRegion(),
-				Lat:             lat,
-				Lon:             lon,
-				PostalCode:      location.GetPostalCode(),
-			})
-		}
-
-		csvContent, err := gocsv.MarshalString(&transactionsCSV)
-		if err != nil {
-			return err
-		}
-
-		if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
-			return err
-		}
-
-		if err := os.WriteFile(filePath, []byte(csvContent), 0644); err != nil {
-			return err
-		}
+		return errors.Wrap(err, "failed to read CSV directory")
 	}
 
 	return nil
 }
 
-func LoadAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
-	var accountsCSV []Account
-	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
+func LoadAccounts(ctx context.Context, queries *db.Queries) error {
+	csvFile := path.Join(os.Getenv("HOME"), ".config", "budgeted", "csv", "accounts.csv")
+	data, err := os.Open(csvFile)
+	if err != nil {
+		return errors.Wrapf(err, "failed to read file: %s", csvFile)
+	}
 
-	err := filepath.WalkDir(accountsPath, func(path string, d os.DirEntry, err error) error {
+	var accounts []Account
+	if err := gocsv.Unmarshal(data, &accounts); err != nil {
+		return errors.Wrapf(err, "failed to parse CSV file: %s", csvFile)
+	}
+
+	for _, account := range accounts {
+		err = queries.AccountCreate(ctx, db.AccountCreateParams{
+			PlaidId:          account.PlaidID,
+			PlaidItemId:      account.PlaidItemID,
+			Name:             account.Name,
+			OfficialName:     account.OfficialName,
+			Subtype:          string(account.Subtype),
+			Type:             string(account.Type),
+			Mask:             account.Mask,
+			AvailableBalance: sql.NullFloat64{Float64: account.CurrentBalance, Valid: true},
+			CurrentBalance:   sql.NullFloat64{Float64: account.CurrentBalance, Valid: true},
+			IsoCurrencyCode:  account.ISOCurrencyCode,
+		})
 		if err != nil {
 			return err
 		}
 
-		if d.IsDir() {
-			return nil
-		}
-
-		bytes, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		response := plaid.AccountsGetResponse{}
-		if err = json.Unmarshal(bytes, &response); err != nil {
-			return err
-		}
-
-		for _, account := range response.GetAccounts() {
-			balance := account.GetBalances()
-			item := response.GetItem()
-
-			accountsCSV = append(accountsCSV, Account{
-				PlaidID:          account.GetAccountId(),
-				AvailableBalance: balance.GetAvailable(),
-				CurrentBalance:   balance.GetCurrent(),
-				ISOCurrencyCode:  balance.GetIsoCurrencyCode(),
-				Limit:            balance.GetLimit(),
-				Mask:             account.GetMask(),
-				Name:             account.GetName(),
-				OfficialName:     account.GetOfficialName(),
-				Subtype:          account.GetSubtype(),
-				Type:             account.GetType(),
-				PlaidItemID:      item.GetItemId(),
-			})
-		}
-
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	csvContent, err := gocsv.MarshalString(&accountsCSV)
-	if err != nil {
-		return err
-	}
-
-	filePath := filepath.Join(csvStorage, "accounts.csv")
-	if err := os.WriteFile(filePath, []byte(csvContent), 0644); err != nil {
-		return err
+		log.Println("created account", account.Name)
 	}
 
 	return nil

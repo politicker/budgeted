@@ -1,4 +1,4 @@
--- name: CreateTransaction :exec
+-- name: TransactionCreate :exec
 INSERT INTO "Transaction"("plaidId",
                           "plaidAccountId",
                           "date",
@@ -51,7 +51,7 @@ ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "lon"=excluded."lon",
                                    "postalCode"=excluded."postalCode";
 
--- name: CreateAccount :exec
+-- name: AccountCreate :exec
 INSERT INTO "Account"("plaidId",
                       "plaidItemId",
                       "name",
@@ -82,3 +82,10 @@ ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "availableBalance"=excluded."availableBalance",
                                    "currentBalance"=excluded."currentBalance",
                                    "isoCurrencyCode"=excluded."isoCurrencyCode";
+
+-- name: ConfigGet :one
+SELECT "plaidAccessToken",
+       "plaidClientId",
+       "plaidSecret"
+from "Config"
+LIMIT 1;

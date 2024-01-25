@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS "Account" (
     "availableBalance" REAL,
     "isoCurrencyCode" TEXT NOT NULL
 , "userId" INTEGER);
+
+
 CREATE TABLE IF NOT EXISTS "Transaction" (
     "plaidId" TEXT NOT NULL PRIMARY KEY,
     "plaidAccountId" TEXT NOT NULL,
@@ -43,6 +45,7 @@ CREATE TABLE IF NOT EXISTS "Transaction" (
     "hidden" BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT "Transaction_accountPlaidId_fkey" FOREIGN KEY ("accountPlaidId") REFERENCES "Account" ("plaidId") ON DELETE SET NULL ON UPDATE CASCADE
 );
+
 CREATE TABLE IF NOT EXISTS "Config" (
     "plaidAccessToken" TEXT,
     "plaidClientId" TEXT NOT NULL PRIMARY KEY,

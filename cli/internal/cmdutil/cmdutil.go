@@ -3,8 +3,9 @@ package cmdutil
 import (
 	"context"
 	"database/sql"
-	"go.uber.org/zap"
 	"os"
+
+	"go.uber.org/zap"
 
 	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"

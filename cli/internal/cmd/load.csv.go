@@ -39,11 +39,11 @@ func LoadCsvCmd(ctx context.Context) *cobra.Command {
 				return errors.New("csv storage is not a directory")
 			}
 
-			if err = csv.LoadAccounts(ctx, jsonStorage, csvStorage); err != nil {
+			if err = csv.ExtractAccounts(ctx, jsonStorage, csvStorage); err != nil {
 				return err
 			}
 
-			return csv.LoadTransactions(ctx, jsonStorage, csvStorage)
+			return csv.ExtractTransactions(ctx, jsonStorage, csvStorage)
 		},
 	}
 }

@@ -4,10 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/politicker/budgeted/internal/plaid"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/politicker/budgeted/internal/db"
+	"github.com/politicker/budgeted/internal/plaid"
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/gofrs/uuid"
@@ -56,7 +60,13 @@ func (a *API) Routes() (*mux.Router, error) {
 
 	r.HandleFunc("/health", a.healthCheckHandler).Methods("GET")
 
-	client, err := plaid.NewClientFromConfig(a.ctx, false)
+	driver, err := sql.Open("sqlite3", filepath.Join(os.Getenv("HOME"), ".config", "budgeted", "db.sqlite"))
+	if err != nil {
+		return nil, err
+	}
+
+	queries := db.New(driver)
+	client, err := plaid.NewClientFromConfig(a.ctx, false, queries)
 	if err != nil {
 		return nil, err
 	}

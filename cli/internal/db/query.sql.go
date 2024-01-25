@@ -10,7 +10,7 @@ import (
 	"database/sql"
 )
 
-const createAccount = `-- name: CreateAccount :exec
+const accountCreate = `-- name: AccountCreate :exec
 INSERT INTO "Account"("plaidId",
                       "plaidItemId",
                       "name",
@@ -43,7 +43,7 @@ ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "isoCurrencyCode"=excluded."isoCurrencyCode"
 `
 
-type CreateAccountParams struct {
+type AccountCreateParams struct {
 	PlaidId          string
 	PlaidItemId      string
 	Name             string
@@ -56,8 +56,8 @@ type CreateAccountParams struct {
 	IsoCurrencyCode  string
 }
 
-func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) error {
-	_, err := q.db.ExecContext(ctx, createAccount,
+func (q *Queries) AccountCreate(ctx context.Context, arg AccountCreateParams) error {
+	_, err := q.db.ExecContext(ctx, accountCreate,
 		arg.PlaidId,
 		arg.PlaidItemId,
 		arg.Name,
@@ -72,7 +72,22 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) er
 	return err
 }
 
-const createTransaction = `-- name: CreateTransaction :exec
+const configGet = `-- name: ConfigGet :one
+SELECT "plaidAccessToken",
+       "plaidClientId",
+       "plaidSecret"
+from "Config"
+LIMIT 1
+`
+
+func (q *Queries) ConfigGet(ctx context.Context) (Config, error) {
+	row := q.db.QueryRowContext(ctx, configGet)
+	var i Config
+	err := row.Scan(&i.PlaidAccessToken, &i.PlaidClientId, &i.PlaidSecret)
+	return i, err
+}
+
+const transactionCreate = `-- name: TransactionCreate :exec
 INSERT INTO "Transaction"("plaidId",
                           "plaidAccountId",
                           "date",
@@ -126,7 +141,7 @@ ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "postalCode"=excluded."postalCode"
 `
 
-type CreateTransactionParams struct {
+type TransactionCreateParams struct {
 	PlaidId         string
 	PlaidAccountId  string
 	Date            string
@@ -146,8 +161,8 @@ type CreateTransactionParams struct {
 	PostalCode      string
 }
 
-func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) error {
-	_, err := q.db.ExecContext(ctx, createTransaction,
+func (q *Queries) TransactionCreate(ctx context.Context, arg TransactionCreateParams) error {
+	_, err := q.db.ExecContext(ctx, transactionCreate,
 		arg.PlaidId,
 		arg.PlaidAccountId,
 		arg.Date,
