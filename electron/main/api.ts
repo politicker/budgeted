@@ -70,6 +70,8 @@ export const router = t.router({
 			throw new Error('Config not found')
 		}
 
+		const institutions = await prisma.institution.findMany()
+
 		const plaidClient = createPlaidClient(
 			config.plaidClientId,
 			config.plaidSecret,
@@ -86,7 +88,7 @@ export const router = t.router({
 				language: 'en',
 			})
 
-			return linkResponse.data.link_token
+			return { token: linkResponse.data.link_token, institutions }
 		} catch (e) {
 			console.error(e)
 			return null
