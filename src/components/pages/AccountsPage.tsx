@@ -23,10 +23,10 @@ export function AccountsPage() {
 
 	return (
 		<div className="p-6">
-			{data?.map((account) => (
-				<Card className={cn('w-[380px]')}>
+			{data?.map((account, idx) => (
+				<Card className={cn('w-[380px]')} key={idx}>
 					<CardHeader>
-						<CardTitle className="flex justify-between items-center ">
+						<CardTitle className="flex justify-between items-center">
 							{isEditing ? (
 								<form
 									onSubmit={(e) => {
@@ -63,7 +63,7 @@ export function AccountsPage() {
 						<CardDescription>{account.officialName}</CardDescription>
 					</CardHeader>
 					<CardContent className="grid gap-4">
-						<div className=" flex items-center space-x-4 rounded-md border p-4">
+						<div className="flex items-center space-x-4 rounded-md border p-4">
 							<div className="flex-1 space-y-1">
 								<p className="text-sm font-medium leading-none">
 									Current Balance
