@@ -84,19 +84,6 @@ function SettingsForm({
 						)}
 					/>
 
-					{config?.plaidAccessToken && (
-						<FormItem>
-							<FormLabel>Plaid Access Token</FormLabel>
-							<FormControl>
-								<Input value={config?.plaidAccessToken} disabled />
-							</FormControl>
-							<FormDescription>
-								Your Plaid access token. Click the button below to generate a
-								new one.
-							</FormDescription>
-						</FormItem>
-					)}
-
 					<Button type="submit">Submit</Button>
 				</form>
 			</Form>
