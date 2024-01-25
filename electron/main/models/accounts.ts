@@ -5,12 +5,12 @@ export async function fetchAccounts() {
 }
 
 export async function updateAccount(
-	id: string,
-	data: Parameters<typeof prisma.account.update>[0]['data'],
+	data: Parameters<typeof prisma.account.create>[0]['data'],
 ) {
-	return await prisma.account.update({
-		where: { plaidId: id },
-		data,
+	return await prisma.account.upsert({
+		where: { plaidId: data.plaidId },
+		update: data,
+		create: data,
 	})
 }
 
