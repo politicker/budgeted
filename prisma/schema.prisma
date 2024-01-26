@@ -16,9 +16,10 @@ model Config {
 }
 
 model Institution {
-  plaidId          String @id
+  plaidId          String    @id
   name             String
   plaidAccessToken String
+  accounts         Account[]
 }
 
 model Transaction {
@@ -47,15 +48,17 @@ model Transaction {
 }
 
 model Account {
-  plaidId          String        @id
-  plaidItemId      String?
-  name             String
-  officialName     String?
-  subtype          String
-  type             String
-  mask             String
-  currentBalance   Float?
-  availableBalance Float?
-  isoCurrencyCode  String?
-  transactions     Transaction[]
+  plaidId            String        @id
+  plaidItemId        String?
+  name               String
+  officialName       String?
+  subtype            String
+  type               String
+  mask               String
+  currentBalance     Float?
+  availableBalance   Float?
+  isoCurrencyCode    String?
+  transactions       Transaction[]
+  Institution        Institution?  @relation(fields: [institutionPlaidId], references: [plaidId])
+  institutionPlaidId String?
 }

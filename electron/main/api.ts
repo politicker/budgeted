@@ -53,7 +53,13 @@ export const router = t.router({
 			await hideTransaction(input.plaidId)
 			return { success: true }
 		}),
-
+	institutions: loggedProcedure.query(async () => {
+		return await prisma.institution.findMany({
+			select: {
+				accounts: true,
+			},
+		})
+	}),
 	accounts: loggedProcedure.query(async () => {
 		return await fetchAccounts()
 	}),
