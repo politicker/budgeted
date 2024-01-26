@@ -14,6 +14,7 @@ import { upsertConfig } from './models/config'
 import { createInstitution } from './models/institutions'
 import { fetchTransactions, hideTransaction } from './models/transactions'
 import { prisma } from './prisma'
+import { extract } from './lib/cli'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -30,6 +31,9 @@ export const router = t.router({
 		}),
 
 	rebuildTransactions: loggedProcedure.mutation(() => {
+		// throw new Error('Not implemented')
+		extract()
+
 		try {
 		} catch (e) {
 			console.error('@trpc: error loading accounts', e)
