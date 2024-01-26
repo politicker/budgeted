@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"os"
-	"path"
 
 	"github.com/plaid/plaid-go/v20/plaid"
 	"github.com/politicker/budgeted/internal/cmdutil"
@@ -14,10 +12,9 @@ import (
 
 type APIClient struct {
 	*plaid.APIClient
-	ctx         context.Context
-	accessToken string
-	cacheDir    string
-	isSandBox   bool
+	ctx       context.Context
+	cacheDir  string
+	isSandBox bool
 }
 
 func UseSandbox() bool {
@@ -32,15 +29,11 @@ func NewClientFromConfig(ctx context.Context, isSandbox bool, queries *db.Querie
 
 	clientID := config.PlaidClientId
 	secret := config.PlaidSecret
-	accessToken := config.PlaidAccessToken.String
 	if clientID == "" {
 		return nil, errors.New("Config.PlaidClientId id is empty")
 	}
 	if secret == "" {
 		return nil, errors.New("Config.PlaidSecret is empty")
-	}
-	if accessToken == "" {
-		return nil, errors.New("Config.PlaidAccessToken is empty")
 	}
 
 	jsonStorage, _, err := cmdutil.Dirs()
@@ -48,57 +41,56 @@ func NewClientFromConfig(ctx context.Context, isSandbox bool, queries *db.Querie
 		return nil, err
 	}
 
-	return newClient(ctx, clientID, secret, accessToken, jsonStorage, isSandbox)
+	return newClient(ctx, clientID, secret, jsonStorage, isSandbox)
 }
 
-func newClient(ctx context.Context, clientID string, secret string, accessToken string, cacheDir string, isSandbox bool) (*APIClient, error) {
+func newClient(ctx context.Context, clientID string, secret string, cacheDir string, isSandbox bool) (*APIClient, error) {
 	configuration := plaid.NewConfiguration()
 	configuration.AddDefaultHeader("PLAID-CLIENT-ID", clientID)
 	configuration.AddDefaultHeader("PLAID-SECRET", secret)
 
 	var client *plaid.APIClient
 	if isSandbox {
-		configuration.UseEnvironment(plaid.Sandbox)
-		client = plaid.NewAPIClient(configuration)
+		// configuration.UseEnvironment(plaid.Sandbox)
+		// client = plaid.NewAPIClient(configuration)
 
-		sandboxPublicTokenResp, _, err := client.PlaidApi.SandboxPublicTokenCreate(ctx).SandboxPublicTokenCreateRequest(
-			*plaid.NewSandboxPublicTokenCreateRequest(
-				"ins_109508",
-				[]plaid.Products{plaid.PRODUCTS_TRANSACTIONS},
-			),
-		).Execute()
+		// sandboxPublicTokenResp, _, err := client.PlaidApi.SandboxPublicTokenCreate(ctx).SandboxPublicTokenCreateRequest(
+		// 	*plaid.NewSandboxPublicTokenCreateRequest(
+		// 		"ins_109508",
+		// 		[]plaid.Products{plaid.PRODUCTS_TRANSACTIONS},
+		// 	),
+		// ).Execute()
 
-		if err != nil {
-			if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
-				return nil, errors.New(plaidErr.GetErrorMessage())
-			} else {
-				return nil, err
-			}
-		}
+		// if err != nil {
+		// 	if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
+		// 		return nil, errors.New(plaidErr.GetErrorMessage())
+		// 	} else {
+		// 		return nil, err
+		// 	}
+		// }
 
-		exchangePublicTokenResp, _, err := client.PlaidApi.ItemPublicTokenExchange(ctx).ItemPublicTokenExchangeRequest(
-			*plaid.NewItemPublicTokenExchangeRequest(sandboxPublicTokenResp.GetPublicToken()),
-		).Execute()
-		if err != nil {
-			return nil, err
-		}
+		// exchangePublicTokenResp, _, err := client.PlaidApi.ItemPublicTokenExchange(ctx).ItemPublicTokenExchangeRequest(
+		// 	*plaid.NewItemPublicTokenExchangeRequest(sandboxPublicTokenResp.GetPublicToken()),
+		// ).Execute()
+		// if err != nil {
+		// 	return nil, err
+		// }
 
-		accessToken = exchangePublicTokenResp.GetAccessToken()
-		cacheDir = path.Join(cacheDir, "__SANDBOX__")
+		// accessToken := exchangePublicTokenResp.GetAccessToken()
+		// cacheDir = path.Join(cacheDir, "__SANDBOX__")
 
-		if err := os.MkdirAll(cacheDir, 0755); err != nil {
-			return nil, err
-		}
+		// if err := os.MkdirAll(cacheDir, 0755); err != nil {
+		// 	return nil, err
+		// }
 	} else {
 		configuration.UseEnvironment(plaid.Development)
 		client = plaid.NewAPIClient(configuration)
 	}
 
 	return &APIClient{
-		APIClient:   client,
-		ctx:         ctx,
-		accessToken: accessToken,
-		cacheDir:    cacheDir,
+		APIClient: client,
+		ctx:       ctx,
+		cacheDir:  cacheDir,
 	}, nil
 }
 

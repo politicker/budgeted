@@ -9,7 +9,7 @@ import (
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func (pc *APIClient) LoadTransactions(ctx context.Context) error {
+func (pc *APIClient) LoadTransactions(ctx context.Context, accessToken string) error {
 	var hasMore bool = true
 
 	// Get previous cursor from the latest cached response
@@ -24,7 +24,7 @@ func (pc *APIClient) LoadTransactions(ctx context.Context) error {
 		options := plaid.TransactionsSyncRequestOptions{
 			IncludePersonalFinanceCategory: &IncludePersonalFinanceCategory,
 		}
-		request := plaid.NewTransactionsSyncRequest(pc.accessToken)
+		request := plaid.NewTransactionsSyncRequest(accessToken)
 		request.SetOptions(options)
 
 		if cursor != "" {
@@ -38,11 +38,11 @@ func (pc *APIClient) LoadTransactions(ctx context.Context) error {
 
 		if err != nil {
 			if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
-				if plaidErr.ErrorMessage == "cursor not associated with access_token" {
-					log.Println("Access token changed. Restarting sync.")
-					cursor = ""
-					continue
-				}
+				// if plaidErr.ErrorMessage == "cursor not associated with access_token" {
+				// 	log.Println("Access token changed. Restarting sync.")
+				// 	cursor = ""
+				// 	continue
+				// }
 
 				return errors.New(plaidErr.GetErrorMessage())
 			} else {

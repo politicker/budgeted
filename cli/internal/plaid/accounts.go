@@ -8,8 +8,8 @@ import (
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func (pc *APIClient) LoadAccounts(ctx context.Context) error {
-	accountsGetRequest := plaid.NewAccountsGetRequest(pc.accessToken)
+func (pc *APIClient) LoadAccounts(ctx context.Context, accessToken string) error {
+	accountsGetRequest := plaid.NewAccountsGetRequest(accessToken)
 	accountsGetRequest.SetOptions(plaid.AccountsGetRequestOptions{})
 
 	resp, raw, err := pc.PlaidApi.AccountsGet(ctx).AccountsGetRequest(

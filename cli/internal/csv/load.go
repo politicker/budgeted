@@ -133,15 +133,15 @@ func LoadAccounts(ctx context.Context, queries *db.Queries) error {
 	for _, account := range accounts {
 		err = queries.AccountCreate(ctx, db.AccountCreateParams{
 			PlaidId:          account.PlaidID,
-			PlaidItemId:      account.PlaidItemID,
+			PlaidItemId:      sql.NullString{String: account.PlaidItemID, Valid: true},
 			Name:             account.Name,
-			OfficialName:     account.OfficialName,
+			OfficialName:     sql.NullString{String: account.OfficialName, Valid: true},
 			Subtype:          string(account.Subtype),
 			Type:             string(account.Type),
 			Mask:             account.Mask,
 			AvailableBalance: sql.NullFloat64{Float64: account.CurrentBalance, Valid: true},
 			CurrentBalance:   sql.NullFloat64{Float64: account.CurrentBalance, Valid: true},
-			IsoCurrencyCode:  account.ISOCurrencyCode,
+			IsoCurrencyCode:  sql.NullString{String: account.ISOCurrencyCode, Valid: true},
 		})
 		if err != nil {
 			return err

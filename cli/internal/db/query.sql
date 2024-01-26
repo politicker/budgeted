@@ -82,10 +82,14 @@ ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "availableBalance"=excluded."availableBalance",
                                    "currentBalance"=excluded."currentBalance",
                                    "isoCurrencyCode"=excluded."isoCurrencyCode";
-
 -- name: ConfigGet :one
-SELECT "plaidAccessToken",
-       "plaidClientId",
+SELECT "plaidClientId",
        "plaidSecret"
 from "Config"
 LIMIT 1;
+
+-- name: InstitutionList :many
+SELECT "plaidId",
+       "name",
+       "plaidAccessToken"
+from "Institution";

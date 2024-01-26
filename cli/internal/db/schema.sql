@@ -8,21 +8,6 @@ CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
     "started_at"            DATETIME NOT NULL DEFAULT current_timestamp,
     "applied_steps_count"   INTEGER UNSIGNED NOT NULL DEFAULT 0
 );
-
-CREATE TABLE IF NOT EXISTS "Account" (
-    "plaidId" TEXT NOT NULL PRIMARY KEY,
-    "plaidItemId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "officialName" TEXT NOT NULL,
-    "subtype" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "mask" TEXT NOT NULL,
-    "currentBalance" REAL,
-    "availableBalance" REAL,
-    "isoCurrencyCode" TEXT NOT NULL
-, "userId" INTEGER);
-
-
 CREATE TABLE IF NOT EXISTS "Transaction" (
     "plaidId" TEXT NOT NULL PRIMARY KEY,
     "plaidAccountId" TEXT NOT NULL,
@@ -45,9 +30,24 @@ CREATE TABLE IF NOT EXISTS "Transaction" (
     "hidden" BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT "Transaction_accountPlaidId_fkey" FOREIGN KEY ("accountPlaidId") REFERENCES "Account" ("plaidId") ON DELETE SET NULL ON UPDATE CASCADE
 );
-
 CREATE TABLE IF NOT EXISTS "Config" (
-    "plaidAccessToken" TEXT,
     "plaidClientId" TEXT NOT NULL PRIMARY KEY,
     "plaidSecret" TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS "Institution" (
+    "plaidId" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "plaidAccessToken" TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS "Account" (
+    "plaidId" TEXT NOT NULL PRIMARY KEY,
+    "plaidItemId" TEXT,
+    "name" TEXT NOT NULL,
+    "officialName" TEXT,
+    "subtype" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "mask" TEXT NOT NULL,
+    "currentBalance" REAL,
+    "availableBalance" REAL,
+    "isoCurrencyCode" TEXT
 );
