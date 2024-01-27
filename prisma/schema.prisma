@@ -79,10 +79,11 @@ model ImportLog {
 }
 
 model AccountBalance {
-  id              Int     @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   current         Float
   available       Float
   isoCurrencyCode String
-  account         Account @relation(fields: [accountPlaidId], references: [plaidId])
+  account         Account  @relation(fields: [accountPlaidId], references: [plaidId])
   accountPlaidId  String
+  createdAt       DateTime @default(now())
 }
