@@ -50,7 +50,7 @@ model Transaction {
 }
 
 model Account {
-  plaidId            String        @id
+  plaidId            String           @id
   plaidItemId        String?
   name               String
   officialName       String?
@@ -61,11 +61,12 @@ model Account {
   availableBalance   Float?
   isoCurrencyCode    String?
   transactions       Transaction[]
-  Institution        Institution?  @relation(fields: [institutionPlaidId], references: [plaidId])
+  Institution        Institution?     @relation(fields: [institutionPlaidId], references: [plaidId])
   institutionPlaidId String?
-  importedAt         DateTime      @default(now())
-  importLog          ImportLog?    @relation(fields: [importLogId], references: [id])
+  importedAt         DateTime         @default(now())
+  importLog          ImportLog?       @relation(fields: [importLogId], references: [id])
   importLogId        Int?
+  AccountBalance     AccountBalance[]
 }
 
 model ImportLog {
@@ -75,4 +76,13 @@ model ImportLog {
   transactionsCount Int?
   Transaction       Transaction[]
   Account           Account[]
+}
+
+model AccountBalance {
+  id              Int     @id @default(autoincrement())
+  current         Float
+  available       Float
+  isoCurrencyCode String
+  account         Account @relation(fields: [accountPlaidId], references: [plaidId])
+  accountPlaidId  String
 }
