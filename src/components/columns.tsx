@@ -1,13 +1,10 @@
-import React from 'react'
-import type { Transaction } from '@prisma/client'
+import { cn } from '@/lib/utils'
 import { ColumnDef } from '@tanstack/react-table'
+import type { fetchTransactions } from '../../electron/main/models/transactions'
+import { formatMoney } from './pages/ChartPage'
+import { Badge } from './ui/badge'
 import { Checkbox } from './ui/checkbox'
 import { DataTableColumnHeader } from './ui/data-table/data-table-column-header'
-import { Badge } from './ui/badge'
-import { cn } from '@/lib/utils'
-import { formatMoney } from './pages/ChartPage'
-import { trpc } from '@/lib/trpc'
-import type { fetchTransactions } from '../../electron/main/models/transactions'
 
 type TransactionType = Awaited<
 	ReturnType<typeof fetchTransactions>
