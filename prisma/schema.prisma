@@ -41,9 +41,12 @@ model Transaction {
   lon             Float?
   postalCode      String
   account         Account? @relation(fields: [plaidAccountId], references: [plaidId])
+  hidden          Boolean  @default(false)
 
   // extra attrs: not set by import
-  hidden Boolean @default(false)
+  importedAt  DateTime   @default(now())
+  importLog   ImportLog? @relation(fields: [importLogId], references: [id])
+  importLogId Int?
 }
 
 model Account {
@@ -60,4 +63,12 @@ model Account {
   transactions       Transaction[]
   Institution        Institution?  @relation(fields: [institutionPlaidId], references: [plaidId])
   institutionPlaidId String?
+}
+
+model ImportLog {
+  id                Int           @id @default(autoincrement())
+  syncStartedAt     DateTime      @default(now())
+  syncCompletedAt   DateTime      @updatedAt
+  transactionsCount Int
+  Transaction       Transaction[]
 }
