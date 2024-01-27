@@ -68,7 +68,7 @@ model Account {
 model ImportLog {
   id                Int           @id @default(autoincrement())
   syncStartedAt     DateTime      @default(now())
-  syncCompletedAt   DateTime      @updatedAt
-  transactionsCount Int
+  syncCompletedAt   DateTime?     @updatedAt
+  transactionsCount Int?
   Transaction       Transaction[]
 }
