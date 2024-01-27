@@ -1,4 +1,4 @@
-import { initTRPC } from '@trpc/server'
+import { TRPCError, initTRPC } from '@trpc/server'
 import { CountryCode } from 'plaid'
 import z from 'zod'
 import { TableStateInput } from '../../src/lib/useDataTable'
@@ -10,13 +10,27 @@ import { createInstitution } from './models/institutions'
 import { fetchTransactions, hideTransaction } from './models/transactions'
 import { prisma } from './prisma'
 import { extract, load, transform } from './lib/cli'
+import { TRPC_ERROR_CODE_KEY } from '@trpc/server/rpc'
 
-const t = initTRPC.create({ isServer: true })
+const t = initTRPC.context().create({ isServer: true })
 const procedure = t.procedure
 const loggedProcedure = procedure.use(async ({ next, path, type }) => {
 	console.log('[trpc] request -', `type=${type}`, `path=/${path}`)
 	return next()
 })
+
+function reportError(
+	code: TRPC_ERROR_CODE_KEY,
+	message: string,
+	cause?: unknown,
+) {
+	console.log('@trpc error - ', message, cause)
+	throw new TRPCError({
+		message,
+		code,
+		cause,
+	})
+}
 
 export const router = t.router({
 	transactions: loggedProcedure
@@ -26,18 +40,12 @@ export const router = t.router({
 		}),
 
 	rebuildTransactions: loggedProcedure.mutation(() => {
-		extract()
-		transform()
-		load()
-
 		try {
-		} catch (e) {
-			console.error('@trpc: error loading accounts', e)
-		}
-
-		try {
-		} catch (e) {
-			console.error('@trpc: error loading transactions', e)
+			extract()
+			transform()
+			load()
+		} catch (err) {
+			reportError('INTERNAL_SERVER_ERROR', 'Error rebuilding transactions', err)
 		}
 
 		return { success: true }
@@ -45,7 +53,11 @@ export const router = t.router({
 	hideTransaction: loggedProcedure
 		.input(z.object({ plaidId: z.string() }))
 		.mutation(async ({ input }) => {
-			await hideTransaction(input.plaidId)
+			try {
+				await hideTransaction(input.plaidId)
+			} catch (err) {
+				reportError('INTERNAL_SERVER_ERROR', 'Error hiding transaction', err)
+			}
 			return { success: true }
 		}),
 	institutions: loggedProcedure.query(async () => {
@@ -57,12 +69,20 @@ export const router = t.router({
 		})
 	}),
 	accounts: loggedProcedure.query(async () => {
-		return await fetchAccounts()
+		try {
+			return await fetchAccounts()
+		} catch (err) {
+			reportError('INTERNAL_SERVER_ERROR', 'Error fetching accounts', err)
+		}
 	}),
 	setAccountName: loggedProcedure
 		.input(z.object({ id: z.string(), name: z.string() }))
 		.mutation(async ({ input }) => {
-			return await updateAccount(input.id, { name: input.name })
+			try {
+				return await updateAccount(input.id, { name: input.name })
+			} catch (err) {
+				reportError('INTERNAL_SERVER_ERROR', 'Error setting account name', err)
+			}
 		}),
 
 	/**
@@ -94,8 +114,7 @@ export const router = t.router({
 
 			return { token: linkResponse.data.link_token }
 		} catch (e) {
-			console.error(e)
-			return null
+			reportError('INTERNAL_SERVER_ERROR', 'Error creating Plaid link token', e)
 		}
 	}),
 
@@ -151,11 +170,15 @@ export const router = t.router({
 				public_token: input.publicToken,
 			})
 
-			await createInstitution({
-				plaidId: input.institutionId,
-				name: input.institutionName,
-				plaidAccessToken: tokenResponse.data.access_token,
-			})
+			try {
+				await createInstitution({
+					plaidId: input.institutionId,
+					name: input.institutionName,
+					plaidAccessToken: tokenResponse.data.access_token,
+				})
+			} catch (err) {
+				reportError('INTERNAL_SERVER_ERROR', 'Error creating institution', err)
+			}
 
 			for (const account of input.accounts) {
 				await createAccount({
@@ -177,12 +200,16 @@ export const router = t.router({
 				await upsertConfig(input.plaidClientId, input.plaidSecret)
 				return { success: true }
 			} catch (e) {
-				console.error(e)
+				reportError('INTERNAL_SERVER_ERROR', 'Error creating config', e)
 				return { success: false }
 			}
 		}),
 	config: loggedProcedure.query(async () => {
-		return await prisma.config.findFirst()
+		try {
+			return await prisma.config.findFirst()
+		} catch (err) {
+			reportError('INTERNAL_SERVER_ERROR', 'Error fetching config', err)
+		}
 	}),
 })
 
