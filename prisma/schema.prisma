@@ -63,6 +63,9 @@ model Account {
   transactions       Transaction[]
   Institution        Institution?  @relation(fields: [institutionPlaidId], references: [plaidId])
   institutionPlaidId String?
+  importedAt         DateTime      @default(now())
+  importLog          ImportLog?    @relation(fields: [importLogId], references: [id])
+  importLogId        Int?
 }
 
 model ImportLog {
@@ -71,4 +74,5 @@ model ImportLog {
   syncCompletedAt   DateTime?     @updatedAt
   transactionsCount Int?
   Transaction       Transaction[]
+  Account           Account[]
 }
