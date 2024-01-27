@@ -19,17 +19,3 @@ export async function updateAccount(
 		data,
 	})
 }
-
-export async function setPlaidAccessToken(
-	plaidId: string,
-	accessToken: string,
-) {
-	await prisma.account.update({
-		where: {
-			plaidId,
-		},
-		data: {
-			plaidAccessToken: accessToken,
-		},
-	})
-}
