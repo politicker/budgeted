@@ -16,7 +16,7 @@ import (
 	"github.com/politicker/budgeted/internal/db"
 )
 
-func LoadTransactions(ctx context.Context, queries *db.Queries) error {
+func LoadTransactions(ctx context.Context, queries *db.Queries, importLogId int64) error {
 	cache := make(map[string]string)
 
 	// Walk cache directory
@@ -102,6 +102,7 @@ func LoadTransactions(ctx context.Context, queries *db.Queries) error {
 				Lat:             transaction.Lat.NullFloat64,
 				Lon:             transaction.Lon.NullFloat64,
 				PostalCode:      transaction.PostalCode,
+				ImportLogId:     sql.NullInt64{Int64: importLogId, Valid: true},
 			})
 			if err != nil {
 				return err
@@ -118,7 +119,7 @@ func LoadTransactions(ctx context.Context, queries *db.Queries) error {
 	return nil
 }
 
-func LoadAccounts(ctx context.Context, queries *db.Queries) error {
+func LoadAccounts(ctx context.Context, queries *db.Queries, importLogId int64) error {
 	csvFile := path.Join(os.Getenv("HOME"), ".config", "budgeted", "csv", "accounts.csv")
 	data, err := os.Open(csvFile)
 	if err != nil {
@@ -142,12 +143,25 @@ func LoadAccounts(ctx context.Context, queries *db.Queries) error {
 			AvailableBalance: sql.NullFloat64{Float64: account.CurrentBalance, Valid: true},
 			CurrentBalance:   sql.NullFloat64{Float64: account.CurrentBalance, Valid: true},
 			IsoCurrencyCode:  sql.NullString{String: account.ISOCurrencyCode, Valid: true},
+			ImportLogId:      sql.NullInt64{Int64: importLogId, Valid: true},
 		})
 		if err != nil {
 			return err
 		}
 
 		log.Println("created account", account.Name)
+
+		err = queries.AccountBalanceCreate(ctx, db.AccountBalanceCreateParams{
+			Current:         account.CurrentBalance,
+			Available:       account.AvailableBalance,
+			IsoCurrencyCode: account.ISOCurrencyCode,
+			AccountPlaidId:  account.PlaidID,
+		})
+		if err != nil {
+			return err
+		}
+
+		log.Println("created account balance", account.Name)
 	}
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/politicker/budgeted/internal/csv"
@@ -25,12 +26,28 @@ func LoadSqliteCmd() *cobra.Command {
 
 			queries := db.New(driver)
 			ctx := context.Background()
-			err = csv.LoadTransactions(ctx, queries)
+
+			err = queries.ImportLogCreate(ctx, time.Now())
 			if err != nil {
 				return err
 			}
 
-			err = csv.LoadAccounts(ctx, queries)
+			importLogId, err := queries.ImportLogGetLastInsertID(ctx)
+			if err != nil {
+				return err
+			}
+
+			err = csv.LoadTransactions(ctx, queries, importLogId)
+			if err != nil {
+				return err
+			}
+
+			err = csv.LoadAccounts(ctx, queries, importLogId)
+			if err != nil {
+				return err
+			}
+
+			err = queries.ImportLogComplete(ctx, importLogId)
 			if err != nil {
 				return err
 			}
