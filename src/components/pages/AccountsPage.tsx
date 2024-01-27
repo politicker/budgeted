@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader } from '../ui/card'
 import { trpc } from '@/lib/trpc'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Pencil1Icon } from '@radix-ui/react-icons'
 import { Button } from '../ui/button'
 import { InlineInput } from '../ui/input'
@@ -43,7 +43,13 @@ function AccountCard<T>({ refetch, account }: AccountCardProps<T>) {
 	})
 
 	const [isEditing, setIsEditing] = useState(false)
-	const accountNameRef = useRef<HTMLInputElement>(null)
+	const [accountNameRef, setRef] = useState<HTMLInputElement | null>(null)
+
+	useEffect(() => {
+		if (accountNameRef && isEditing) {
+			accountNameRef.focus()
+		}
+	}, [accountNameRef, isEditing])
 
 	return (
 		<div className="-mx-2 flex items-start justify-between space-x-4 rounded-md p-3 transition-all border border-transparent hover:border-gray-400">
@@ -55,9 +61,7 @@ function AccountCard<T>({ refetch, account }: AccountCardProps<T>) {
 								e.preventDefault()
 								mutate({
 									id: account.plaidId,
-									name: accountNameRef.current
-										? accountNameRef.current.value
-										: account.name,
+									name: accountNameRef ? accountNameRef.value : account.name,
 								})
 
 								setIsEditing(false)
@@ -67,7 +71,7 @@ function AccountCard<T>({ refetch, account }: AccountCardProps<T>) {
 								type="text"
 								className="mx-[-9px] text-lg leading-none"
 								defaultValue={account.name}
-								ref={accountNameRef}
+								ref={setRef}
 							/>
 						</form>
 					) : (
