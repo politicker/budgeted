@@ -33,6 +33,7 @@ export async function fetchTransactions({
 			take: pageSize === Infinity ? undefined : pageSize,
 			skip: pageIndex === 0 ? 0 : pageIndex * pageSize,
 			where,
+			include: { account: true },
 		}),
 		prisma.transaction.count({
 			where,
@@ -40,7 +41,7 @@ export async function fetchTransactions({
 	])
 
 	const pageCount = Math.ceil(total / pageSize)
-
+	console.log('transactions', { results })
 	return { results, total, pageCount }
 }
 

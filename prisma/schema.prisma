@@ -40,8 +40,7 @@ model Transaction {
   lat             Float?
   lon             Float?
   postalCode      String
-  Account         Account? @relation(fields: [accountPlaidId], references: [plaidId])
-  accountPlaidId  String?
+  account         Account? @relation(fields: [plaidAccountId], references: [plaidId])
 
   // extra attrs: not set by import
   hidden Boolean @default(false)

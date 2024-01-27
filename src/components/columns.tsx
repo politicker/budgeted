@@ -6,8 +6,14 @@ import { DataTableColumnHeader } from './ui/data-table/data-table-column-header'
 import { Badge } from './ui/badge'
 import { cn } from '@/lib/utils'
 import { formatMoney } from './pages/ChartPage'
+import { trpc } from '@/lib/trpc'
+import type { fetchTransactions } from '../../electron/main/models/transactions'
 
-export const transactionColumns: ColumnDef<Transaction>[] = [
+type TransactionType = Awaited<
+	ReturnType<typeof fetchTransactions>
+>['results'][0]
+
+export const transactionColumns: ColumnDef<TransactionType>[] = [
 	{
 		id: 'select',
 		accessorKey: 'plaidId',
@@ -84,6 +90,10 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 			return <DataTableColumnHeader column={column} title="Merchant Name" />
 		},
 		accessorKey: 'merchantName',
+	},
+	{
+		id: 'account',
+		accessorFn: (row) => row.account?.name,
 	},
 	{
 		header: ({ column }) => {
