@@ -15,7 +15,9 @@ INSERT INTO "Transaction"("plaidId",
                           "state",
                           "lat",
                           "lon",
-                          "postalCode")
+                          "postalCode",
+                          "importedAt",
+                          "importLogId")
 VALUES (?,
         ?,
         ?,
@@ -32,6 +34,8 @@ VALUES (?,
         ?,
         ?,
         ?,
+        ?,
+        CURRENT_TIMESTAMP,
         ?)
 ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "plaidAccountId"=excluded."plaidAccountId",
@@ -61,7 +65,9 @@ INSERT INTO "Account"("plaidId",
                       "mask",
                       "availableBalance",
                       "currentBalance",
-                      "isoCurrencyCode")
+                      "isoCurrencyCode",
+                      "importLogId",
+                      "importedAt")
 VALUES (?,
         ?,
         ?,
@@ -71,7 +77,9 @@ VALUES (?,
         ?,
         ?,
         ?,
-        ?)
+        ?,
+        ?,
+        CURRENT_TIMESTAMP)
 ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "plaidItemId"=excluded."plaidItemId",
                                    "name"=excluded."name",
@@ -93,3 +101,22 @@ SELECT "plaidId",
        "name",
        "plaidAccessToken"
 from "Institution";
+
+-- name: ImportLogCreate :exec
+INSERT INTO "ImportLog" ("syncStartedAt")
+VALUES (?);
+
+-- name: ImportLogGetLastInsertID :one
+SELECT last_insert_rowid();
+
+-- name: ImportLogComplete :exec
+UPDATE "ImportLog"
+SET "syncCompletedAt"=CURRENT_TIMESTAMP
+WHERE "id" = ?;
+
+-- name: AccountBalanceCreate :exec
+INSERT INTO "AccountBalance"("current",
+                             "available",
+                             "isoCurrencyCode",
+                             "accountPlaidId")
+VALUES (?, ?, ?, ?);
