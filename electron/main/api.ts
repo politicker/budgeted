@@ -4,17 +4,12 @@ import z from 'zod'
 import { TableStateInput } from '../../src/lib/useDataTable'
 import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
 import { CreateConfigInput } from './api-inputs'
-import {
-	createAccount,
-	fetchAccounts,
-	setPlaidAccessToken,
-	updateAccount,
-} from './models/accounts'
+import { createAccount, fetchAccounts, updateAccount } from './models/accounts'
 import { upsertConfig } from './models/config'
 import { createInstitution } from './models/institutions'
 import { fetchTransactions, hideTransaction } from './models/transactions'
 import { prisma } from './prisma'
-import { extract } from './lib/cli'
+import { extract, load, transform } from './lib/cli'
 
 const t = initTRPC.create({ isServer: true })
 const procedure = t.procedure
@@ -31,8 +26,9 @@ export const router = t.router({
 		}),
 
 	rebuildTransactions: loggedProcedure.mutation(() => {
-		// throw new Error('Not implemented')
 		extract()
+		transform()
+		load()
 
 		try {
 		} catch (e) {
@@ -46,7 +42,6 @@ export const router = t.router({
 
 		return { success: true }
 	}),
-
 	hideTransaction: loggedProcedure
 		.input(z.object({ plaidId: z.string() }))
 		.mutation(async ({ input }) => {
@@ -56,6 +51,7 @@ export const router = t.router({
 	institutions: loggedProcedure.query(async () => {
 		return await prisma.institution.findMany({
 			select: {
+				name: true,
 				accounts: true,
 			},
 		})
@@ -168,16 +164,8 @@ export const router = t.router({
 					mask: account.mask,
 					type: account.type,
 					subtype: account.subtype,
+					institutionPlaidId: input.institutionId,
 				})
-			}
-
-			try {
-				await setPlaidAccessToken(
-					config.plaidClientId,
-					tokenResponse.data.access_token,
-				)
-			} catch (e) {
-				console.error(e)
 			}
 
 			return { success: true }
