@@ -55,18 +55,23 @@ export function TablePage() {
 				]}
 				metadata={
 					<>
-						{data?.totalAmount ? (
-							<Badge>Sum: {formatMoney(data?.totalAmount)}</Badge>
+						{Boolean(selectedRows.length) ? (
+							<Badge>
+								Sum:{' '}
+								{formatMoney(
+									selectedRows.reduce((acc, row) => {
+										return acc + row.amount
+									}, 0),
+								)}
+							</Badge>
+						) : data?.totalAmount ? (
+							<Badge>Sum: {formatMoney(data.totalAmount)}</Badge>
 						) : (
 							'N/A'
 						)}
 					</>
 				}
 			/>
-
-			{Boolean(selectedRows.length) && (
-				<SelectionOverlay selectedRows={selectedRows} key={Math.random()} />
-			)}
 		</>
 	)
 }
