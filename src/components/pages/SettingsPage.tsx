@@ -1,6 +1,5 @@
 import { trpc } from '@/lib/trpc'
 import { Input } from '../ui/input'
-import { PlaidLinkButton } from '../PlaidLinkButton'
 import { Button } from '../ui/button'
 import {
 	Form,

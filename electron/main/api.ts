@@ -1,12 +1,8 @@
 import { TRPCError, initTRPC } from '@trpc/server'
-import { CountryCode } from 'plaid'
 import z from 'zod'
 import { TableStateInput } from '../../src/lib/useDataTable'
-import {
-	PLAID_PRODUCTS,
-	createPlaidClient,
-	createPlaidClientFromConfig,
-} from '../lib/plaid/client'
+
+
 import { CreateConfigInput } from './api-inputs'
 import {
 	createAccount,
@@ -15,7 +11,6 @@ import {
 	upsertAccount,
 } from './models/accounts'
 import { upsertConfig } from './models/config'
-import { createInstitution } from './models/institutions'
 import { fetchTransactions, hideTransaction } from './models/transactions'
 import { prisma } from './prisma'
 import { extract, load, transform } from './lib/cli'
