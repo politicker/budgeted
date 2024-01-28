@@ -44,6 +44,14 @@ export async function fetchTransactions({
 		})
 	}
 
+	const pageOptions = {
+		take: pageSize === Infinity ? undefined : pageSize,
+		skip: pageIndex === 0 ? 0 : pageIndex * pageSize,
+		orderBy: {
+			[sortColumn]: sort,
+		},
+	}
+
 	const [
 		results,
 		total,
@@ -52,18 +60,18 @@ export async function fetchTransactions({
 		},
 	] = await Promise.all([
 		prisma.transaction.findMany({
-			orderBy: {
-				[sortColumn]: sort,
-			},
-			take: pageSize === Infinity ? undefined : pageSize,
-			skip: pageIndex === 0 ? 0 : pageIndex * pageSize,
 			where,
 			include: {
 				account: true,
 			},
+			...pageOptions,
 		}),
 		prisma.transaction.count({ where }),
-		prisma.transaction.aggregate({ where, _sum: { amount: true } }),
+		prisma.transaction.aggregate({
+			where,
+			_sum: { amount: true },
+			...pageOptions,
+		}),
 	])
 
 	const pageCount = Math.ceil(total / pageSize)
