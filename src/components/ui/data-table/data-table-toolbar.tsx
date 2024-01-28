@@ -42,6 +42,7 @@ export function DataTableToolbar<TData>({
 
 				{filters?.map((filter) => (
 					<DataTableFacetedFilter
+						key={filter.column as string}
 						column={table.getColumn(filter.column as string)}
 						title={filter.title}
 						options={filter.options}
