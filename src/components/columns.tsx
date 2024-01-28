@@ -40,7 +40,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
 		id: 'icon',
 		accessorFn: (row) => row.logoUrl || row.categoryIconUrl,
 		header: () => {
-			return <span className="text-xs">Icon</span>
+			return <span>Icon</span>
 		},
 		cell: (ctx) => {
 			const value = ctx.getValue()
@@ -91,6 +91,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
 	{
 		id: 'account',
 		accessorFn: (row) => row.account?.name,
+		enableColumnFilter: true,
 	},
 	{
 		header: ({ column }) => {
@@ -100,7 +101,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
 	},
 	{
 		header: () => {
-			return <span className="text-xs">Category</span>
+			return <span>Category</span>
 		},
 		accessorKey: 'category',
 		cell: ({ row }) => {

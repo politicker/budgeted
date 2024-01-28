@@ -33,7 +33,7 @@ export function Root() {
 				<div className="row-span-3 p-3 border-r text-center">
 					<div className="flex flex-col justify-between h-full">
 						<div>
-							<Button variant="ghost" size="icon">
+							<Button variant="ghost" size="icon" asChild>
 								<Link to={Page.TABLE}>
 									<TableIcon />
 								</Link>

@@ -16,12 +16,14 @@ import { DataTableToolbar } from './data-table-toolbar'
 
 interface DataTableProps<TData> {
 	table: Table<TData>
+	filters?: { column: keyof TData }[]
 }
 
-export function DataTable<TData>({ table }: DataTableProps<TData>) {
+export function DataTable<TData>({ table, filters }: DataTableProps<TData>) {
 	return (
 		<>
-			<DataTableToolbar table={table} />
+			<DataTableToolbar table={table} filters={filters} />
+
 			<div className="rounded-md border overflow-auto mx-3 mb-3">
 				<UITable>
 					<TableHeader>

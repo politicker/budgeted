@@ -109,7 +109,7 @@ function AccountCard({ onSuccess, account }: AccountCardProps) {
 						account.name
 					)}
 				</p>
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground">
 					{account.currentBalance ? (
 						formatMoney(account.currentBalance)
 					) : (

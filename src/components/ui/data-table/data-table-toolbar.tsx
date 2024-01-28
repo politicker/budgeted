@@ -4,15 +4,20 @@ import { Table } from '@tanstack/react-table'
 
 import { Input } from '@/components/ui/input'
 import { DataTableViewOptions } from './data-table-view-options'
+import { DataTableFacetedFilter } from './data-table-faceted-filter'
+import { Button } from '../button'
+import { Cross2Icon } from '@radix-ui/react-icons'
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>
+	filters?: { column: keyof TData }[]
 }
 
 export function DataTableToolbar<TData>({
 	table,
+	filters,
 }: DataTableToolbarProps<TData>) {
-	// const isFiltered = table.getState().columnFilters.length > 0
+	const isFiltered = table.getState().columnFilters.length > 0
 
 	return (
 		<div className="flex items-center justify-between m-3">
@@ -25,6 +30,14 @@ export function DataTableToolbar<TData>({
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
+				{filters?.map((filter) => (
+					<DataTableFacetedFilter
+						column={table.getColumn(filter.column as string)}
+						title="Merchant"
+						options={[{ label: 'test', value: 'test' }]}
+					/>
+				))}
+
 				{/* {table.getColumn('merchantName') && (
 					<DataTableFacetedFilter
 						column={table.getColumn('merchantName')}
@@ -38,17 +51,17 @@ export function DataTableToolbar<TData>({
 						title="Date"
 						options={priorities}
 					/>
-				)}
+				)} */}
 				{isFiltered && (
 					<Button
-						variant="ghost"
+						variant="outline"
 						onClick={() => table.resetColumnFilters()}
 						className="h-8 px-2 lg:px-3"
 					>
 						Reset
 						<Cross2Icon className="ml-2 h-4 w-4" />
 					</Button>
-				)} */}
+				)}
 			</div>
 			<DataTableViewOptions table={table} />
 		</div>

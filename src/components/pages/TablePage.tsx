@@ -40,7 +40,7 @@ export function TablePage() {
 
 	return (
 		<>
-			<DataTable table={table} />
+			<DataTable table={table} filters={[{ column: 'account' }]} />
 
 			{Boolean(selectedRows.length) && (
 				<SelectionOverlay selectedRows={selectedRows} key={Math.random()} />
