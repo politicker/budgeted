@@ -21,7 +21,7 @@
 		"lint:unused": "eslint --cache --cache-location ./node_modules/.cache/eslint . --fix --rule 'unused-imports/no-unused-imports: \"error\"'",
 		"typecheck": "tsc --noEmit",
 		"migrate": "npx prisma migrate dev",
-		"tag": "git tag -f `jq -r .version < package.json`"
+		"tag": "git commit -am $npm_package_version ; git tag $npm_package_version"
 	},
 	"author": "politicker",
 	"license": "MIT",
