@@ -257,7 +257,14 @@ export const router = t.router({
 			reportError('INTERNAL_SERVER_ERROR', 'Error fetching config', err)
 		}
 	}),
-	writeCronTasks: loggedProcedure.mutation(writeCronTasks),
+	writeCronTasks: loggedProcedure.mutation(() => {
+		try {
+			writeCronTasks()
+		} catch (err) {
+			reportError('INTERNAL_SERVER_ERROR', 'Error writing cron tasks', err)
+		}
+		return { success: true }
+	}),
 })
 
 export type AppRouter = typeof router

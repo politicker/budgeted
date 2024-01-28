@@ -10,8 +10,7 @@ export function writeCronTasks() {
 	// List current crontab entries
 	exec('crontab -l', (error, stdout, stderr) => {
 		if (error) {
-			console.error(`Error listing crontab: ${error.message}`)
-			return
+			throw new Error('error listing crontab ${error.message}')
 		}
 
 		// TODO: Eventually remove old budgeted entries and re-write them
