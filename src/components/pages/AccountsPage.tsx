@@ -1,46 +1,69 @@
-import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader } from '../ui/card'
 import { trpc } from '@/lib/trpc'
-import { useEffect, useRef, useState } from 'react'
-import { Pencil1Icon } from '@radix-ui/react-icons'
+import { useEffect, useState } from 'react'
+import { Link2Icon, Pencil1Icon, PlusIcon } from '@radix-ui/react-icons'
 import { Button } from '../ui/button'
 import { InlineInput } from '../ui/input'
 import { Account } from '@prisma/client'
+import { PlaidLinkButton } from '../PlaidLinkButton'
 
 export function AccountsPage() {
 	const { data, refetch } = trpc.institutions.useQuery()
+	console.log({ PlaidLinkButton })
 
 	return (
 		<div className="overflow-y-auto">
 			<div className="flex flex-wrap gap-4 p-4">
-				{data?.map((institution, idx) => (
-					<Card className={cn('w-[380px]')} key={idx}>
+				{data?.map((institution) => (
+					<Card className="w-[380px]" key={institution.name}>
 						<CardHeader>{institution.name}</CardHeader>
 						<CardContent className="grid gap-4">
 							{institution.accounts.map((account) => (
 								<AccountCard
 									key={account.plaidId}
 									account={account}
-									refetch={refetch}
+									onSuccess={refetch}
 								/>
 							))}
+
+							<PlaidLinkButton
+								onSuccess={refetch}
+								institutionId={institution.plaidId}
+							>
+								<Button className="w-full" variant="outline" asChild>
+									<div className="flex items-center gap-3">
+										<Link2Icon />
+										<div className="leading-3 pt-[2px]">Reconnect to Plaid</div>
+									</div>
+								</Button>
+							</PlaidLinkButton>
 						</CardContent>
 					</Card>
 				))}
+
+				<PlaidLinkButton onSuccess={refetch}>
+					<Card className="w-[380px] bg-muted hover:bg-secondary">
+						<CardHeader className="text-center">Add an Institution</CardHeader>
+
+						<CardContent className="flex items-center justify-center">
+							<div>
+								<PlusIcon className="w-[100px] h-[100px]" />
+							</div>
+						</CardContent>
+					</Card>
+				</PlaidLinkButton>
 			</div>
 		</div>
 	)
 }
 
-interface AccountCardProps<T> {
-	refetch: () => Promise<T>
+interface AccountCardProps {
+	onSuccess: () => Promise<unknown>
 	account: Account
 }
 
-function AccountCard<T>({ refetch, account }: AccountCardProps<T>) {
-	const { mutate } = trpc.setAccountName.useMutation({
-		onSuccess: () => refetch(),
-	})
+function AccountCard({ onSuccess, account }: AccountCardProps) {
+	const { mutate } = trpc.setAccountName.useMutation({ onSuccess })
 
 	const [isEditing, setIsEditing] = useState(false)
 	const [accountNameRef, setRef] = useState<HTMLInputElement | null>(null)
@@ -59,6 +82,7 @@ function AccountCard<T>({ refetch, account }: AccountCardProps<T>) {
 						<form
 							onSubmit={(e) => {
 								e.preventDefault()
+
 								mutate({
 									id: account.plaidId,
 									name: accountNameRef ? accountNameRef.value : account.name,

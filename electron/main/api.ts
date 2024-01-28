@@ -4,7 +4,12 @@ import z from 'zod'
 import { TableStateInput } from '../../src/lib/useDataTable'
 import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
 import { CreateConfigInput } from './api-inputs'
-import { createAccount, fetchAccounts, updateAccount } from './models/accounts'
+import {
+	createAccount,
+	fetchAccounts,
+	updateAccount,
+	upsertAccount,
+} from './models/accounts'
 import { upsertConfig } from './models/config'
 import { createInstitution } from './models/institutions'
 import { fetchTransactions, hideTransaction } from './models/transactions'
@@ -12,6 +17,14 @@ import { prisma } from './prisma'
 import { extract, load, transform } from './lib/cli'
 import { TRPC_ERROR_CODE_KEY } from '@trpc/server/rpc'
 import { writeCronTasks } from '~electron/lib/crontab/crontab'
+
+const AccountInput = z.object({
+	id: z.string(),
+	name: z.string(),
+	mask: z.string(),
+	type: z.string(),
+	subtype: z.string(),
+})
 
 const t = initTRPC.context().create({ isServer: true })
 const procedure = t.procedure
@@ -66,6 +79,7 @@ export const router = t.router({
 			select: {
 				name: true,
 				accounts: true,
+				plaidId: true,
 			},
 		})
 	}),
@@ -91,33 +105,49 @@ export const router = t.router({
 	 * this endpoint is the link token that the client uses to initialize the
 	 * Plaid link UI.
 	 */
-	plaidLinkToken: loggedProcedure.query(async () => {
-		const config = await prisma.config.findFirst()
-		if (!config) {
-			throw new Error('Config not found')
-		}
-
-		const plaidClient = createPlaidClient(
-			config.plaidClientId,
-			config.plaidSecret,
+	plaidLinkToken: loggedProcedure
+		.input(
+			z.object({
+				institutionId: z.string().optional(),
+			}),
 		)
+		.query(async ({ input: { institutionId } }) => {
+			const config = await prisma.config.findFirst()
+			if (!config) throw new Error('Config not found')
 
-		try {
-			const linkResponse = await plaidClient.linkTokenCreate({
-				user: {
-					client_user_id: 'user-id',
-				},
-				client_name: 'Budgeted',
-				products: PLAID_PRODUCTS,
-				country_codes: [CountryCode.Us],
-				language: 'en',
-			})
+			const plaidClient = createPlaidClient(
+				config.plaidClientId,
+				config.plaidSecret,
+			)
 
-			return { token: linkResponse.data.link_token }
-		} catch (e) {
-			reportError('INTERNAL_SERVER_ERROR', 'Error creating Plaid link token', e)
-		}
-	}),
+			const institution = institutionId
+				? await prisma.institution.findFirst({
+						where: { plaidId: institutionId },
+					})
+				: undefined
+
+			try {
+				const linkResponse = await plaidClient.linkTokenCreate({
+					user: {
+						client_user_id: 'user-id',
+					},
+					client_name: 'Budgeted',
+					products: PLAID_PRODUCTS,
+					country_codes: [CountryCode.Us],
+					language: 'en',
+					access_token: institution?.plaidAccessToken,
+				})
+
+				console.log(institutionId, 'linkResponse', linkResponse)
+				return { token: linkResponse.data.link_token, institutionId }
+			} catch (e) {
+				reportError(
+					'INTERNAL_SERVER_ERROR',
+					'Error creating Plaid link token',
+					e,
+				)
+			}
+		}),
 
 	/**
 	 * Client hits this after the Plaid link UI flow is complete. The response
@@ -130,15 +160,7 @@ export const router = t.router({
 				publicToken: z.string(),
 				institutionName: z.string(),
 				institutionId: z.string(),
-				accounts: z.array(
-					z.object({
-						id: z.string(),
-						name: z.string(),
-						mask: z.string(),
-						type: z.string(),
-						subtype: z.string(),
-					}),
-				),
+				accounts: z.array(AccountInput),
 			}),
 		)
 		.mutation(async ({ input }) => {
@@ -194,6 +216,27 @@ export const router = t.router({
 
 			return { success: true }
 		}),
+
+	updatePlaidInstitution: loggedProcedure
+		.input(
+			z.object({
+				accounts: z.array(AccountInput),
+			}),
+		)
+		.mutation(async ({ input }) => {
+			for (const account of input.accounts) {
+				await upsertAccount({
+					plaidId: account.id,
+					name: account.name,
+					mask: account.mask,
+					type: account.type,
+					subtype: account.subtype,
+				})
+			}
+
+			return { success: true }
+		}),
+
 	createConfig: loggedProcedure
 		.input(CreateConfigInput)
 		.mutation(async ({ input }) => {

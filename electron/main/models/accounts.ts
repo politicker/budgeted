@@ -19,3 +19,16 @@ export async function updateAccount(
 		data,
 	})
 }
+export async function upsertAccount(
+	data: Parameters<typeof prisma.account.upsert>[0]['create'],
+) {
+	return await prisma.account.upsert({
+		where: { plaidId: data.plaidId },
+		create: data,
+		update: {
+			mask: data.mask,
+			type: data.type,
+			subtype: data.subtype,
+		},
+	})
+}

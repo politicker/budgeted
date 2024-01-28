@@ -41,7 +41,6 @@ export async function fetchTransactions({
 	])
 
 	const pageCount = Math.ceil(total / pageSize)
-	console.log('transactions', { results })
 	return { results, total, pageCount }
 }
 

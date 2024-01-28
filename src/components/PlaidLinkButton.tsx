@@ -1,55 +1,74 @@
 import { trpc } from '@/lib/trpc'
-import { PlaidLinkOnSuccess, PlaidLink } from 'react-plaid-link'
+import { useCallback } from 'react'
+import type {
+	PlaidLinkOptions,
+	PlaidHandler,
+	PlaidEmbeddedHandler,
+} from 'react-plaid-link'
 import { toast } from 'sonner'
-import { Button } from './ui/button'
 
-export function PlaidLinkButton() {
-	const { data } = trpc.plaidLinkToken.useQuery()
+export interface Plaid extends PlaidHandler {
+	create: (config: PlaidLinkOptions) => PlaidHandler
+	createEmbedded: (
+		config: PlaidLinkOptions,
+		domTarget: HTMLElement,
+	) => PlaidEmbeddedHandler
+}
+
+declare global {
+	interface Window {
+		Plaid: Plaid
+	}
+}
+
+export function PlaidLinkButton({
+	children,
+	onSuccess,
+	institutionId,
+}: {
+	children: React.ReactNode
+	onSuccess?: () => Promise<unknown>
+	institutionId?: string
+}) {
+	const { data } = trpc.plaidLinkToken.useQuery({ institutionId })
 	const { mutateAsync } = trpc.setPlaidPublicToken.useMutation({})
 
-	const onSuccess: PlaidLinkOnSuccess = function (publicToken, metadata) {
-		const { institution } = metadata
-		if (!institution) {
+	const onClick = useCallback(() => {
+		if (!data) {
+			toast.error('Not ready yet')
 			return
 		}
 
-		mutateAsync({
-			publicToken,
-			institutionName: institution.name,
-			institutionId: institution.institution_id,
-			accounts: metadata.accounts,
-		})
-			.then((result) => {
-				if (result.success) {
-					toast.success('Bank account linked')
-				} else {
-					toast.error('Failed to link account')
+		const handler = window.Plaid.create({
+			token: data?.token,
+			onSuccess: (publicToken, metadata) => {
+				const { institution } = metadata
+				if (!institution) {
+					return
 				}
-			})
-			.catch(() => {
-				toast.error('Something went wrong. Please try again')
-			})
-	}
 
-	return (
-		data && (
-			<div>
-				<PlaidLink
-					token={data.token}
-					onSuccess={onSuccess}
-					style={{
-						padding: 'initial',
-						outline: 'none',
-						background: 'initial',
-						border: 'initial',
-						borderRadius: 'initial',
-					}}
-				>
-					<Button asChild>
-						<div>Link your bank account</div>
-					</Button>
-				</PlaidLink>
-			</div>
-		)
-	)
+				mutateAsync({
+					publicToken,
+					institutionName: institution.name,
+					institutionId: institution.institution_id,
+					accounts: metadata.accounts,
+				})
+					.then((result) => {
+						if (result.success) {
+							void onSuccess?.()
+							toast.success('Bank account linked')
+						} else {
+							toast.error('Failed to link account')
+						}
+					})
+					.catch(() => {
+						toast.error('Something went wrong. Please try again')
+					})
+			},
+		})
+
+		handler.open()
+	}, [data?.token])
+
+	return <div onClick={onClick}>{children}</div>
 }
