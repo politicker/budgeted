@@ -93,14 +93,16 @@ function SettingsForm({
 
 export function SettingsPage() {
 	const { data } = trpc.config.useQuery()
-	const { mutate } = trpc.rebuildTransactions.useMutation()
+	const { mutate: rebuildTransactions } = trpc.rebuildTransactions.useMutation()
+	const { mutate: writeCronTab } = trpc.writeCronTasks.useMutation()
 
 	return (
 		<div className="flex flex-col gap-12 p-8 w-1/2">
 			<SettingsForm defaultValues={data || {}} />
-			<PlaidLinkButton />
-			<br />
-			<Button onClick={() => mutate()}>Rebuild Transactions</Button>
+			<Button onClick={() => rebuildTransactions()}>
+				Rebuild Transactions
+			</Button>
+			<Button onClick={() => writeCronTab()}>Write to crontab</Button>
 		</div>
 	)
 }
