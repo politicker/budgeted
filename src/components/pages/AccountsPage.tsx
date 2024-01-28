@@ -16,7 +16,16 @@ export function AccountsPage() {
 			<div className="flex flex-wrap gap-4 p-4">
 				{data?.map((institution) => (
 					<Card className="w-[380px] flex flex-col" key={institution.name}>
-						<CardHeader>{institution.name}</CardHeader>
+						<CardHeader className="flex flex-row items-center">
+							<div
+								className="rounded-full w-4 h-4 bg-primary mr-2"
+								style={{
+									backgroundColor: institution.color ?? undefined,
+									// backgroundImage: `url('data:image/jpeg;base64,${institution.logo}')`,
+								}}
+							/>
+							<div style={{ margin: 0 }}>{institution.name}</div>
+						</CardHeader>
 						<CardContent className="flex flex-col gap-4 grow">
 							<div>
 								{institution.accounts.map((account) => (

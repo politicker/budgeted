@@ -11,6 +11,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { Page } from '@/lib/types'
 import { WindowControls } from './WindowControls'
 import { Toaster } from './ui/sonner'
+import { cn } from '@/lib/utils'
 
 export function Root() {
 	useEffect(() => {
@@ -27,10 +28,10 @@ export function Root() {
 
 	return (
 		<>
-			<section className={styles.root}>
+			<section className={cn(styles.root, 'bg-muted')}>
 				<WindowControls />
 
-				<div className="row-span-3 p-3 border-r text-center">
+				<div className="bg-background row-span-3 p-3 border-r text-center">
 					<div className="flex flex-col justify-between h-full">
 						<div>
 							<Button variant="ghost" size="icon" asChild>

@@ -130,7 +130,7 @@ export function ChartPage() {
 
 	return (
 		<>
-			<div className="p-3 border-b">
+			<div className="p-3">
 				<span>Showing</span> the last{' '}
 				<InlineInput
 					className="w-10 text-center"
@@ -166,7 +166,10 @@ export function ChartPage() {
 				/>
 			</div>
 
-			<div ref={ref} className="row-span-2">
+			<div
+				ref={ref}
+				className="row-span-2 rounded-md border overflow-auto mx-3 mb-3 bg-background"
+			>
 				{'width' in dimensions && filteredData && (
 					<VictoryChart
 						domainPadding={{ y: [0, 0] }}

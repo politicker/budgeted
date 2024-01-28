@@ -7,3 +7,13 @@ export async function createInstitution(
 		data,
 	})
 }
+
+export async function updateInstitution(
+	plaidId: string,
+	data: Parameters<typeof prisma.institution.update>[0]['data'],
+) {
+	return await prisma.institution.update({
+		where: { plaidId },
+		data,
+	})
+}

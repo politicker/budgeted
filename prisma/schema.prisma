@@ -19,6 +19,8 @@ model Institution {
   plaidId          String    @id
   name             String
   plaidAccessToken String
+  logo             String?
+  color            String?
   accounts         Account[]
 }
 

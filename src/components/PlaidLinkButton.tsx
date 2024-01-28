@@ -34,9 +34,8 @@ export function PlaidLinkButton({
 	asChild?: boolean
 }) {
 	const { data } = trpc.plaidLinkToken.useQuery({ institutionId })
-	const { mutateAsync } = trpc.setPlaidPublicToken.useMutation({})
-	const { mutateAsync: mutateInstitution } =
-		trpc.updatePlaidInstitution.useMutation({})
+	const { mutateAsync: create } = trpc.createPlaidInstitution.useMutation({})
+	const { mutateAsync: update } = trpc.updatePlaidInstitution.useMutation({})
 
 	const onClick = useCallback(() => {
 		if (!data) {
@@ -53,11 +52,11 @@ export function PlaidLinkButton({
 				}
 
 				const promise = institutionId
-					? mutateInstitution({
+					? update({
 							institutionId,
 							accounts: metadata.accounts,
 						})
-					: mutateAsync({
+					: create({
 							publicToken,
 							institutionName: institution.name,
 							institutionId: institution.institution_id,

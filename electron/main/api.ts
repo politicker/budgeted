@@ -2,7 +2,11 @@ import { TRPCError, initTRPC } from '@trpc/server'
 import { CountryCode } from 'plaid'
 import z from 'zod'
 import { TableStateInput } from '../../src/lib/useDataTable'
-import { PLAID_PRODUCTS, createPlaidClient } from '../lib/plaid/client'
+import {
+	PLAID_PRODUCTS,
+	createPlaidClient,
+	createPlaidClientFromConfig,
+} from '../lib/plaid/client'
 import { CreateConfigInput } from './api-inputs'
 import {
 	createAccount,
@@ -18,6 +22,11 @@ import { extract, load, transform } from './lib/cli'
 import { TRPC_ERROR_CODE_KEY } from '@trpc/server/rpc'
 import { writeCronTasks } from '../lib/crontab/crontab'
 import superjson from 'superjson'
+import {
+	createPlaidInstitution,
+	createPlaidLinkToken,
+	updatePlaidInstitution,
+} from './models/plaid'
 
 const AccountInput = z.object({
 	id: z.string(),
@@ -86,6 +95,8 @@ export const router = t.router({
 				name: true,
 				accounts: true,
 				plaidId: true,
+				logo: true,
+				color: true,
 			},
 		})
 	}),
@@ -118,14 +129,6 @@ export const router = t.router({
 			}),
 		)
 		.query(async ({ input: { institutionId } }) => {
-			const config = await prisma.config.findFirst()
-			if (!config) throw new Error('Config not found')
-
-			const plaidClient = createPlaidClient(
-				config.plaidClientId,
-				config.plaidSecret,
-			)
-
 			const institution = institutionId
 				? await prisma.institution.findFirst({
 						where: { plaidId: institutionId },
@@ -133,17 +136,7 @@ export const router = t.router({
 				: undefined
 
 			try {
-				const linkResponse = await plaidClient.linkTokenCreate({
-					user: {
-						client_user_id: 'user-id',
-					},
-					client_name: 'Budgeted',
-					products: PLAID_PRODUCTS,
-					country_codes: [CountryCode.Us],
-					language: 'en',
-					access_token: institution?.plaidAccessToken,
-					update: institution ? { account_selection_enabled: true } : undefined,
-				})
+				const linkResponse = await createPlaidLinkToken(institution)
 
 				return { token: linkResponse.data.link_token, institutionId }
 			} catch (e) {
@@ -160,7 +153,7 @@ export const router = t.router({
 	 * from this endpoint is the public token that the client uses to retrieve
 	 * the access token.
 	 */
-	setPlaidPublicToken: loggedProcedure
+	createPlaidInstitution: loggedProcedure
 		.input(
 			z.object({
 				publicToken: z.string(),
@@ -188,23 +181,8 @@ export const router = t.router({
 				return { success: false }
 			}
 
-			const config = await prisma.config.findFirstOrThrow()
-
-			const plaidClient = createPlaidClient(
-				config.plaidClientId,
-				config.plaidSecret,
-			)
-
-			const tokenResponse = await plaidClient.itemPublicTokenExchange({
-				public_token: input.publicToken,
-			})
-
 			try {
-				await createInstitution({
-					plaidId: input.institutionId,
-					name: input.institutionName,
-					plaidAccessToken: tokenResponse.data.access_token,
-				})
+				await createPlaidInstitution(input)
 			} catch (err) {
 				reportError('INTERNAL_SERVER_ERROR', 'Error creating institution', err)
 			}
@@ -231,6 +209,8 @@ export const router = t.router({
 			}),
 		)
 		.mutation(async ({ input }) => {
+			await updatePlaidInstitution(input.institutionId)
+
 			for (const account of input.accounts) {
 				await upsertAccount({
 					plaidId: account.id,

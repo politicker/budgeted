@@ -65,7 +65,9 @@ export function TablePage() {
 								)}
 							</Badge>
 						) : data?.totalAmount ? (
-							<Badge>Sum: {formatMoney(data.totalAmount)}</Badge>
+							<Badge variant="secondary">
+								Sum: {formatMoney(data.totalAmount)}
+							</Badge>
 						) : (
 							'N/A'
 						)}

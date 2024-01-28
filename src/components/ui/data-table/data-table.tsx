@@ -29,7 +29,7 @@ export function DataTable<TData>({
 		<>
 			<DataTableToolbar table={table} filters={filters} />
 
-			<div className="rounded-md border overflow-auto mx-3 mb-3">
+			<div className="rounded-md border overflow-auto mx-3 mb-3 bg-background">
 				<UITable>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (

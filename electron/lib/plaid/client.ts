@@ -5,12 +5,13 @@ import {
 	CountryCode,
 	PlaidEnvironments,
 } from 'plaid'
+import { prisma } from '../../main/prisma'
 
 export const PLAID_PRODUCTS = (
 	process.env.PLAID_PRODUCTS || Products.Transactions
 ).split(',') as Products[]
 
-export const PLAID_COUNTRY_CODES: CountryCode[] = []
+export const PLAID_COUNTRY_CODES: CountryCode[] = [CountryCode.Us]
 
 export function createPlaidClient(clientId: string, secret: string) {
 	return new PlaidApi(
@@ -24,4 +25,13 @@ export function createPlaidClient(clientId: string, secret: string) {
 			},
 		}),
 	)
+}
+
+export async function createPlaidClientFromConfig() {
+	const config = await prisma.config.findFirst()
+	if (!config) {
+		throw new Error('No config found')
+	}
+
+	return createPlaidClient(config.plaidClientId, config.plaidSecret)
 }
