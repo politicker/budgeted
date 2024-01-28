@@ -6,10 +6,11 @@ files:
   - dist
   - dist-electron
 extraResources:
-  - "prisma/**/*"
-  - "node_modules/.prisma/**/*"
-  - "node_modules/@prisma/client/**/*"
-  - "bin/budgeted-cli"
+  - 'prisma/**/*'
+  - 'node_modules/.prisma/**/*'
+  - 'node_modules/@prisma/client/**/*'
+  - 'bin/budgeted-cli'
+  - 'bin/budgeted-crontab.sh'
 asarUnpack:
   - resources/**
 win:
