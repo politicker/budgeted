@@ -11,6 +11,9 @@ import { Page } from './lib/types'
 import { AccountsPage } from './components/pages/AccountsPage'
 import { SettingsPage } from './components/pages/SettingsPage'
 
+const LastRouteKey = 'lastRoute' as const
+const lastRoute = localStorage.getItem(LastRouteKey)
+
 export const router = createMemoryRouter(
 	createRoutesFromElements(
 		<Route path="/" element={<Root />}>
@@ -21,4 +24,11 @@ export const router = createMemoryRouter(
 			<Route path={Page.SETTINGS} element={<SettingsPage />} />
 		</Route>,
 	),
+	{
+		initialEntries: lastRoute ? [lastRoute] : undefined,
+	},
 )
+
+router.subscribe((route) => {
+	localStorage.setItem(LastRouteKey, route.location.pathname)
+})

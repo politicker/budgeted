@@ -10,7 +10,6 @@ import { formatMoney } from './ChartPage'
 
 export function AccountsPage() {
 	const { data, refetch } = trpc.institutions.useQuery()
-	console.log({ PlaidLinkButton })
 
 	return (
 		<div className="overflow-y-auto">
