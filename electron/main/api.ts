@@ -17,6 +17,7 @@ import { prisma } from './prisma'
 import { extract, load, transform } from './lib/cli'
 import { TRPC_ERROR_CODE_KEY } from '@trpc/server/rpc'
 import { writeCronTasks } from '../lib/crontab/crontab'
+import superjson from 'superjson'
 
 const AccountInput = z.object({
 	id: z.string(),
@@ -26,7 +27,7 @@ const AccountInput = z.object({
 	subtype: z.union([z.string(), z.null()]).optional(),
 })
 
-const t = initTRPC.context().create({ isServer: true })
+const t = initTRPC.context().create({ isServer: true, transformer: superjson })
 const procedure = t.procedure
 const loggedProcedure = procedure.use(async ({ next, path, type }) => {
 	console.log('[trpc] request -', `type=${type}`, `path=/${path}`)
