@@ -8,7 +8,7 @@ const eveningSyncEntry = '0 12 * * * bin/budgeted-crontab.sh'
  */
 export function writeCronTasks() {
 	// List current crontab entries
-	exec('crontab -l', (error, stdout, stderr) => {
+	exec('crontab -l', (error, stdout) => {
 		if (error) {
 			throw new Error('error listing crontab ${error.message}')
 		}
