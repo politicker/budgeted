@@ -16,37 +16,44 @@ export function AccountsPage() {
 		<div className="overflow-y-auto">
 			<div className="flex flex-wrap gap-4 p-4">
 				{data?.map((institution) => (
-					<Card className="w-[380px]" key={institution.name}>
+					<Card className="w-[380px] flex flex-col" key={institution.name}>
 						<CardHeader>{institution.name}</CardHeader>
-						<CardContent className="grid gap-4">
-							{institution.accounts.map((account) => (
-								<AccountCard
-									key={account.plaidId}
-									account={account}
-									onSuccess={refetch}
-								/>
-							))}
+						<CardContent className="flex flex-col gap-4 grow">
+							<div>
+								{institution.accounts.map((account) => (
+									<AccountCard
+										key={account.plaidId}
+										account={account}
+										onSuccess={refetch}
+									/>
+								))}
+							</div>
 
 							<PlaidLinkButton
 								onSuccess={refetch}
 								institutionId={institution.plaidId}
+								asChild
 							>
-								<Button className="w-full" variant="outline" asChild>
-									<div className="flex items-center gap-3">
-										<Link2Icon />
-										<div className="leading-3 pt-[2px]">Reconnect to Plaid</div>
-									</div>
-								</Button>
+								<div className="grow flex items-end">
+									<Button className="w-full" variant="outline" asChild>
+										<div className="flex items-center gap-3">
+											<Link2Icon />
+											<div className="leading-3 pt-[2px]">
+												Reconnect to Plaid
+											</div>
+										</div>
+									</Button>
+								</div>
 							</PlaidLinkButton>
 						</CardContent>
 					</Card>
 				))}
 
-				<PlaidLinkButton onSuccess={refetch}>
-					<Card className="w-[380px] bg-muted hover:bg-secondary">
+				<PlaidLinkButton onSuccess={refetch} asChild>
+					<Card className="w-[380px] bg-muted hover:bg-secondary flex flex-col">
 						<CardHeader className="text-center">Add an Institution</CardHeader>
 
-						<CardContent className="flex items-center justify-center">
+						<CardContent className="flex items-center justify-center grow">
 							<div>
 								<PlusIcon className="w-[100px] h-[100px]" />
 							</div>

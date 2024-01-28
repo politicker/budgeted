@@ -1,4 +1,5 @@
 import { trpc } from '@/lib/trpc'
+import { Slot } from '@radix-ui/react-slot'
 import { useCallback } from 'react'
 import type {
 	PlaidLinkOptions,
@@ -25,10 +26,12 @@ export function PlaidLinkButton({
 	children,
 	onSuccess,
 	institutionId,
+	asChild,
 }: {
 	children: React.ReactNode
 	onSuccess?: () => Promise<unknown>
 	institutionId?: string
+	asChild?: boolean
 }) {
 	const { data } = trpc.plaidLinkToken.useQuery({ institutionId })
 	const { mutateAsync } = trpc.setPlaidPublicToken.useMutation({})
@@ -79,5 +82,6 @@ export function PlaidLinkButton({
 		handler.open()
 	}, [data?.token])
 
-	return <div onClick={onClick}>{children}</div>
+	const Comp = asChild ? Slot : 'div'
+	return <Comp onClick={onClick}>{children}</Comp>
 }
