@@ -17,9 +17,14 @@ import { DataTableFilter, DataTableToolbar } from './data-table-toolbar'
 interface DataTableProps<TData> {
 	table: Table<TData>
 	filters?: DataTableFilter<TData>[]
+	metadata?: React.ReactNode
 }
 
-export function DataTable<TData>({ table, filters }: DataTableProps<TData>) {
+export function DataTable<TData>({
+	table,
+	filters,
+	metadata,
+}: DataTableProps<TData>) {
 	return (
 		<>
 			<DataTableToolbar table={table} filters={filters} />
@@ -75,7 +80,7 @@ export function DataTable<TData>({ table, filters }: DataTableProps<TData>) {
 				</UITable>
 			</div>
 
-			<DataTablePagination table={table} />
+			<DataTablePagination table={table} metadata={metadata} />
 		</>
 	)
 }

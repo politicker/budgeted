@@ -22,7 +22,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
 				}
 				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
-				className="translate-y-[2px]"
+				className="text-2xl data-[state=checked]:translate-y-[2px] data-[state=indeterminate]:translate-y-[2px]"
 			/>
 		),
 		cell: ({ row }) => (
@@ -30,7 +30,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
 				checked={row.getIsSelected()}
 				onCheckedChange={(value) => row.toggleSelected(!!value)}
 				aria-label="Select row"
-				className="translate-y-[2px]"
+				className="data-[state=checked]:translate-y-[2px]"
 			/>
 		),
 		enableSorting: false,

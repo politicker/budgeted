@@ -44,7 +44,13 @@ export async function fetchTransactions({
 		})
 	}
 
-	const [results, total] = await Promise.all([
+	const [
+		results,
+		total,
+		{
+			_sum: { amount: totalAmount },
+		},
+	] = await Promise.all([
 		prisma.transaction.findMany({
 			orderBy: {
 				[sortColumn]: sort,
@@ -54,13 +60,12 @@ export async function fetchTransactions({
 			where,
 			include: { account: true },
 		}),
-		prisma.transaction.count({
-			where,
-		}),
+		prisma.transaction.count({ where }),
+		prisma.transaction.aggregate({ where, _sum: { amount: true } }),
 	])
 
 	const pageCount = Math.ceil(total / pageSize)
-	return { results, total, pageCount }
+	return { results, total, pageCount, totalAmount }
 }
 
 export async function hideTransaction(plaidId: string) {

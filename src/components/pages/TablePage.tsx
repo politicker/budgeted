@@ -5,6 +5,7 @@ import { useDataTable, useDataTableInput } from '@/lib/useDataTable'
 import { SelectionOverlay } from '../SelectionOverlay'
 import { useEffect, useState } from 'react'
 import { Transaction } from '@prisma/client'
+import { formatMoney } from './ChartPage'
 
 export function TablePage() {
 	const [input, setInput] = useDataTableInput()
@@ -51,6 +52,12 @@ export function TablePage() {
 							})) ?? [],
 					},
 				]}
+				metadata={
+					<>
+						Total Amount:{' '}
+						{data?.totalAmount ? formatMoney(data?.totalAmount) : 'N/A'}
+					</>
+				}
 			/>
 
 			{Boolean(selectedRows.length) && (
