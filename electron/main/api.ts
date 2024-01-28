@@ -11,6 +11,7 @@ import { fetchTransactions, hideTransaction } from './models/transactions'
 import { prisma } from './prisma'
 import { extract, load, transform } from './lib/cli'
 import { TRPC_ERROR_CODE_KEY } from '@trpc/server/rpc'
+import { writeCronTasks } from '~electron/lib/crontab/crontab'
 
 const t = initTRPC.context().create({ isServer: true })
 const procedure = t.procedure
@@ -211,6 +212,7 @@ export const router = t.router({
 			reportError('INTERNAL_SERVER_ERROR', 'Error fetching config', err)
 		}
 	}),
+	writeCronTasks: loggedProcedure.mutation(writeCronTasks),
 })
 
 export type AppRouter = typeof router
