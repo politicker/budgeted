@@ -4,13 +4,22 @@ import { Table } from '@tanstack/react-table'
 
 import { Input } from '@/components/ui/input'
 import { DataTableViewOptions } from './data-table-view-options'
-import { DataTableFacetedFilter } from './data-table-faceted-filter'
+import {
+	DataTableFacetedFilter,
+	FacetedFilterOption,
+} from './data-table-faceted-filter'
 import { Button } from '../button'
 import { Cross2Icon } from '@radix-ui/react-icons'
 
+export interface DataTableFilter<TData> {
+	column: keyof TData
+	title: string
+	options: FacetedFilterOption[]
+}
+
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>
-	filters?: { column: keyof TData }[]
+	filters?: DataTableFilter<TData>[]
 }
 
 export function DataTableToolbar<TData>({
@@ -30,28 +39,15 @@ export function DataTableToolbar<TData>({
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
+
 				{filters?.map((filter) => (
 					<DataTableFacetedFilter
 						column={table.getColumn(filter.column as string)}
-						title="Merchant"
-						options={[{ label: 'test', value: 'test' }]}
+						title={filter.title}
+						options={filter.options}
 					/>
 				))}
 
-				{/* {table.getColumn('merchantName') && (
-					<DataTableFacetedFilter
-						column={table.getColumn('merchantName')}
-						title="Merchant"
-						options={statuses}
-					/>
-				)}
-				{table.getColumn('date') && (
-					<DataTableFacetedFilter
-						column={table.getColumn('date')}
-						title="Date"
-						options={priorities}
-					/>
-				)} */}
 				{isFiltered && (
 					<Button
 						variant="outline"

@@ -12,11 +12,11 @@ import {
 } from '@/components/ui/table'
 
 import { DataTablePagination } from './data-table-pagination'
-import { DataTableToolbar } from './data-table-toolbar'
+import { DataTableFilter, DataTableToolbar } from './data-table-toolbar'
 
 interface DataTableProps<TData> {
 	table: Table<TData>
-	filters?: { column: keyof TData }[]
+	filters?: DataTableFilter<TData>[]
 }
 
 export function DataTable<TData>({ table, filters }: DataTableProps<TData>) {

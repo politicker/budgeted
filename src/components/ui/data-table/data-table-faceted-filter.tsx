@@ -21,14 +21,16 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 
+export interface FacetedFilterOption {
+	label: string
+	value: string
+	icon?: React.ComponentType<{ className?: string }>
+}
+
 interface DataTableFacetedFilterProps<TData, TValue> {
 	column?: Column<TData, TValue>
 	title?: string
-	options: {
-		label: string
-		value: string
-		icon?: React.ComponentType<{ className?: string }>
-	}[]
+	options: FacetedFilterOption[]
 }
 
 export function DataTableFacetedFilter<TData, TValue>({

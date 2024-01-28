@@ -3,6 +3,12 @@ import { z } from 'zod'
 import { prisma } from '../prisma'
 import { Prisma } from '@prisma/client'
 
+function narrowFilterType(
+	filter: unknown,
+): asserts filter is string | string[] {
+	z.union([z.string(), z.array(z.string())]).parse(filter)
+}
+
 export async function fetchTransactions({
 	sort,
 	sortColumn,
@@ -18,11 +24,24 @@ export async function fetchTransactions({
 	}
 
 	if (columnFilters.length) {
-		where.OR = columnFilters.map((filter) => ({
-			[filter.id]: {
-				contains: filter.value as string,
-			},
-		}))
+		where.OR = columnFilters.map((filter) => {
+			narrowFilterType(filter.value)
+
+			switch (filter.id) {
+				case 'account':
+					return {
+						account: {
+							plaidId: Array.isArray(filter.value)
+								? { in: filter.value }
+								: filter.value,
+						},
+					}
+				default:
+					return {
+						[filter.id]: { contains: filter.value },
+					}
+			}
+		})
 	}
 
 	const [results, total] = await Promise.all([

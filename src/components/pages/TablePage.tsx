@@ -9,10 +9,8 @@ import { Transaction } from '@prisma/client'
 export function TablePage() {
 	const [input, setInput] = useDataTableInput()
 	const [selectedRows, setSelectedRows] = useState<Transaction[]>([])
-
-	const { data /*, refetch*/ } = trpc.transactions.useQuery(input, {
-		keepPreviousData: true,
-	})
+	const { data } = trpc.transactions.useQuery(input, { keepPreviousData: true })
+	const { data: accounts } = trpc.accounts.useQuery()
 
 	const table = useDataTable({
 		data: data?.results ?? [],
@@ -40,7 +38,20 @@ export function TablePage() {
 
 	return (
 		<>
-			<DataTable table={table} filters={[{ column: 'account' }]} />
+			<DataTable
+				table={table}
+				filters={[
+					{
+						column: 'account',
+						title: 'Account',
+						options:
+							accounts?.map((account) => ({
+								label: account.name,
+								value: account.plaidId,
+							})) ?? [],
+					},
+				]}
+			/>
 
 			{Boolean(selectedRows.length) && (
 				<SelectionOverlay selectedRows={selectedRows} key={Math.random()} />

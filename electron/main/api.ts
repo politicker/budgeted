@@ -229,9 +229,9 @@ export const router = t.router({
 				await upsertAccount({
 					plaidId: account.id,
 					name: account.name,
-					mask: account.mask,
-					type: account.type,
-					subtype: account.subtype,
+					mask: account.mask ?? '',
+					type: account.type ?? '',
+					subtype: account.subtype ?? '',
 					institutionPlaidId: input.institutionId,
 				})
 			}
