@@ -21,9 +21,9 @@ import { writeCronTasks } from '~electron/lib/crontab/crontab'
 const AccountInput = z.object({
 	id: z.string(),
 	name: z.string(),
-	mask: z.string(),
-	type: z.string(),
-	subtype: z.string(),
+	mask: z.string().optional(),
+	type: z.string().optional(),
+	subtype: z.string().optional(),
 })
 
 const t = initTRPC.context().create({ isServer: true })
@@ -136,9 +136,9 @@ export const router = t.router({
 					country_codes: [CountryCode.Us],
 					language: 'en',
 					access_token: institution?.plaidAccessToken,
+					update: institution ? { account_selection_enabled: true } : undefined,
 				})
 
-				console.log(institutionId, 'linkResponse', linkResponse)
 				return { token: linkResponse.data.link_token, institutionId }
 			} catch (e) {
 				reportError(
@@ -207,9 +207,9 @@ export const router = t.router({
 				await createAccount({
 					plaidId: account.id,
 					name: account.name,
-					mask: account.mask,
-					type: account.type,
-					subtype: account.subtype,
+					mask: account.mask ?? '',
+					type: account.type ?? '',
+					subtype: account.subtype ?? '',
 					institutionPlaidId: input.institutionId,
 				})
 			}
@@ -220,6 +220,7 @@ export const router = t.router({
 	updatePlaidInstitution: loggedProcedure
 		.input(
 			z.object({
+				institutionId: z.string(),
 				accounts: z.array(AccountInput),
 			}),
 		)
@@ -231,6 +232,7 @@ export const router = t.router({
 					mask: account.mask,
 					type: account.type,
 					subtype: account.subtype,
+					institutionPlaidId: input.institutionId,
 				})
 			}
 
