@@ -16,14 +16,14 @@ import { fetchTransactions, hideTransaction } from './models/transactions'
 import { prisma } from './prisma'
 import { extract, load, transform } from './lib/cli'
 import { TRPC_ERROR_CODE_KEY } from '@trpc/server/rpc'
-import { writeCronTasks } from '~electron/lib/crontab/crontab'
+import { writeCronTasks } from '../lib/crontab/crontab'
 
 const AccountInput = z.object({
 	id: z.string(),
 	name: z.string(),
-	mask: z.string().optional(),
-	type: z.string().optional(),
-	subtype: z.string().optional(),
+	mask: z.union([z.string(), z.null()]).optional(),
+	type: z.union([z.string(), z.null()]).optional(),
+	subtype: z.union([z.string(), z.null()]).optional(),
 })
 
 const t = initTRPC.context().create({ isServer: true })
