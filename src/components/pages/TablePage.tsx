@@ -6,6 +6,7 @@ import { SelectionOverlay } from '../SelectionOverlay'
 import { useEffect, useState } from 'react'
 import { Transaction } from '@prisma/client'
 import { formatMoney } from './ChartPage'
+import { Badge } from '../ui/badge'
 
 export function TablePage() {
 	const [input, setInput] = useDataTableInput()
@@ -54,8 +55,11 @@ export function TablePage() {
 				]}
 				metadata={
 					<>
-						Total Amount:{' '}
-						{data?.totalAmount ? formatMoney(data?.totalAmount) : 'N/A'}
+						{data?.totalAmount ? (
+							<Badge>Sum: {formatMoney(data?.totalAmount)}</Badge>
+						) : (
+							'N/A'
+						)}
 					</>
 				}
 			/>
