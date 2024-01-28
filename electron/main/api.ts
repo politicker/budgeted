@@ -27,11 +27,12 @@ const AccountInput = z.object({
 	subtype: z.union([z.string(), z.null()]).optional(),
 })
 
+const superJsonReal = (superjson as unknown as { default: typeof superjson })
+	.default
+
 const t = initTRPC
 	.context()
-	// @ts-expect-error superjson is an esmodule and we had to do bad things to get it to work
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-	.create({ isServer: true, transformer: superjson.default })
+	.create({ isServer: true, transformer: superJsonReal })
 const procedure = t.procedure
 const loggedProcedure = procedure.use(async ({ next, path, type }) => {
 	console.log('[trpc] request -', `type=${type}`, `path=/${path}`)

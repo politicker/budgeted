@@ -9,12 +9,17 @@ import { RouterProvider } from 'react-router-dom'
 import '@fontsource-variable/rubik'
 import '@fontsource/cutive-mono'
 import './index.css'
+import superjson from 'superjson'
 
 function RenderRoot() {
+	const superJsonReal = (superjson as unknown as { default: typeof superjson })
+		.default
+
 	const [queryClient] = useState(() => new QueryClient())
 	const [trpcClient] = useState(() =>
 		trpc.createClient({
 			links: [ipcLink()],
+			transformer: superJsonReal,
 		}),
 	)
 
