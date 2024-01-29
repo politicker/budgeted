@@ -63,12 +63,12 @@ model Account {
   availableBalance   Float?
   isoCurrencyCode    String?
   transactions       Transaction[]
-  Institution        Institution?     @relation(fields: [institutionPlaidId], references: [plaidId])
+  institution        Institution?     @relation(fields: [institutionPlaidId], references: [plaidId])
   institutionPlaidId String?
   importedAt         DateTime         @default(now())
   importLog          ImportLog?       @relation(fields: [importLogId], references: [id])
   importLogId        Int?
-  AccountBalance     AccountBalance[]
+  accountBalances    AccountBalance[]
 }
 
 model ImportLog {
@@ -76,8 +76,8 @@ model ImportLog {
   syncStartedAt     DateTime      @default(now())
   syncCompletedAt   DateTime?     @updatedAt
   transactionsCount Int?
-  Transaction       Transaction[]
-  Account           Account[]
+  transactions      Transaction[]
+  accounts          Account[]
 }
 
 model AccountBalance {
@@ -88,4 +88,21 @@ model AccountBalance {
   account         Account  @relation(fields: [accountPlaidId], references: [plaidId])
   accountPlaidId  String
   createdAt       DateTime @default(now())
+}
+
+model Budget {
+  id          Int          @id @default(autoincrement())
+  name        String
+  amount      Float
+  range       Int
+  budgetRules BudgetRule[]
+}
+
+model BudgetRule {
+  id       Int    @id @default(autoincrement())
+  budget   Budget @relation(fields: [budgetId], references: [id])
+  budgetId Int
+  column   String
+  operator String @default("CONTAINS")
+  value    String
 }
