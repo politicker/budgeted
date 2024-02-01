@@ -1,13 +1,6 @@
 import { trpc } from '@/lib/trpc'
 import { useDimensions } from '@/lib/useDimensions'
 import { Fragment, useMemo, useState } from 'react'
-import {
-	VictoryLine,
-	VictoryChart,
-	VictoryAxis,
-	VictoryLabel,
-	LineSegment,
-} from 'victory'
 import { sub, add, format } from 'date-fns'
 import { Dialog, Transition } from '@headlessui/react'
 import { Button } from '../ui/button'
@@ -15,6 +8,7 @@ import { InlineInput } from '../ui/input'
 import { useLocalStorage } from '@/lib/useLocalStorage'
 import { z } from 'zod'
 import { colors } from '@/lib/colors'
+import * as d3 from 'd3'
 
 const DEFAULT_DAY_RANGE = 50
 const DEFAULT_BUDGET = '$10,000'
@@ -128,9 +122,48 @@ export function ChartPage() {
 		return frame.transactions
 	}, [date, filteredData])
 
+	const width = 640
+	const height = 400
+	const marginTop = 20
+	const marginRight = 20
+	const marginBottom = 20
+	const marginLeft = 20
+	const x = d3.scaleLinear(
+		[0, budgetData.length - 1],
+		[marginLeft, width - marginRight],
+	)
+
+	if (!filteredData)
+		return (
+			<div>
+				Loading... {date} the date
+				<pre>{JSON.stringify(filteredData, null, 4)}</pre>
+			</div>
+		)
+
+	const extent = d3.extent(filteredData, (d) => {
+		console.log('visiting', d.date, d.amount)
+		return d.amount
+	})
+	if (extent[0] === undefined)
+		return (
+			<div className="rounded-md border overflow-auto m-3 mb-3 bg-background p-3">
+				<div className="text-2xl">Error</div>
+				<p>Could not derive extent from:</p>
+				<pre>{JSON.stringify(budgetData, null, 4)}</pre>
+			</div>
+		)
+
+	const y = d3.scaleLinear(extent, [height - marginBottom, marginTop])
+
+	const line = d3.line<(typeof budgetData)[0]>(
+		(d) => x(new Date(d.date)),
+		(d) => y(d.amount),
+	)
+
 	return (
 		<>
-			<div className="p-3">
+			<div data-role="controls" className="p-3">
 				<span>Showing</span> the last{' '}
 				<InlineInput
 					className="w-10 text-center"
@@ -171,91 +204,19 @@ export function ChartPage() {
 				className="row-span-2 rounded-md border overflow-auto mx-3 mb-3 bg-background"
 			>
 				{'width' in dimensions && filteredData && (
-					<VictoryChart
-						domainPadding={{ y: [0, 0] }}
-						width={dimensions.width}
-						height={dimensions.height}
-						padding={{ top: 20, bottom: 100, left: 50, right: 20 }}
-					>
-						<VictoryAxis
-							tickLabelComponent={
-								<VictoryLabel
-									angle={-45}
-									textAnchor="end"
-									style={{ fill: colors.secondary.DEFAULT }}
-								/>
-							}
-							events={[
-								{
-									target: 'tickLabels',
-									eventHandlers: {
-										onMouseOver: () => {
-											return [
-												{
-													target: 'tickLabels',
-													mutation: () => ({
-														style: { fill: colors.secondary.foreground },
-													}),
-												},
-												{
-													target: 'grid',
-													mutation: () => ({
-														style: { stroke: colors.secondary.foreground },
-													}),
-												},
-											]
-										},
-										onMouseOut: () => {
-											return [
-												{
-													target: 'tickLabels',
-													mutation: () => ({ style: { fill: '#444' } }),
-												},
-												{
-													target: 'grid',
-													mutation: () => ({
-														style: { stroke: 'rgba(0,0,0,0)' },
-													}),
-												},
-											]
-										},
-										onClick: () => {
-											return [
-												{
-													target: 'tickLabels',
-													mutation: (tick: { text: string }) => {
-														setDate(tick.text)
-														return {}
-													},
-												},
-											]
-										},
-									},
-								},
-							]}
-							gridComponent={
-								<LineSegment style={{ stroke: 'rgba(0,0,0,0)' }} />
-							}
+					<svg width={width} height={height}>
+						<path
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							d={line(budgetData) ?? undefined}
 						/>
-						<VictoryAxis
-							dependentAxis
-							// tickFormat specifies how ticks should be displayed
-							tickFormat={(x) => `$${x / 1000}k`}
-						/>
-
-						<VictoryLine data={filteredData} x="date" y="amount" />
-						<VictoryLine
-							data={budgetData}
-							x="date"
-							y="amount"
-							style={{
-								data: {
-									stroke: colors.destructive.DEFAULT,
-									strokeDasharray: '4',
-								},
-							}}
-						/>
-					</VictoryChart>
+						<g fill="white" stroke="currentColor" stroke-width="1.5">
+							{budgetData.map((d, i) => (
+								<circle key={i} cx={x(i)} cy={y(d.amount)} r="2.5" />
+							))}
+						</g>
+					</svg>
 				)}
 
 				<Transition show={Boolean(date) && !closeModal} as={Fragment}>
