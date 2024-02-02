@@ -1,7 +1,11 @@
 import { exec, execSync } from 'node:child_process'
+import path from 'node:path'
 
-const morningSyncEntry = '0 0 * * * bin/budgeted-crontab.sh'
-const eveningSyncEntry = '0 12 * * * bin/budgeted-crontab.sh'
+const pwd = execSync('pwd').toString().trim()
+const scriptPath = path.join(pwd, 'bin/budgeted-crontab.sh')
+
+const morningSyncEntry = `0 0 * * * ${scriptPath}`
+const eveningSyncEntry = `0 12 * * * ${scriptPath}`
 
 /**
  * Writes the crontab entries for the morning and evening ETL jobs
