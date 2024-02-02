@@ -28,6 +28,7 @@ func (pc *APIClient) GetNextCursor(ctx context.Context, prefix string) (string, 
 	if err := json.Unmarshal(data, syncResponse); err != nil {
 		return "", err
 	}
+
 	return syncResponse.GetNextCursor(), nil
 }
 

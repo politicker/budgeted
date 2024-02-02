@@ -33,7 +33,7 @@ func (pc *APIClient) LoadAccounts(ctx context.Context, institutionId string, acc
 		return err
 	}
 
-	if err = pc.SetCache(ctx, filepath.Join("transactions", institutionId), "", body); err != nil {
+	if err = pc.SetCache(ctx, filepath.Join("accounts", institutionId), "", body); err != nil {
 		return err
 	}
 
