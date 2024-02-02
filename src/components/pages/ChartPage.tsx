@@ -1,6 +1,6 @@
 import { trpc } from '@/lib/trpc'
 import { useDimensions } from '@/lib/useDimensions'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useMemo, useRef, useState } from 'react'
 import { sub, add, format } from 'date-fns'
 import { Dialog, Transition } from '@headlessui/react'
 import { Button } from '../ui/button'
@@ -12,6 +12,8 @@ import * as d3 from 'd3'
 
 const DEFAULT_DAY_RANGE = 50
 const DEFAULT_BUDGET = '$10,000'
+const DEFAULT_WIDTH = 640
+const DEFAULT_HEIGHT = 400
 
 function parseMoney(money: string) {
 	return parseInt(money.replace(/\D/g, ''))
@@ -122,44 +124,72 @@ export function ChartPage() {
 		return frame.transactions
 	}, [date, filteredData])
 
-	const width = 640
-	const height = 400
-	const marginTop = 20
-	const marginRight = 20
-	const marginBottom = 20
-	const marginLeft = 20
-	const x = d3.scaleLinear(
-		[0, budgetData.length - 1],
-		[marginLeft, width - marginRight],
-	)
+	const MARGIN = 20
+	const marginTop = MARGIN
+	const marginRight = MARGIN
+	const marginBottom = MARGIN
+	const marginLeft = MARGIN
+	const borderFix = 2
+	const width = (dimensions.width ?? DEFAULT_WIDTH) - borderFix
+	const height = (dimensions.height ?? DEFAULT_HEIGHT) - borderFix
 
-	if (!filteredData)
-		return (
-			<div>
-				Loading... {date} the date
-				<pre>{JSON.stringify(filteredData, null, 4)}</pre>
-			</div>
-		)
+	const xg = useRef<SVGGElement>(null)
+	const yg = useRef<SVGGElement>(null)
 
-	const extent = d3.extent(filteredData, (d) => {
-		console.log('visiting', d.date, d.amount)
-		return d.amount
-	})
-	if (extent[0] === undefined)
-		return (
-			<div className="rounded-md border overflow-auto m-3 mb-3 bg-background p-3">
-				<div className="text-2xl">Error</div>
-				<p>Could not derive extent from:</p>
-				<pre>{JSON.stringify(budgetData, null, 4)}</pre>
-			</div>
-		)
+	if (!filteredData) return null
 
-	const y = d3.scaleLinear(extent, [height - marginBottom, marginTop])
+	const yd = d3.extent(filteredData, (d) => d.amount)
+	if (!yd[0]) return null
 
-	const line = d3.line<(typeof budgetData)[0]>(
-		(d) => x(new Date(d.date)),
-		(d) => y(d.amount),
-	)
+	const xd = d3.extent(filteredData, (d) => new Date(d.date))
+	if (!xd[0]) return null
+
+	const x = d3
+		.scaleUtc()
+		.domain(xd)
+		.range([marginLeft, width - marginRight])
+
+	// Declare the y (vertical position) scale.
+	const y = d3
+		.scaleLinear()
+		.domain(yd)
+		.range([height - marginBottom, marginTop])
+
+	const xa = d3.axisBottom(x)
+
+	if (!xg.current) return
+	const selection = d3.select(xg.current)
+	xa(selection)
+
+	// const x = d3.scaleLinear(
+	// 	[0, budgetData.length - 1],
+	// 	[marginLeft, width - marginRight],
+	// )
+
+	// if (!filteredData)
+	// 	return (
+	// 		<div>
+	// 			Loading... {date} the date
+	// 			<pre>{JSON.stringify(filteredData, null, 4)}</pre>
+	// 		</div>
+	// 	)
+
+	// const extent = d3.extent(filteredData, (d) => d.amount)
+	// if (extent[0] === undefined)
+	// 	return (
+	// 		<div className="rounded-md border overflow-auto m-3 mb-3 bg-background p-3">
+	// 			<div className="text-2xl">Error</div>
+	// 			<p>Could not derive extent from:</p>
+	// 			<pre>{JSON.stringify(budgetData, null, 4)}</pre>
+	// 		</div>
+	// 	)
+
+	// const y = d3.scaleLinear(extent, [height - marginBottom, marginTop])
+
+	// const line = d3.line<(typeof filteredData)[0]>(
+	// 	(d) => x(new Date(d.date)),
+	// 	(d) => y(d.amount),
+	// )
 
 	return (
 		<>
@@ -201,21 +231,24 @@ export function ChartPage() {
 
 			<div
 				ref={ref}
-				className="row-span-2 rounded-md border overflow-auto mx-3 mb-3 bg-background"
+				className="row-span-2 rounded-md border overflow-hidden mx-3 mb-3 bg-background"
 			>
 				{'width' in dimensions && filteredData && (
 					<svg width={width} height={height}>
+						<g ref={xg} transform={`translate(0,${height - marginBottom})`} />
+						<g ref={yg} transform={`translate(${marginLeft},0)`} />
+
 						<path
 							fill="none"
 							stroke="currentColor"
-							stroke-width="1.5"
-							d={line(budgetData) ?? undefined}
+							strokeWidth="1.5"
+							// d={line(filteredData) ?? undefined}
 						/>
-						<g fill="white" stroke="currentColor" stroke-width="1.5">
-							{budgetData.map((d, i) => (
-								<circle key={i} cx={x(i)} cy={y(d.amount)} r="2.5" />
-							))}
-						</g>
+						{/* <g fill="white" stroke="currentColor" stroke-width="1.5">
+								{filteredData.map((d, i) => (
+									<circle key={i} cx={x(i)} cy={y(d.amount)} r="2.5" />
+								))}
+							</g> */}
 					</svg>
 				)}
 
