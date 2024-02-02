@@ -5,15 +5,17 @@ import (
 	"errors"
 	"io"
 	"log"
+	"path/filepath"
 
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func (pc *APIClient) LoadTransactions(ctx context.Context, accessToken string) error {
+func (pc *APIClient) LoadTransactions(ctx context.Context, institutionId string, accessToken string) error {
 	var hasMore bool = true
+	prefix := filepath.Join("transactions", institutionId)
 
 	// Get previous cursor from the latest cached response
-	cursor, err := pc.GetNextCursor(ctx, "transactions")
+	cursor, err := pc.GetNextCursor(ctx, prefix)
 	if err != nil {
 		return err
 	}
@@ -64,7 +66,7 @@ func (pc *APIClient) LoadTransactions(ctx context.Context, accessToken string) e
 		nextCursor := resp.GetNextCursor()
 		cursor = nextCursor
 
-		if err := pc.SetCache(ctx, "transactions", cursor, body); err != nil {
+		if err := pc.SetCache(ctx, prefix, cursor, body); err != nil {
 			return err
 		}
 	}

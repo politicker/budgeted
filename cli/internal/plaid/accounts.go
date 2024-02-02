@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"io"
+	"path/filepath"
 
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func (pc *APIClient) LoadAccounts(ctx context.Context, accessToken string) error {
+func (pc *APIClient) LoadAccounts(ctx context.Context, institutionId string, accessToken string) error {
 	accountsGetRequest := plaid.NewAccountsGetRequest(accessToken)
 	accountsGetRequest.SetOptions(plaid.AccountsGetRequestOptions{})
 
@@ -32,7 +33,7 @@ func (pc *APIClient) LoadAccounts(ctx context.Context, accessToken string) error
 		return err
 	}
 
-	if err = pc.SetCache(ctx, "accounts", "", body); err != nil {
+	if err = pc.SetCache(ctx, filepath.Join("transactions", institutionId), "", body); err != nil {
 		return err
 	}
 
