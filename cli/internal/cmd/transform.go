@@ -8,10 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func LoadCsvCmd(ctx context.Context) *cobra.Command {
+func TransformCmd(ctx context.Context) *cobra.Command {
 	return &cobra.Command{
-		Use:   "csv",
-		Short: "load data into csv",
+		Use:   "transform",
+		Short: "transform data from json to csv",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			jsonStorage, csvStorage, err := cmdutil.Dirs()
 			if err != nil {

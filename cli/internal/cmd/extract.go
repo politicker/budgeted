@@ -12,10 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
+func ExtractCmd(ctx context.Context) *cobra.Command {
 	command := cobra.Command{
-		Use:   "plaid-data",
-		Short: "load data from plaid",
+		Use:   "extract",
+		Short: "fetch data from the Plaid API and save it",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			isSandBox, err := cmd.Flags().GetBool("sandbox")
 			if err != nil {

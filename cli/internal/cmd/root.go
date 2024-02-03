@@ -58,6 +58,8 @@ func Execute(ctx context.Context) error {
 	rootCmd.AddCommand(APICmd(ctx))
 	rootCmd.AddCommand(SchedulerCmd(ctx))
 	rootCmd.AddCommand(WorkerCmd(ctx))
+	rootCmd.AddCommand(ExtractCmd(ctx))
+	rootCmd.AddCommand(TransformCmd(ctx))
 	rootCmd.AddCommand(LoadCmd(ctx))
 
 	// I'm not sure what this is for.
