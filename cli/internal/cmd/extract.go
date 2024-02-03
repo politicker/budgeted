@@ -33,7 +33,7 @@ func ExtractCmd(ctx context.Context) *cobra.Command {
 				return err
 			}
 
-			err = domain.ExtractTransactions(ctx, pc, queries)
+			err = domain.ExtractPlaidData(ctx, pc, queries)
 			if err != nil {
 				return err
 			}

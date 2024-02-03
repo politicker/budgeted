@@ -10,7 +10,7 @@ import (
 	"github.com/politicker/budgeted/internal/plaid"
 )
 
-func ExtractTransactions(ctx context.Context, pc *plaid.APIClient, db *db.Queries) error {
+func ExtractPlaidData(ctx context.Context, pc *plaid.APIClient, db *db.Queries) error {
 	institutions, err := db.InstitutionList(ctx)
 	if err != nil {
 		return err
@@ -29,10 +29,6 @@ func ExtractTransactions(ctx context.Context, pc *plaid.APIClient, db *db.Querie
 		}
 	}
 
-	return nil
-}
-
-func ExtractAccounts() error {
 	return nil
 }
 
