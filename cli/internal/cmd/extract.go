@@ -6,9 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"github.com/politicker/budgeted/internal/db"
-	"github.com/politicker/budgeted/internal/plaid"
+	"github.com/politicker/budgeted/internal/domain"
 	"github.com/spf13/cobra"
 )
 
@@ -29,31 +28,14 @@ func ExtractCmd(ctx context.Context) *cobra.Command {
 
 			queries := db.New(driver)
 
-			pc, err := plaid.NewClientFromConfig(ctx, isSandBox, queries)
+			pc, err := domain.PlaidClientFromConfig(ctx, isSandBox, queries)
 			if err != nil {
 				return err
 			}
 
-			// for each institution load transactions
-			// query for accounts
-			//
-
-			institutions, err := queries.InstitutionList(ctx)
+			err = domain.ExtractTransactions(ctx, pc, queries)
 			if err != nil {
 				return err
-			}
-
-			for _, institution := range institutions {
-				err = pc.LoadTransactions(ctx, institution.PlaidId, institution.PlaidAccessToken)
-
-				if err != nil {
-					return errors.Wrap(err, "failed to load transactions")
-				}
-
-				err = pc.LoadAccounts(ctx, institution.PlaidId, institution.PlaidAccessToken)
-				if err != nil {
-					return errors.Wrap(err, "failed to load accounts")
-				}
 			}
 
 			return nil

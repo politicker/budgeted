@@ -3,11 +3,8 @@ package plaid
 import (
 	"context"
 	"encoding/json"
-	"errors"
 
 	"github.com/plaid/plaid-go/v20/plaid"
-	"github.com/politicker/budgeted/internal/cmdutil"
-	"github.com/politicker/budgeted/internal/db"
 )
 
 type APIClient struct {
@@ -21,30 +18,7 @@ func UseSandbox() bool {
 	return true
 }
 
-func NewClientFromConfig(ctx context.Context, isSandbox bool, queries *db.Queries) (*APIClient, error) {
-	config, err := queries.ConfigGet(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	clientID := config.PlaidClientId
-	secret := config.PlaidSecret
-	if clientID == "" {
-		return nil, errors.New("Config.PlaidClientId id is empty")
-	}
-	if secret == "" {
-		return nil, errors.New("Config.PlaidSecret is empty")
-	}
-
-	jsonStorage, _, err := cmdutil.Dirs()
-	if err != nil {
-		return nil, err
-	}
-
-	return newClient(ctx, clientID, secret, jsonStorage, isSandbox)
-}
-
-func newClient(ctx context.Context, clientID string, secret string, cacheDir string, isSandbox bool) (*APIClient, error) {
+func NewClient(ctx context.Context, clientID string, secret string, cacheDir string, isSandbox bool) (*APIClient, error) {
 	configuration := plaid.NewConfiguration()
 	configuration.AddDefaultHeader("PLAID-CLIENT-ID", clientID)
 	configuration.AddDefaultHeader("PLAID-SECRET", secret)

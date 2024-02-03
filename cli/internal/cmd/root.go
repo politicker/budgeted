@@ -56,8 +56,6 @@ func Execute(ctx context.Context) error {
 	rootCmd.PersistentFlags().BoolVarP(&profile, "profile", "p", false, "record CPU pprof")
 
 	rootCmd.AddCommand(APICmd(ctx))
-	rootCmd.AddCommand(SchedulerCmd(ctx))
-	rootCmd.AddCommand(WorkerCmd(ctx))
 	rootCmd.AddCommand(ExtractCmd(ctx))
 	rootCmd.AddCommand(TransformCmd(ctx))
 	rootCmd.AddCommand(LoadCmd(ctx))
