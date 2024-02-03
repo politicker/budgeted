@@ -28,12 +28,17 @@ func (pc *APIClient) GetNextCursor(ctx context.Context, prefix string) (string, 
 	if err := json.Unmarshal(data, syncResponse); err != nil {
 		return "", err
 	}
+
 	return syncResponse.GetNextCursor(), nil
 }
 
-func (pc *APIClient) GetCache(ctx context.Context, path string) ([]byte, error) {
+func (pc *APIClient) GetCache(ctx context.Context, prefix string) ([]byte, error) {
 	var lastEntry os.DirEntry
-	cachePath := pc.cacheDir + "/" + path
+	cachePath := filepath.Join(pc.cacheDir, prefix)
+	err := os.MkdirAll(cachePath, 0755)
+	if err != nil {
+		return nil, err
+	}
 
 	entries, err := os.ReadDir(cachePath)
 	if err != nil {
@@ -58,9 +63,15 @@ func (pc *APIClient) GetCache(ctx context.Context, path string) ([]byte, error) 
 	return nil, nil
 }
 
-func (pc *APIClient) SetCache(ctx context.Context, path string, cursor string, bytes []byte) error {
+func (pc *APIClient) SetCache(ctx context.Context, prefix string, cursor string, bytes []byte) error {
+	cachePath := filepath.Join(pc.cacheDir, prefix)
+	err := os.MkdirAll(cachePath, 0755)
+	if err != nil {
+		return err
+	}
+
 	timestamp := strings.Replace(time.Now().Format(time.RFC3339Nano), ":", "X", -1)
-	fileName := filepath.Join(pc.cacheDir, path, fmt.Sprintf("%s_%s.json", timestamp, strings.Replace(cursor, "/", "_", -1)))
+	fileName := filepath.Join(cachePath, fmt.Sprintf("%s_%s.json", timestamp, strings.Replace(cursor, "/", "_", -1)))
 
 	log.Println("writing", fileName)
 	if err := os.WriteFile(fileName, bytes, 0644); err != nil {

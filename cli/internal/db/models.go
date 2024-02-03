@@ -34,6 +34,21 @@ type AccountBalance struct {
 	CreatedAt       time.Time
 }
 
+type Budget struct {
+	ID     int64
+	Name   string
+	Amount float64
+	Range  int64
+}
+
+type BudgetRule struct {
+	ID       int64
+	BudgetId int64
+	Column   string
+	Operator string
+	Value    string
+}
+
 type Config struct {
 	PlaidClientId string
 	PlaidSecret   string
@@ -50,6 +65,8 @@ type Institution struct {
 	PlaidId          string
 	Name             string
 	PlaidAccessToken string
+	Color            sql.NullString
+	Logo             sql.NullString
 }
 
 type PrismaMigrations struct {
