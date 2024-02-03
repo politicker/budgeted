@@ -44,13 +44,13 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 			}
 
 			for _, institution := range institutions {
-				err = pc.LoadTransactions(ctx, institution.PlaidAccessToken)
+				err = pc.LoadTransactions(ctx, institution.PlaidId, institution.PlaidAccessToken)
 
 				if err != nil {
 					return errors.Wrap(err, "failed to load transactions")
 				}
 
-				err = pc.LoadAccounts(ctx, institution.PlaidAccessToken)
+				err = pc.LoadAccounts(ctx, institution.PlaidId, institution.PlaidAccessToken)
 				if err != nil {
 					return errors.Wrap(err, "failed to load accounts")
 				}

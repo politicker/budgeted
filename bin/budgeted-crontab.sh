@@ -1,11 +1,14 @@
-#/bin/sh
+#/bin/bash
 
 date=$(date +%Y-%m-%d)
 
-echo "----- [$date] ETL: start -----" >> budgeted-cron-log.log
+path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-bin/budgeted-cli load plaid-data >> budgeted-cron-log.log
-bin/budgeted-cli load csv >> budgeted-cron-log.log
-bin/budgeted-cli load sqlite >> budgeted-cron-log.log
+echo "The script is located in: $path"
+
+echo "----- [$date] ETL: start -----" >> budgeted-cron-log.log
+$path/budgeted-cli load plaid-data >> budgeted-cron-log.log
+$path/budgeted-cli load csv >> budgeted-cron-log.log
+$path/budgeted-cli load sqlite >> budgeted-cron-log.log
 
 echo "----- [$date] ETL: complete -----" >> budgeted-cron-log.log

@@ -157,15 +157,21 @@ SELECT "plaidId",
 from "Institution"
 `
 
-func (q *Queries) InstitutionList(ctx context.Context) ([]Institution, error) {
+type InstitutionListRow struct {
+	PlaidId          string
+	Name             string
+	PlaidAccessToken string
+}
+
+func (q *Queries) InstitutionList(ctx context.Context) ([]InstitutionListRow, error) {
 	rows, err := q.db.QueryContext(ctx, institutionList)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Institution
+	var items []InstitutionListRow
 	for rows.Next() {
-		var i Institution
+		var i InstitutionListRow
 		if err := rows.Scan(&i.PlaidId, &i.Name, &i.PlaidAccessToken); err != nil {
 			return nil, err
 		}
@@ -182,9 +188,8 @@ func (q *Queries) InstitutionList(ctx context.Context) ([]Institution, error) {
 
 const transactionCreate = `-- name: TransactionCreate :exec
 INSERT INTO "Transaction"("plaidId",
-                          "plaid
-
-date",
+                          "plaidAccountId",
+                          "date",
                           "name",
                           "amount",
                           "category",
