@@ -18,11 +18,11 @@ func TransformCmd(ctx context.Context) *cobra.Command {
 				return err
 			}
 
-			if err := csv.ExtractAccounts(ctx, jsonStorage, csvStorage); err != nil {
+			if err := csv.TransformAccounts(ctx, jsonStorage, csvStorage); err != nil {
 				return err
 			}
 
-			return csv.ExtractTransactions(ctx, jsonStorage, csvStorage)
+			return csv.TransformTransactions(ctx, jsonStorage, csvStorage)
 		},
 	}
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
-func ExtractTransactions(ctx context.Context, jsonStorage string, csvStorage string) error {
+func TransformTransactions(ctx context.Context, jsonStorage string, csvStorage string) error {
 	var added []plaid.Transaction
 	var deleted []plaid.RemovedTransaction
 	var modified []plaid.Transaction
@@ -124,7 +124,7 @@ func ExtractTransactions(ctx context.Context, jsonStorage string, csvStorage str
 	return nil
 }
 
-func ExtractAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
+func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
 	var accountsCSV []Account
 	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
 
