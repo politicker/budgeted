@@ -5,11 +5,10 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/politicker/budgeted/internal/csv"
 	"github.com/politicker/budgeted/internal/db"
+	"github.com/politicker/budgeted/internal/domain"
 	"github.com/spf13/cobra"
 )
 
@@ -27,27 +26,19 @@ func LoadCmd(ctx context.Context) *cobra.Command {
 			queries := db.New(driver)
 			ctx := context.Background()
 
-			err = queries.ImportLogCreate(ctx, time.Now())
-			if err != nil {
-				return err
-			}
+			err = domain.Import(ctx, queries, func(ctx context.Context, importLogId int64) error {
+				err = domain.LoadTransactions(ctx, queries, importLogId)
+				if err != nil {
+					return err
+				}
 
-			importLogId, err := queries.ImportLogGetLastInsertID(ctx)
-			if err != nil {
-				return err
-			}
+				err = domain.LoadAccounts(ctx, queries, importLogId)
+				if err != nil {
+					return err
+				}
 
-			err = csv.LoadTransactions(ctx, queries, importLogId)
-			if err != nil {
-				return err
-			}
-
-			err = csv.LoadAccounts(ctx, queries, importLogId)
-			if err != nil {
-				return err
-			}
-
-			err = queries.ImportLogComplete(ctx, importLogId)
+				return nil
+			})
 			if err != nil {
 				return err
 			}

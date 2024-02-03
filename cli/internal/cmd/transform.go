@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/politicker/budgeted/internal/cmdutil"
-	"github.com/politicker/budgeted/internal/csv"
+	"github.com/politicker/budgeted/internal/domain"
 	"github.com/spf13/cobra"
 )
 
@@ -18,11 +18,11 @@ func TransformCmd(ctx context.Context) *cobra.Command {
 				return err
 			}
 
-			if err := csv.TransformAccounts(ctx, jsonStorage, csvStorage); err != nil {
+			if err := domain.TransformAccounts(ctx, jsonStorage, csvStorage); err != nil {
 				return err
 			}
 
-			return csv.TransformTransactions(ctx, jsonStorage, csvStorage)
+			return domain.TransformTransactions(ctx, jsonStorage, csvStorage)
 		},
 	}
 }
