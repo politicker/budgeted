@@ -116,24 +116,42 @@ export function NetWorthChart({ filteredData, date, setDate }: Props) {
 								}
 							/>
 							{d.data.map((d) => (
-								<text
-									key={d.name}
-									// fill="currentColor"
-									x={x(new Date(d.date)) ?? 0}
-									y={y(d.amount) ?? 0}
-									// dy={15}
-									textAnchor="middle"
-									fontSize="12"
-									transform="translate(15,0)"
-									fill={
-										hoveredTick === d.date || date === d.date
-											? 'purple'
-											: 'transparent'
-									}
-								>
-									{d.name}
-									{formatMoneyK(d.amount)}
-								</text>
+								<g>
+									<text
+										key={d.name}
+										// fill="currentColor"
+										x={x(new Date(d.date)) ?? 0}
+										y={y(d.amount) ?? 0}
+										// dy={15}
+										textAnchor="middle"
+										fontSize="12"
+										transform="translate(15,0)"
+										fill={
+											hoveredTick === d.date || date === d.date
+												? 'purple'
+												: 'transparent'
+										}
+									>
+										{d.name}
+									</text>
+									<text
+										key={d.name}
+										// fill="currentColor"
+										x={x(new Date(d.date)) ?? 0}
+										y={(y(d.amount) ?? 0) + 10}
+										// dy={15}
+										textAnchor="middle"
+										fontSize="12"
+										transform="translate(15,0)"
+										fill={
+											hoveredTick === d.date || date === d.date
+												? 'purple'
+												: 'transparent'
+										}
+									>
+										{formatMoneyK(d.amount)}
+									</text>
+								</g>
 							))}
 						</Fragment>
 					))}
