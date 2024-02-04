@@ -1,16 +1,11 @@
 import { trpc } from '@/lib/trpc'
-import { useDimensions } from '@/lib/useDimensions'
-import { Fragment, useMemo, useRef, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { sub, add, format } from 'date-fns'
 import { Dialog, Transition } from '@headlessui/react'
 import { Button } from '../ui/button'
 import { InlineInput } from '../ui/input'
 import { useLocalStorage } from '@/lib/useLocalStorage'
 import { z } from 'zod'
-import { colors } from '@/lib/colors'
-import * as d3 from 'd3'
-import { Axis } from '../graph/Axis'
-import { Axis2 } from '../graph/Axis2'
 import { BudgetChart } from '../graph/BudgetChart'
 
 const DEFAULT_DAY_RANGE = 50

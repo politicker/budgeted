@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import { format } from 'date-fns'
 import { useMemo } from 'react'
 
 type Props = {

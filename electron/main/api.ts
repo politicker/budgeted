@@ -2,7 +2,6 @@ import { TRPCError, initTRPC } from '@trpc/server'
 import z from 'zod'
 import { TableStateInput } from '../../src/lib/useDataTable'
 
-
 import { CreateConfigInput } from './api-inputs'
 import {
 	createAccount,

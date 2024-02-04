@@ -1,6 +1,5 @@
 import { ResizeObserver } from '@juggle/resize-observer'
 import { useEffect, useRef, useState } from 'react'
-import type { GElement } from 'd3'
 
 function combineChartDimensions(dimensions: {
 	width: number
@@ -36,14 +35,15 @@ function combineChartDimensions(dimensions: {
 export function useChartDimensions(
 	passedSettings: Parameters<typeof combineChartDimensions>[0],
 ) {
-	const ref = useRef<Gelement>()
+	const ref = useRef<SVGElement>()
 	const dimensions = combineChartDimensions(passedSettings)
 
 	const [width, setWidth] = useState(0)
 	const [height, setHeight] = useState(0)
 
 	useEffect(() => {
-		if (dimensions.width && dimensions.height) return //[ref, dimensions]
+		if (dimensions.width && dimensions.height) return
+		if (!ref.current) return
 
 		const element = ref.current
 		const resizeObserver = new ResizeObserver((entries) => {
