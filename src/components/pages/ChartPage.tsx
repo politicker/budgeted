@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { BudgetChart } from '../graph/BudgetChart'
 
 const DEFAULT_DAY_RANGE = 50
-const DEFAULT_BUDGET = '$10,000'
+const DEFAULT_BUDGET = '$0'
 
 function parseMoney(money: string) {
 	return parseInt(money.replace(/\D/g, ''))
