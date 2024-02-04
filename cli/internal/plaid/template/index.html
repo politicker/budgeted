@@ -1,33 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-    <title>Plaid Loader</title>
-</head>
-<body>
-<script>
-    const handler = Plaid.create({
-        token: '{{ .PlaidLinkToken }}',
-        onSuccess: (publicToken, metadata) => {
-            fetch('/plaid/success', {
-                method: 'POST',
-                body: publicToken
-            })
+	<head>
+		<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+		<title>Plaid Loader</title>
+	</head>
+	<body>
+		<script>
+			const handler = Plaid.create({
+				token: '{{ .PlaidLinkToken }}',
+				onSuccess: (publicToken, metadata) => {
+					fetch('/plaid/success', {
+						method: 'POST',
+						body: publicToken,
+					})
 
-            // console.log({ publicToken, metadata })
-        },
-        // onLoad: () => {
-        //     console.log('loaded')
-        // },
-        // onExit: (err, metadata) => {
-        //     console.log({ err, metadata })
-        // },
-        // onEvent: (eventName, metadata) => {
-        //     console.log({ eventName, metadata })
-        // },
-    });
+					// console.log({ publicToken, metadata })
+				},
+				// onLoad: () => {
+				//     console.log('loaded')
+				// },
+				// onExit: (err, metadata) => {
+				//     console.log({ err, metadata })
+				// },
+				// onEvent: (eventName, metadata) => {
+				//     console.log({ eventName, metadata })
+				// },
+			})
 
-    handler.open()
-</script>
-</body>
+			handler.open()
+		</script>
+	</body>
 </html>

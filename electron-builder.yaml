@@ -26,9 +26,15 @@ mac:
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
+  notarize: true
+  hardenedRuntime: true
+  identity: 'Harrison Borges (CHZPTSK255)'
+  entitlements: build/entitlements.plist
+  entitlementsInherit: build/entitlements.plist
+  gatekeeperAssess: false
 dmg:
   artifactName: ${name}-${version}.${ext}
+  sign: false
 linux:
   target:
     - AppImage
@@ -38,5 +44,6 @@ linux:
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
+afterSign: build/notarize.js
 publish:
   - provider: github
