@@ -78,7 +78,6 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^5.3.3",
 		"typescript-plugin-css-modules": "^5.0.2",
-		"victory": "^36.8.1",
 		"vite": "^5.0.10",
 		"vite-plugin-electron": "^0.15.5",
 		"vite-plugin-electron-renderer": "^0.14.5"
