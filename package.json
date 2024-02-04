@@ -14,7 +14,7 @@
 		}
 	},
 	"scripts": {
-		"build": "vite build && electron-builder --config electron-builder.yaml",
+		"build": "vite build && npx electron-builder --config electron-builder.yaml",
 		"dev": "vite",
 		"format": "prettier --write .",
 		"lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
@@ -26,6 +26,7 @@
 	"author": "politicker",
 	"license": "MIT",
 	"devDependencies": {
+		"@electron/notarize": "^2.2.1",
 		"@fontsource-variable/rubik": "^5.0.20",
 		"@fontsource/cutive-mono": "^5.0.18",
 		"@headlessui/react": "^1.7.18",
@@ -56,6 +57,7 @@
 		"cmdk": "^0.2.0",
 		"d3": "^7.8.5",
 		"date-fns": "^3.2.0",
+		"dotenv": "^16.4.1",
 		"electron": "^28.2.0",
 		"esbuild-css-modules-plugin": "^3.1.0",
 		"eslint": "^8.56.0",
