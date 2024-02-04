@@ -6,7 +6,7 @@ import { Button } from '../ui/button'
 import { InlineInput } from '../ui/input'
 import { Account } from '@prisma/client'
 import { PlaidLinkButton } from '../PlaidLinkButton'
-import { formatMoney } from './ChartPage'
+import { formatMoney } from '@/lib/money'
 
 export function AccountsPage() {
 	const { data, refetch } = trpc.institutions.useQuery()

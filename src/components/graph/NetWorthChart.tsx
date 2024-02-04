@@ -11,21 +11,20 @@ const DEFAULT_HEIGHT = 400
 interface Datum {
 	date: string
 	amount: number
+	data: {
+		date: string
+		amount: number
+		name: string
+	}[]
 }
 
 interface Props {
 	filteredData: Datum[]
-	budgetData: Datum[]
 	date?: string
 	setDate: Dispatch<SetStateAction<string | undefined>>
 }
 
-export function BudgetChart({
-	filteredData,
-	budgetData,
-	date,
-	setDate,
-}: Props) {
+export function NetWorthChart({ filteredData, date, setDate }: Props) {
 	const [hoveredTick, setHoveredTick] = useState<string>()
 	const [ref, dimensions] = useDimensions({ liveMeasure: true })
 
@@ -55,9 +54,9 @@ export function BudgetChart({
 
 		return d3
 			.scaleLinear()
-			.domain([0, Math.max(ex[1] ?? 0, budgetData[1]?.amount ?? 0)])
+			.domain([0, ex[1] ?? 0])
 			.range([height - marginBottom, marginTop])
-	}, [filteredData, budgetData, marginTop, height, marginBottom])
+	}, [filteredData, marginTop, height, marginBottom])
 
 	if (!x || !y) return <div>loading</div>
 
@@ -85,15 +84,6 @@ export function BudgetChart({
 						stroke="currentColor"
 						strokeWidth="1.5"
 						d={line([{ date: '', amount: 0 }, ...filteredData]) ?? undefined}
-						transform="translate(15,0)"
-					/>
-
-					<path
-						fill="none"
-						stroke="purple"
-						strokeDasharray={'5,5'}
-						strokeWidth="1.5"
-						d={line(budgetData) ?? undefined}
 						transform="translate(15,0)"
 					/>
 
@@ -125,22 +115,26 @@ export function BudgetChart({
 										: 'transparent'
 								}
 							/>
-							<text
-								// fill="currentColor"
-								x={x(new Date(d.date)) ?? 0}
-								y={y(d.amount) ?? 0}
-								// dy={15}
-								textAnchor="middle"
-								fontSize="12"
-								transform="translate(15,0)"
-								fill={
-									hoveredTick === d.date || date === d.date
-										? 'purple'
-										: 'transparent'
-								}
-							>
-								{formatMoneyK(d.amount)}
-							</text>
+							{d.data.map((d) => (
+								<text
+									key={d.name}
+									// fill="currentColor"
+									x={x(new Date(d.date)) ?? 0}
+									y={y(d.amount) ?? 0}
+									// dy={15}
+									textAnchor="middle"
+									fontSize="12"
+									transform="translate(15,0)"
+									fill={
+										hoveredTick === d.date || date === d.date
+											? 'purple'
+											: 'transparent'
+									}
+								>
+									{d.name}
+									{formatMoneyK(d.amount)}
+								</text>
+							))}
 						</Fragment>
 					))}
 				</svg>

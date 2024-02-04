@@ -6,6 +6,7 @@ import {
 	TableIcon,
 	IdCardIcon,
 	GearIcon,
+	ValueIcon,
 } from '@radix-ui/react-icons'
 import { Link, Outlet } from 'react-router-dom'
 import { Page } from '@/lib/types'
@@ -43,6 +44,12 @@ export function Root() {
 							<Button variant="ghost" size="icon" asChild>
 								<Link to={Page.CHART}>
 									<BarChartIcon />
+								</Link>
+							</Button>
+
+							<Button variant="ghost" size="icon" asChild>
+								<Link to={Page.NET_WORTH}>
+									<ValueIcon />
 								</Link>
 							</Button>
 

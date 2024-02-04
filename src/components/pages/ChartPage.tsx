@@ -7,17 +7,11 @@ import { InlineInput } from '../ui/input'
 import { useLocalStorage } from '@/lib/useLocalStorage'
 import { z } from 'zod'
 import { BudgetChart } from '../graph/BudgetChart'
+import { formatMoney } from '@/lib/money'
+import { parseMoney } from '@/lib/money'
 
 const DEFAULT_DAY_RANGE = 50
 const DEFAULT_BUDGET = '$0'
-
-function parseMoney(money: string) {
-	return parseInt(money.replace(/\D/g, ''))
-}
-
-export function formatMoney(money: number) {
-	return `$${money.toLocaleString()}`
-}
 
 export function ChartPage() {
 	const [date, setDate] = useState<string>()

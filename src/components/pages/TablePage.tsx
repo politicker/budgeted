@@ -4,7 +4,7 @@ import { DataTable } from '../ui/data-table/data-table'
 import { useDataTable, useDataTableInput } from '@/lib/useDataTable'
 import { useEffect, useState } from 'react'
 import { Transaction } from '@prisma/client'
-import { formatMoney } from './ChartPage'
+import { formatMoney } from '@/lib/money'
 import { Badge } from '../ui/badge'
 
 export function TablePage() {
