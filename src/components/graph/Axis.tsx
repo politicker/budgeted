@@ -1,48 +1,91 @@
-import d3 from 'd3'
+import * as d3 from 'd3'
+import { format } from 'date-fns'
 import { useMemo } from 'react'
 
 type Props = {
-	domain?: [number, number]
-	range?: [number, number]
+	// scale MUST be memoized
+	x: d3.ScaleLinear<number, number> | d3.ScaleTime<number, number>
+	y: d3.ScaleLinear<number, number>
+	pixelsPerTick?: number
+	placement?: 'top' | 'bottom' | 'left' | 'right'
+	setHoveredTick?: React.Dispatch<React.SetStateAction<string | undefined>>
+	hoveredTick?: string
+	pad?: number
+	format?: (value: number | Date) => string
+	maxTicks?: number
 }
 
-export function Axis({ domain = [0, 100], range = [10, 290] }: Props) {
+export function Axis({
+	x,
+	y,
+	pixelsPerTick = 30,
+	placement = 'bottom',
+	setHoveredTick,
+	pad,
+	format = (value) => value.toString(),
+	maxTicks = Infinity,
+}: Props) {
+	const axis = placement === 'bottom' || placement === 'top' ? 'x' : 'y'
+	const main = axis === 'x' ? x : y
+	const r = main.range() as [number, number]
+	const range = [r[0], r[1] + (pad ?? 0) * 2] as const
+
+	const rangeX = x.range() as [number, number]
+	const rangeY = y.range() as [number, number]
+
 	const ticks = useMemo(() => {
-		const xScale = d3.scaleLinear().domain(domain).range(range)
+		const span = Math.abs(range[1] - range[0])
+		const numberOfTicksTarget = Math.min(
+			Math.max(1, Math.floor(span / pixelsPerTick)),
+			maxTicks,
+		)
 
-		const width = range[1] - range[0]
-		const pixelsPerTick = 30
-		const numberOfTicksTarget = Math.max(1, Math.floor(width / pixelsPerTick))
-
-		return xScale.ticks(numberOfTicksTarget).map((value) => ({
-			value,
-			xOffset: xScale(value),
+		return main.ticks(numberOfTicksTarget).map((value) => ({
+			value: format(value),
+			x: axis === 'x' ? x(value) + (pad ?? 0) : 0,
+			y: axis === 'y' ? y(value) + (pad ?? 0) : 0,
 		}))
-	}, [domain.join('-'), range.join('-')])
+	}, [main])
+
+	const line = d3.line<number>(
+		(x) => (axis === 'x' ? x : 0),
+		(y) => (axis === 'y' ? y : 0),
+	)(range)
+
+	const translateX = axis === 'x' ? 0 : rangeX[0]
+	const translateY = axis === 'y' ? 0 : rangeY[0]
+
+	const tickTransform =
+		axis === 'x'
+			? 'translateX(-3px) translateY(15px) rotate(45deg)'
+			: 'translateX(-10px) translateY(3px)'
 
 	return (
-		<svg>
-			<path
-				d={['M', range[0], 6, 'v', -6, 'H', range[1], 'v', 6].join(' ')}
-				fill="none"
-				stroke="currentColor"
-			/>
+		<g transform={`translate(${translateX}, ${translateY})`}>
+			<path d={line ?? undefined} fill="none" stroke="currentColor" />
 
-			{ticks.map(({ value, xOffset }) => (
-				<g key={value} transform={`translate(${xOffset}, 0)`}>
-					<line y2="6" stroke="currentColor" />
+			{ticks.map(({ value, x, y }) => (
+				<g
+					key={value}
+					transform={`translate(${x}, ${y})`}
+					onMouseDown={setHoveredTick && (() => setHoveredTick(value))}
+				>
+					<line
+						stroke="currentColor"
+						{...(axis === 'x' ? { y2: '6' } : { x2: '-6' })}
+					/>
 					<text
-						key={value}
 						style={{
 							fontSize: '10px',
-							textAnchor: 'middle',
-							transform: 'translateY(20px)',
+							textAnchor: axis === 'x' ? 'start' : 'end',
+							transform: tickTransform,
 						}}
+						fill="currentColor"
 					>
-						{value}
+						{value.toLocaleString()}
 					</text>
 				</g>
 			))}
-		</svg>
+		</g>
 	)
 }

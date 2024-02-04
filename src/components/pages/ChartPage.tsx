@@ -9,11 +9,12 @@ import { useLocalStorage } from '@/lib/useLocalStorage'
 import { z } from 'zod'
 import { colors } from '@/lib/colors'
 import * as d3 from 'd3'
+import { Axis } from '../graph/Axis'
+import { Axis2 } from '../graph/Axis2'
+import { BudgetChart } from '../graph/BudgetChart'
 
 const DEFAULT_DAY_RANGE = 50
 const DEFAULT_BUDGET = '$10,000'
-const DEFAULT_WIDTH = 640
-const DEFAULT_HEIGHT = 400
 
 function parseMoney(money: string) {
 	return parseInt(money.replace(/\D/g, ''))
@@ -24,7 +25,6 @@ export function formatMoney(money: number) {
 }
 
 export function ChartPage() {
-	const [ref, dimensions] = useDimensions({ liveMeasure: true })
 	const [date, setDate] = useState<string>()
 	const [closeModal, setCloseModal] = useState(false)
 
@@ -40,9 +40,10 @@ export function ChartPage() {
 		DEFAULT_BUDGET,
 	)
 
-	const minDate = useMemo(() => {
-		return format(sub(new Date(), { days: dayRange }), 'yyyy-MM-dd')
-	}, [dayRange])
+	const minDate = useMemo(
+		() => format(sub(new Date(), { days: dayRange }), 'yyyy-MM-dd'),
+		[dayRange],
+	)
 
 	const { data, refetch } = trpc.transactions.useQuery(
 		{
@@ -104,7 +105,7 @@ export function ChartPage() {
 
 		return [
 			{
-				date: firstFrame.date,
+				date: '',
 				amount: 0,
 			},
 			{
@@ -123,73 +124,6 @@ export function ChartPage() {
 
 		return frame.transactions
 	}, [date, filteredData])
-
-	const MARGIN = 20
-	const marginTop = MARGIN
-	const marginRight = MARGIN
-	const marginBottom = MARGIN
-	const marginLeft = MARGIN
-	const borderFix = 2
-	const width = (dimensions.width ?? DEFAULT_WIDTH) - borderFix
-	const height = (dimensions.height ?? DEFAULT_HEIGHT) - borderFix
-
-	const xg = useRef<SVGGElement>(null)
-	const yg = useRef<SVGGElement>(null)
-
-	if (!filteredData) return null
-
-	const yd = d3.extent(filteredData, (d) => d.amount)
-	if (!yd[0]) return null
-
-	const xd = d3.extent(filteredData, (d) => new Date(d.date))
-	if (!xd[0]) return null
-
-	const x = d3
-		.scaleUtc()
-		.domain(xd)
-		.range([marginLeft, width - marginRight])
-
-	// Declare the y (vertical position) scale.
-	const y = d3
-		.scaleLinear()
-		.domain(yd)
-		.range([height - marginBottom, marginTop])
-
-	const xa = d3.axisBottom(x)
-
-	if (!xg.current) return
-	const selection = d3.select(xg.current)
-	xa(selection)
-
-	// const x = d3.scaleLinear(
-	// 	[0, budgetData.length - 1],
-	// 	[marginLeft, width - marginRight],
-	// )
-
-	// if (!filteredData)
-	// 	return (
-	// 		<div>
-	// 			Loading... {date} the date
-	// 			<pre>{JSON.stringify(filteredData, null, 4)}</pre>
-	// 		</div>
-	// 	)
-
-	// const extent = d3.extent(filteredData, (d) => d.amount)
-	// if (extent[0] === undefined)
-	// 	return (
-	// 		<div className="rounded-md border overflow-auto m-3 mb-3 bg-background p-3">
-	// 			<div className="text-2xl">Error</div>
-	// 			<p>Could not derive extent from:</p>
-	// 			<pre>{JSON.stringify(budgetData, null, 4)}</pre>
-	// 		</div>
-	// 	)
-
-	// const y = d3.scaleLinear(extent, [height - marginBottom, marginTop])
-
-	// const line = d3.line<(typeof filteredData)[0]>(
-	// 	(d) => x(new Date(d.date)),
-	// 	(d) => y(d.amount),
-	// )
 
 	return (
 		<>
@@ -229,39 +163,26 @@ export function ChartPage() {
 				/>
 			</div>
 
-			<div
-				ref={ref}
-				className="row-span-2 rounded-md border overflow-hidden mx-3 mb-3 bg-background"
-			>
-				{'width' in dimensions && filteredData && (
-					<svg width={width} height={height}>
-						<g ref={xg} transform={`translate(0,${height - marginBottom})`} />
-						<g ref={yg} transform={`translate(${marginLeft},0)`} />
-
-						<path
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="1.5"
-							// d={line(filteredData) ?? undefined}
-						/>
-						{/* <g fill="white" stroke="currentColor" stroke-width="1.5">
-								{filteredData.map((d, i) => (
-									<circle key={i} cx={x(i)} cy={y(d.amount)} r="2.5" />
-								))}
-							</g> */}
-					</svg>
+			<div className="row-span-2 rounded-md border overflow-hidden mx-3 mb-3 bg-background">
+				{filteredData && (
+					<BudgetChart
+						filteredData={filteredData}
+						budgetData={budgetData}
+						date={date}
+						setDate={setDate}
+					/>
 				)}
 
 				<Transition show={Boolean(date) && !closeModal} as={Fragment}>
 					<Dialog onClose={() => setCloseModal(true)}>
 						<div
-							className="fixed inset-0 bg-background/50"
+							className="fixed inset-0 bg-background/50 top-[24px]"
 							aria-hidden="true"
 							onClick={() => setCloseModal(true)}
 						/>
 
 						<Transition.Child
-							className="transition-[right] fixed h-[100vh] min-w-[300px] w-[75%] top-0 right-0 border-l bg-background grid grid-rows-[min-content_1fr_min-content]"
+							className="transition-[right] fixed h-[calc(100vh_-_24px)] w-[350px] top-[24px] right-0 border-l bg-background grid grid-rows-[min-content_1fr_min-content]"
 							enterFrom="right-[-100%]"
 							enter="right-0"
 							leave="right-[-100%]"
@@ -271,11 +192,12 @@ export function ChartPage() {
 							}}
 						>
 							<div className="p-3 border-b">{date}</div>
+
 							<div className="overflow-y-auto">
 								{transactionsForDate?.map((transaction) => (
 									<div
 										key={transaction.plaidId}
-										className="p-3 border-b flex justify-between items-center"
+										className="p-3 border-b flex justify-between items-center gap-3"
 									>
 										<div>{transaction.name}</div>
 										<div className="flex items-center">
@@ -292,6 +214,7 @@ export function ChartPage() {
 									</div>
 								))}
 							</div>
+
 							<div className="p-3 border-t flex justify-between items-center">
 								<Button onClick={() => setCloseModal(true)} variant="outline">
 									Close
