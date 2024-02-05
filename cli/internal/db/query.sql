@@ -118,5 +118,6 @@ WHERE "id" = ?;
 INSERT INTO "AccountBalance"("current",
                              "available",
                              "isoCurrencyCode",
-                             "accountPlaidId")
-VALUES (?, ?, ?, ?);
+                             "accountPlaidId",
+                             "createdAt")
+VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);
