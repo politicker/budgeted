@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/google/martian/log"
+	"log"
 	"os"
 	"os/signal"
 
@@ -15,7 +15,7 @@ func main() {
 
 	err := cmd.Execute(ctx)
 	if err != nil {
-		log.Errorf("Error executing command: %v", err)
+		log.Fatalf("Error executing command: %v", err)
 		os.Exit(1)
 	}
 

@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/politicker/budgeted/internal/db"
-	"github.com/politicker/budgeted/internal/plaid"
+	"github.com/politicker/budgeted/internal/domain"
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/gofrs/uuid"
@@ -66,7 +66,7 @@ func (a *API) Routes() (*mux.Router, error) {
 	}
 
 	queries := db.New(driver)
-	client, err := plaid.NewClientFromConfig(a.ctx, false, queries)
+	client, err := domain.PlaidClientFromConfig(a.ctx, false, queries)
 	if err != nil {
 		return nil, err
 	}

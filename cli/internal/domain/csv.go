@@ -1,15 +1,10 @@
-package csv
+package domain
 
 import (
 	"database/sql"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"path"
 	"strconv"
 
-	"github.com/pkg/errors"
 	"github.com/plaid/plaid-go/v20/plaid"
 )
 
@@ -38,6 +33,19 @@ func (f *MyNullFloat64) UnmarshalCSV(csv string) (err error) {
 	}
 
 	return err
+}
+
+func NullableFloat64FromPtr(n *float64) MyNullFloat64 {
+	f := MyNullFloat64{}
+	if n == nil {
+		f.Valid = false
+		return f
+	}
+
+	f.Float64 = *n
+	f.Valid = true
+
+	return f
 }
 
 type Transaction struct {
@@ -72,60 +80,4 @@ type Account struct {
 	Subtype          plaid.AccountSubtype `csv:"subtype"`
 	Type             plaid.AccountType    `csv:"type"`
 	PlaidItemID      string               `csv:"plaidItemId"`
-}
-
-func NullableFloat64FromPtr(n *float64) MyNullFloat64 {
-	f := MyNullFloat64{}
-	if n == nil {
-		f.Valid = false
-		return f
-	}
-
-	f.Float64 = *n
-	f.Valid = true
-
-	return f
-}
-
-func cacheFile(cache map[string]string, url string) (string, error) {
-	name := path.Base(url)
-
-	if _, ok := cache[name]; !ok {
-		data, err := fetch(url)
-		if err != nil {
-			return "", errors.Wrapf(err, "fetch failed for %s", url)
-		}
-
-		err = os.WriteFile(
-			path.Join("public", "cache", name),
-			data,
-			0o644,
-		)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to write cache file for %s", url)
-		}
-
-		cache[name] = "cached"
-	}
-
-	return "./cache/" + name, nil
-}
-
-func fetch(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to fetch URL: %s", url)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read response body for URL: %s", url)
-	}
-
-	return data, nil
 }

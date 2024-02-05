@@ -1,4 +1,4 @@
-package csv
+package domain
 
 import (
 	"context"
@@ -10,11 +10,36 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 	"github.com/politicker/budgeted/internal/db"
 )
+
+func Import(ctx context.Context, db *db.Queries, importFunc func(context.Context, int64) error) error {
+	err := db.ImportLogCreate(ctx, time.Now())
+	if err != nil {
+		return err
+	}
+
+	importLogId, err := db.ImportLogGetLastInsertID(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = importFunc(ctx, importLogId)
+	if err != nil {
+		return err
+	}
+
+	err = db.ImportLogComplete(ctx, importLogId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func LoadTransactions(ctx context.Context, queries *db.Queries, importLogId int64) error {
 	cache := make(map[string]string)

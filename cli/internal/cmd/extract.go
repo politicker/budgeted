@@ -6,16 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"github.com/politicker/budgeted/internal/db"
-	"github.com/politicker/budgeted/internal/plaid"
+	"github.com/politicker/budgeted/internal/domain"
 	"github.com/spf13/cobra"
 )
 
-func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
+func ExtractCmd(ctx context.Context) *cobra.Command {
 	command := cobra.Command{
-		Use:   "plaid-data",
-		Short: "load data from plaid",
+		Use:   "extract",
+		Short: "fetch data from the Plaid API and save it",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			isSandBox, err := cmd.Flags().GetBool("sandbox")
 			if err != nil {
@@ -29,31 +28,14 @@ func LoadPlaidDataCmd(ctx context.Context) *cobra.Command {
 
 			queries := db.New(driver)
 
-			pc, err := plaid.NewClientFromConfig(ctx, isSandBox, queries)
+			pc, err := domain.PlaidClientFromConfig(ctx, isSandBox, queries)
 			if err != nil {
 				return err
 			}
 
-			// for each institution load transactions
-			// query for accounts
-			//
-
-			institutions, err := queries.InstitutionList(ctx)
+			err = domain.ExtractPlaidData(ctx, pc, queries)
 			if err != nil {
 				return err
-			}
-
-			for _, institution := range institutions {
-				err = pc.LoadTransactions(ctx, institution.PlaidId, institution.PlaidAccessToken)
-
-				if err != nil {
-					return errors.Wrap(err, "failed to load transactions")
-				}
-
-				err = pc.LoadAccounts(ctx, institution.PlaidId, institution.PlaidAccessToken)
-				if err != nil {
-					return errors.Wrap(err, "failed to load accounts")
-				}
 			}
 
 			return nil
