@@ -52,7 +52,7 @@ jobs:
       - name: Build distribution
         run: npx electron-builder -p always
         env:
-          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_LINK: ${{ secrets.mac_certs }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
           APPLEID: ${{ secrets.APPLE_ID }}
           APPLEIDPASS: ${{ secrets.APPLE_ID_PASSWORD }}
