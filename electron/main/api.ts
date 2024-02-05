@@ -73,6 +73,7 @@ export const router = t.router({
 
 		return { success: true }
 	}),
+
 	hideTransaction: loggedProcedure
 		.input(z.object({ plaidId: z.string() }))
 		.mutation(async ({ input }) => {
@@ -244,6 +245,12 @@ export const router = t.router({
 			reportError('INTERNAL_SERVER_ERROR', 'Error writing cron tasks', err)
 		}
 		return { success: true }
+	}),
+	accountBalances: loggedProcedure.query(async () => {
+		return await prisma.accountBalance.findMany({
+			orderBy: { createdAt: 'asc' },
+			include: { account: true },
+		})
 	}),
 })
 

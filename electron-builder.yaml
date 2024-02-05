@@ -28,7 +28,7 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: true
   hardenedRuntime: true
-  identity: 'Harrison Borges (CHZPTSK255)'
+  # identity: 'Harrison Borges (CHZPTSK255)'
   entitlements: build/entitlements.plist
   entitlementsInherit: build/entitlements.plist
   gatekeeperAssess: false

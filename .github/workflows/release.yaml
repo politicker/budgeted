@@ -1,0 +1,73 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Publish
+
+on:
+  push:
+    tags: v*
+
+jobs:
+  publish:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      NodeVersion: 20.x
+      GoVersion: ^1.21.4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Go ${{ env.GoVersion }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GoVersion }}
+
+      - run: go mod download
+        working-directory: ./cli
+
+      - name: Use Node.js ${{ env.NodeVersion }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NodeVersion }}
+          cache: 'npm'
+
+      - run: npm i
+      - run: npx vite build
+
+      - name: Decode and save the certificate
+        if: matrix.os == 'macos-latest'
+        run: |
+          echo "${{ secrets.MAC_CERTS }}" | base64 --decode > ./electron-cert.p12
+
+      - name: setup keychain
+        if: matrix.os == 'macos-latest'
+        run: |
+          security import ./electron-cert.p12 -P ${{ secrets.mac_certs_password }}
+
+      - name: electron mac os security identities
+        if: matrix.os == 'macos-latest'
+        run: security find-identity -v
+
+      - name: test secrets
+        run: |
+          echo "=========================== testing secrets =================================="
+          echo "MAC_CERTS = ${{ secrets.MAC_CERTS }}"
+          echo "MAC_CERTS_PASSWORD = ${{ secrets.MAC_CERTS_PASSWORD }}"
+        env:
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLEID: ${{ secrets.APPLE_ID }}
+          APPLEIDPASS: ${{ secrets.APPLE_ID_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build distribution
+        run: npx electron-builder -p always
+        env:
+          CSC_LINK: ${{ secrets.mac_certs }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLEID: ${{ secrets.APPLE_ID }}
+          APPLEIDPASS: ${{ secrets.APPLE_ID_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

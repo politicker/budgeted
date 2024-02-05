@@ -10,6 +10,7 @@ import { ChartPage } from './components/pages/ChartPage'
 import { Page } from './lib/types'
 import { AccountsPage } from './components/pages/AccountsPage'
 import { SettingsPage } from './components/pages/SettingsPage'
+import { NetWorthPage } from './components/pages/NetWorthPage'
 
 const LastRouteKey = 'lastRoute' as const
 const lastRoute = localStorage.getItem(LastRouteKey)
@@ -20,6 +21,7 @@ export const router = createMemoryRouter(
 			<Route index loader={() => redirect(Page.TABLE)} />
 			<Route path={Page.TABLE} element={<TablePage />} />
 			<Route path={Page.CHART} element={<ChartPage />} />
+			<Route path={Page.NET_WORTH} element={<NetWorthPage />} />
 			<Route path={Page.ACCOUNTS} element={<AccountsPage />} />
 			<Route path={Page.SETTINGS} element={<SettingsPage />} />
 		</Route>,

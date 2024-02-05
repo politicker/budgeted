@@ -3,4 +3,5 @@ export enum Page {
 	ACCOUNTS = 'accounts',
 	CHART = 'chart',
 	SETTINGS = 'settings',
+	NET_WORTH = 'net-worth',
 }

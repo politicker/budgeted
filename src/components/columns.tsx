@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { ColumnDef } from '@tanstack/react-table'
 import type { fetchTransactions } from '../../electron/main/models/transactions'
-import { formatMoney } from './pages/ChartPage'
+import { formatMoney } from '@/lib/money'
 import { Badge } from './ui/badge'
 import { Checkbox } from './ui/checkbox'
 import { DataTableColumnHeader } from './ui/data-table/data-table-column-header'
