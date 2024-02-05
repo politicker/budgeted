@@ -38,14 +38,17 @@ jobs:
       - run: npx vite build
 
       - name: Decode and save the certificate
+        if: matrix.os == 'macos-latest'
         run: |
           echo "${{ secrets.MAC_CERTS }}" | base64 --decode > ./electron-cert.p12
 
       - name: setup keychain
+        if: matrix.os == 'macos-latest'
         run: |
           security import ./electron-cert.p12 -P ${{ secrets.mac_certs_password }}
 
       - name: electron mac os security identities
+        if: matrix.os == 'macos-latest'
         run: security find-identity -v
 
       - name: test secrets
