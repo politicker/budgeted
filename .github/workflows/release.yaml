@@ -37,6 +37,17 @@ jobs:
       - run: npm i
       - run: npx vite build
 
+      - name: Decode and save the certificate
+        run: |
+          echo "${{ secrets.MAC_CERTS }}" | base64 --decode > ./electron-cert.p12
+
+      - name: setup keychain
+        run: |
+          security import ./electron-cert.p12 -P ${{ secrets.mac_certs_password }}
+
+      - name: electron mac os security identities
+        run: security find-identity -v
+
       - name: test secrets
         run: |
           echo "=========================== testing secrets =================================="
