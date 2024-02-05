@@ -51,18 +51,6 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: security find-identity -v
 
-      - name: test secrets
-        run: |
-          echo "=========================== testing secrets =================================="
-          echo "MAC_CERTS = ${{ secrets.MAC_CERTS }}"
-          echo "MAC_CERTS_PASSWORD = ${{ secrets.MAC_CERTS_PASSWORD }}"
-        env:
-          CSC_LINK: ${{ secrets.MAC_CERTS }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
-          APPLEID: ${{ secrets.APPLE_ID }}
-          APPLEIDPASS: ${{ secrets.APPLE_ID_PASSWORD }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build distribution
         run: npx electron-builder -p always
         env:
