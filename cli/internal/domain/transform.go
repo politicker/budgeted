@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gocarina/gocsv"
 	"github.com/plaid/plaid-go/v20/plaid"
@@ -126,6 +127,9 @@ func TransformTransactions(ctx context.Context, jsonStorage string, csvStorage s
 
 func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
 	var accountsCSV []Account
+	var newestFile os.DirEntry
+	var newestTime time.Time
+
 	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
 
 	err := filepath.WalkDir(accountsPath, func(path string, d os.DirEntry, err error) error {
@@ -134,6 +138,19 @@ func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage strin
 		}
 
 		if d.IsDir() {
+			return nil
+		}
+
+		// Find the newest file in this directory
+		// If this isn't the newest file, skip import on this iteration
+		info, err := d.Info()
+		if err != nil {
+			return err
+		}
+		if newestFile == nil || info.ModTime().After(newestTime) {
+			newestFile = d
+			newestTime = info.ModTime()
+		} else {
 			return nil
 		}
 
