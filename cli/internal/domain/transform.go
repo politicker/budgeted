@@ -3,7 +3,9 @@ package domain
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -125,67 +127,71 @@ func TransformTransactions(ctx context.Context, jsonStorage string, csvStorage s
 	return nil
 }
 
+// TransformAccounts transforms the JSON account files into CSV files.
+// For accounts, we find the latest JSON file in the instititution's accounts directory.
+// Each ETL run will write a new JSON file with the most up-to-date accounts and account info,
+// so we only need to use the latest file.
+// The unfortunate side-effect of that is rebuilding a SQLite database will no longer rebuild
+// historical account balances.
 func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
 	var accountsCSV []Account
-	var newestFile os.DirEntry
-	var newestTime time.Time
 
 	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
 
-	err := filepath.WalkDir(accountsPath, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() {
-			return nil
-		}
-
-		// Find the newest file in this directory
-		// If this isn't the newest file, skip import on this iteration
-		info, err := d.Info()
-		if err != nil {
-			return err
-		}
-		if newestFile == nil || info.ModTime().After(newestTime) {
-			newestFile = d
-			newestTime = info.ModTime()
-		} else {
-			return nil
-		}
-
-		bytes, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		response := plaid.AccountsGetResponse{}
-		if err = json.Unmarshal(bytes, &response); err != nil {
-			return err
-		}
-
-		for _, account := range response.GetAccounts() {
-			balance := account.GetBalances()
-			item := response.GetItem()
-
-			accountsCSV = append(accountsCSV, Account{
-				PlaidID:          account.GetAccountId(),
-				AvailableBalance: balance.GetAvailable(),
-				CurrentBalance:   balance.GetCurrent(),
-				ISOCurrencyCode:  balance.GetIsoCurrencyCode(),
-				Limit:            balance.GetLimit(),
-				Mask:             account.GetMask(),
-				Name:             account.GetName(),
-				OfficialName:     account.GetOfficialName(),
-				Subtype:          account.GetSubtype(),
-				Type:             account.GetType(),
-				PlaidItemID:      item.GetItemId(),
-			})
-		}
-
-		return nil
-	})
+	files, err := os.ReadDir(accountsPath)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	var newestTime time.Time
+	var newestFile fs.DirEntry
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		info, err := file.Info()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if newestFile == nil || info.ModTime().After(newestTime) {
+			newestFile = file
+			newestTime = info.ModTime()
+		}
+	}
+	if newestFile == nil {
+		return errors.New("no valid account files found")
+	}
+
+	jsonFilePath := accountsPath + "/" + newestFile.Name()
+	bytes, err := os.ReadFile(jsonFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	response := plaid.AccountsGetResponse{}
+	if err = json.Unmarshal(bytes, &response); err != nil {
 		return err
+	}
+
+	for _, account := range response.GetAccounts() {
+		balance := account.GetBalances()
+		item := response.GetItem()
+
+		accountsCSV = append(accountsCSV, Account{
+			PlaidID:          account.GetAccountId(),
+			AvailableBalance: balance.GetAvailable(),
+			CurrentBalance:   balance.GetCurrent(),
+			ISOCurrencyCode:  balance.GetIsoCurrencyCode(),
+			Limit:            balance.GetLimit(),
+			Mask:             account.GetMask(),
+			Name:             account.GetName(),
+			OfficialName:     account.GetOfficialName(),
+			Subtype:          account.GetSubtype(),
+			Type:             account.GetType(),
+			PlaidItemID:      item.GetItemId(),
+		})
 	}
 
 	csvContent, err := gocsv.MarshalString(&accountsCSV)
@@ -193,8 +199,8 @@ func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage strin
 		return err
 	}
 
-	filePath := filepath.Join(csvStorage, "accounts.csv")
-	if err := os.WriteFile(filePath, []byte(csvContent), 0644); err != nil {
+	fp := filepath.Join(csvStorage, "accounts.csv")
+	if err := os.WriteFile(fp, []byte(csvContent), 0644); err != nil {
 		return err
 	}
 
