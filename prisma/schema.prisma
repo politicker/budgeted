@@ -91,14 +91,14 @@ model AccountBalance {
 }
 
 model Budget {
-  id          Int          @id @default(autoincrement())
-  name        String
-  amount      Float
-  range       Int
-  budgetRules BudgetRule[]
+  id            Int            @id @default(autoincrement())
+  name          String
+  amount        Float
+  range         Int
+  budgetFilters BudgetFilter[]
 }
 
-model BudgetRule {
+model BudgetFilter {
   id       Int    @id @default(autoincrement())
   budget   Budget @relation(fields: [budgetId], references: [id])
   budgetId Int
