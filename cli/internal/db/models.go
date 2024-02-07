@@ -26,12 +26,13 @@ type Account struct {
 }
 
 type AccountBalance struct {
-	ID              int64
 	Current         float64
 	Available       float64
 	IsoCurrencyCode string
 	AccountPlaidId  string
-	CreatedAt       time.Time
+	Date            string
+	ImportedAt      time.Time
+	ImportLogId     sql.NullInt64
 }
 
 type Budget struct {
@@ -41,7 +42,7 @@ type Budget struct {
 	Range  int64
 }
 
-type BudgetRule struct {
+type BudgetFilter struct {
 	ID       int64
 	BudgetId int64
 	Column   string

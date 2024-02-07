@@ -65,26 +65,30 @@ CREATE TABLE IF NOT EXISTS "Account" (
     CONSTRAINT "Account_institutionPlaidId_fkey" FOREIGN KEY ("institutionPlaidId") REFERENCES "Institution" ("plaidId") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Account_importLogId_fkey" FOREIGN KEY ("importLogId") REFERENCES "ImportLog" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
-CREATE TABLE IF NOT EXISTS "AccountBalance" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "current" REAL NOT NULL,
-    "available" REAL NOT NULL,
-    "isoCurrencyCode" TEXT NOT NULL,
-    "accountPlaidId" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "AccountBalance_accountPlaidId_fkey" FOREIGN KEY ("accountPlaidId") REFERENCES "Account" ("plaidId") ON DELETE RESTRICT ON UPDATE CASCADE
-);
 CREATE TABLE IF NOT EXISTS "Budget" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "amount" REAL NOT NULL,
     "range" INTEGER NOT NULL
 );
-CREATE TABLE IF NOT EXISTS "BudgetRule" (
+CREATE TABLE IF NOT EXISTS "BudgetFilter" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "budgetId" INTEGER NOT NULL,
     "column" TEXT NOT NULL,
     "operator" TEXT NOT NULL DEFAULT 'CONTAINS',
     "value" TEXT NOT NULL,
-    CONSTRAINT "BudgetRule_budgetId_fkey" FOREIGN KEY ("budgetId") REFERENCES "Budget" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "BudgetFilter_budgetId_fkey" FOREIGN KEY ("budgetId") REFERENCES "Budget" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "AccountBalance" (
+    "current" REAL NOT NULL,
+    "available" REAL NOT NULL,
+    "isoCurrencyCode" TEXT NOT NULL,
+    "accountPlaidId" TEXT NOT NULL,
+    "date" TEXT NOT NULL,
+    "importedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "importLogId" INTEGER,
+
+    PRIMARY KEY ("accountPlaidId", "date"),
+    CONSTRAINT "AccountBalance_accountPlaidId_fkey" FOREIGN KEY ("accountPlaidId") REFERENCES "Account" ("plaidId") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "AccountBalance_importLogId_fkey" FOREIGN KEY ("importLogId") REFERENCES "ImportLog" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );

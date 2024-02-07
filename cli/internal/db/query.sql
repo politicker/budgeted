@@ -119,5 +119,12 @@ INSERT INTO "AccountBalance"("current",
                              "available",
                              "isoCurrencyCode",
                              "accountPlaidId",
-                             "createdAt")
-VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);
+                             "date",
+                             "importLogId",
+                             "importedAt")
+VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+ON CONFLICT DO UPDATE SET "current"=excluded."current",
+                          "available"=excluded."available",
+                          "isoCurrencyCode"=excluded."isoCurrencyCode",
+                          "accountPlaidId"=excluded."accountPlaidId",
+                          "date"=excluded."date";

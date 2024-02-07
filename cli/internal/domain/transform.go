@@ -3,14 +3,11 @@ package domain
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/gocarina/gocsv"
 	"github.com/plaid/plaid-go/v20/plaid"
@@ -134,72 +131,88 @@ func TransformTransactions(ctx context.Context, jsonStorage string, csvStorage s
 // The unfortunate side-effect of that is rebuilding a SQLite database will no longer rebuild
 // historical account balances.
 func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
-	var accountsCSV []Account
-
 	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
+	accountMap := make(map[string]Account)
+	accountBalanceMap := make(map[string]AccountBalance)
+	var accounts []Account
+	var accountBalances []AccountBalance
 
-	files, err := os.ReadDir(accountsPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var newestTime time.Time
-	var newestFile fs.DirEntry
-	for _, file := range files {
-		if file.IsDir() {
-			continue
+	err := filepath.WalkDir(accountsPath, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
 		}
 
-		info, err := file.Info()
+		log.Println("path", path)
+		date := d.Name()[:10]
+
+		bytes, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if newestFile == nil || info.ModTime().After(newestTime) {
-			newestFile = file
-			newestTime = info.ModTime()
+		response := plaid.AccountsGetResponse{}
+		if err = json.Unmarshal(bytes, &response); err != nil {
+			return err
 		}
+
+		for _, account := range response.GetAccounts() {
+			balance := account.GetBalances()
+			item := response.GetItem()
+
+			accountMap[account.GetAccountId()] = Account{
+				PlaidID:          account.GetAccountId(),
+				AvailableBalance: balance.GetAvailable(),
+				CurrentBalance:   balance.GetCurrent(),
+				ISOCurrencyCode:  balance.GetIsoCurrencyCode(),
+				Limit:            balance.GetLimit(),
+				Mask:             account.GetMask(),
+				Name:             account.GetName(),
+				OfficialName:     account.GetOfficialName(),
+				Subtype:          account.GetSubtype(),
+				Type:             account.GetType(),
+				PlaidItemID:      item.GetItemId(),
+			}
+
+			balanceKey := fmt.Sprintf("%s-%s", date, account.GetAccountId())
+
+			accountBalanceMap[balanceKey] = AccountBalance{
+				PlaidAccountID: account.GetAccountId(),
+				Date:           date,
+				Available:      balance.GetAvailable(),
+				Current:        balance.GetCurrent(),
+			}
+		}
+
+		return nil
+	})
+
+	for _, account := range accountMap {
+		accounts = append(accounts, account)
 	}
-	if newestFile == nil {
-		return errors.New("no valid account files found")
+	for _, accountBalance := range accountBalanceMap {
+		accountBalances = append(accountBalances, accountBalance)
 	}
 
-	jsonFilePath := accountsPath + "/" + newestFile.Name()
-	bytes, err := os.ReadFile(jsonFilePath)
+	var csvContent string
+	var fp string
+
+	csvContent, err = gocsv.MarshalString(&accounts)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-
-	response := plaid.AccountsGetResponse{}
-	if err = json.Unmarshal(bytes, &response); err != nil {
+	fp = filepath.Join(csvStorage, "accounts.csv")
+	if err := os.WriteFile(fp, []byte(csvContent), 0644); err != nil {
 		return err
 	}
 
-	for _, account := range response.GetAccounts() {
-		balance := account.GetBalances()
-		item := response.GetItem()
-
-		accountsCSV = append(accountsCSV, Account{
-			PlaidID:          account.GetAccountId(),
-			AvailableBalance: balance.GetAvailable(),
-			CurrentBalance:   balance.GetCurrent(),
-			ISOCurrencyCode:  balance.GetIsoCurrencyCode(),
-			Limit:            balance.GetLimit(),
-			Mask:             account.GetMask(),
-			Name:             account.GetName(),
-			OfficialName:     account.GetOfficialName(),
-			Subtype:          account.GetSubtype(),
-			Type:             account.GetType(),
-			PlaidItemID:      item.GetItemId(),
-		})
-	}
-
-	csvContent, err := gocsv.MarshalString(&accountsCSV)
+	csvContent, err = gocsv.MarshalString(&accountBalances)
 	if err != nil {
 		return err
 	}
-
-	fp := filepath.Join(csvStorage, "accounts.csv")
+	fp = filepath.Join(csvStorage, "account_balances.csv")
 	if err := os.WriteFile(fp, []byte(csvContent), 0644); err != nil {
 		return err
 	}

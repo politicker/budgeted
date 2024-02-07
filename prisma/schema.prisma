@@ -72,21 +72,25 @@ model Account {
 }
 
 model ImportLog {
-  id                Int           @id @default(autoincrement())
-  syncStartedAt     DateTime      @default(now())
-  syncCompletedAt   DateTime?     @updatedAt
+  id                Int              @id @default(autoincrement())
+  syncStartedAt     DateTime         @default(now())
+  syncCompletedAt   DateTime?        @updatedAt
   transactionsCount Int?
   transactions      Transaction[]
   accounts          Account[]
+  accountBalances   AccountBalance[]
 }
 
 model AccountBalance {
   current         Float
   available       Float
   isoCurrencyCode String
-  account         Account @relation(fields: [accountPlaidId], references: [plaidId])
+  account         Account    @relation(fields: [accountPlaidId], references: [plaidId])
   accountPlaidId  String
   date            String
+  importedAt      DateTime   @default(now())
+  ImportLog       ImportLog? @relation(fields: [importLogId], references: [id])
+  importLogId     Int?
 
   @@id([accountPlaidId, date])
 }

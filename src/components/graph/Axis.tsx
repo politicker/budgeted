@@ -7,10 +7,12 @@ type Props = {
 	y: d3.ScaleLinear<number, number>
 	pixelsPerTick?: number
 	placement?: 'top' | 'bottom' | 'left' | 'right'
-	setHoveredTick?: React.Dispatch<React.SetStateAction<string | undefined>>
+	setHoveredTick?: React.Dispatch<
+		React.SetStateAction<Date | number | undefined>
+	>
 	hoveredTick?: string
 	pad?: number
-	format?: (value: number | Date) => string
+	format?: ((value: number | Date) => string) | string
 	maxTicks?: number
 }
 
@@ -28,6 +30,7 @@ export function Axis({
 	const main = axis === 'x' ? x : y
 	const r = main.range() as [number, number]
 	const range = [r[0], r[1] + (pad ?? 0) * 2] as const
+	const scale = axis === 'x' ? x : y
 
 	const rangeX = x.range() as [number, number]
 	const rangeY = y.range() as [number, number]
@@ -39,8 +42,16 @@ export function Axis({
 			maxTicks,
 		)
 
+		const formatter =
+			typeof format === 'string'
+				? scale.tickFormat(numberOfTicksTarget, format)
+				: typeof format === 'function'
+					? format
+					: scale.tickFormat(numberOfTicksTarget)
+
 		return main.ticks(numberOfTicksTarget).map((value) => ({
-			value: format(value),
+			label: formatter(value as Date /* 😔 */),
+			value: value,
 			x: axis === 'x' ? x(value) + (pad ?? 0) : 0,
 			y: axis === 'y' ? y(value) + (pad ?? 0) : 0,
 		}))
@@ -63,9 +74,9 @@ export function Axis({
 		<g transform={`translate(${translateX}, ${translateY})`}>
 			<path d={line ?? undefined} fill="none" stroke="currentColor" />
 
-			{ticks.map(({ value, x, y }) => (
+			{ticks.map(({ label, value, x, y }) => (
 				<g
-					key={value}
+					key={value.toString()}
 					transform={`translate(${x}, ${y})`}
 					onMouseDown={setHoveredTick && (() => setHoveredTick(value))}
 				>
@@ -81,7 +92,7 @@ export function Axis({
 						}}
 						fill="currentColor"
 					>
-						{value.toLocaleString()}
+						{label}
 					</text>
 				</g>
 			))}

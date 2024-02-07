@@ -16,8 +16,15 @@ INSERT INTO "AccountBalance"("current",
                              "available",
                              "isoCurrencyCode",
                              "accountPlaidId",
-                             "createdAt")
-VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                             "date",
+                             "importLogId",
+                             "importedAt")
+VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+ON CONFLICT DO UPDATE SET "current"=excluded."current",
+                          "available"=excluded."available",
+                          "isoCurrencyCode"=excluded."isoCurrencyCode",
+                          "accountPlaidId"=excluded."accountPlaidId",
+                          "date"=excluded."date"
 `
 
 type AccountBalanceCreateParams struct {
@@ -25,6 +32,8 @@ type AccountBalanceCreateParams struct {
 	Available       float64
 	IsoCurrencyCode string
 	AccountPlaidId  string
+	Date            string
+	ImportLogId     sql.NullInt64
 }
 
 func (q *Queries) AccountBalanceCreate(ctx context.Context, arg AccountBalanceCreateParams) error {
@@ -33,6 +42,8 @@ func (q *Queries) AccountBalanceCreate(ctx context.Context, arg AccountBalanceCr
 		arg.Available,
 		arg.IsoCurrencyCode,
 		arg.AccountPlaidId,
+		arg.Date,
+		arg.ImportLogId,
 	)
 	return err
 }

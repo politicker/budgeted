@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="load csv" type="GoApplicationRunConfiguration" factoryName="Go Application">
+  <configuration default="false" name="transform" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="budgeted" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="load csv" />
+    <parameters value="transform" />
     <kind value="PACKAGE" />
     <package value="github.com/politicker/budgeted/cmd" />
     <directory value="$PROJECT_DIR$" />
