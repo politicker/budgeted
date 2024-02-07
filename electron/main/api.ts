@@ -248,7 +248,7 @@ export const router = t.router({
 	}),
 	accountBalances: loggedProcedure.query(async () => {
 		return await prisma.accountBalance.findMany({
-			orderBy: { createdAt: 'asc' },
+			orderBy: { date: 'asc' },
 			include: { account: true },
 		})
 	}),

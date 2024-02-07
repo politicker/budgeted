@@ -175,18 +175,36 @@ func LoadAccounts(ctx context.Context, queries *db.Queries, importLogId int64) e
 		}
 
 		log.Println("created account", account.Name)
+	}
 
+	return nil
+}
+
+func LoadAccountBalances(ctx context.Context, queries *db.Queries, importLogId int64) error {
+	csvFile := path.Join(os.Getenv("HOME"), ".config", "budgeted", "csv", "account_balances.csv")
+	data, err := os.Open(csvFile)
+	if err != nil {
+		return errors.Wrapf(err, "failed to read file: %s", csvFile)
+	}
+
+	var accountBalances []AccountBalance
+	if err := gocsv.Unmarshal(data, &accountBalances); err != nil {
+		return errors.Wrapf(err, "failed to parse CSV file: %s", csvFile)
+	}
+
+	for _, accountBalance := range accountBalances {
 		err = queries.AccountBalanceCreate(ctx, db.AccountBalanceCreateParams{
-			Current:         account.CurrentBalance,
-			Available:       account.AvailableBalance,
-			IsoCurrencyCode: account.ISOCurrencyCode,
-			AccountPlaidId:  account.PlaidID,
+			AccountPlaidId: accountBalance.PlaidAccountID,
+			Current:        accountBalance.Current,
+			Available:      accountBalance.Available,
+			Date:           accountBalance.Date,
+			ImportLogId:    sql.NullInt64{Int64: importLogId, Valid: true},
 		})
 		if err != nil {
 			return err
 		}
 
-		log.Println("created account balance", account.Name)
+		log.Println("created account balance", accountBalance.Current)
 	}
 
 	return nil

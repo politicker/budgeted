@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="load sqlite" type="GoApplicationRunConfiguration" factoryName="Go Application">
+  <configuration default="false" name="load" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="budgeted" />
     <working_directory value="$PROJECT_DIR$/.." />
-    <parameters value="load sqlite" />
+    <parameters value="load" />
     <kind value="DIRECTORY" />
     <package value="github.com/politicker/budgeted/cmd" />
     <directory value="$PROJECT_DIR$/cmd" />

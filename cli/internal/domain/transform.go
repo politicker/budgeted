@@ -124,23 +124,35 @@ func TransformTransactions(ctx context.Context, jsonStorage string, csvStorage s
 	return nil
 }
 
+// TransformAccounts transforms the JSON account files into CSV files.
+// For accounts, we find the latest JSON file in the instititution's accounts directory.
+// Each ETL run will write a new JSON file with the most up-to-date accounts and account info,
+// so we only need to use the latest file.
+// The unfortunate side-effect of that is rebuilding a SQLite database will no longer rebuild
+// historical account balances.
 func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage string) error {
-	var accountsCSV []Account
 	accountsPath := fmt.Sprintf("%s/accounts", jsonStorage)
+	accountMap := make(map[string]Account)
+	accountBalanceMap := make(map[string]AccountBalance)
+	var accounts []Account
+	var accountBalances []AccountBalance
 
 	err := filepath.WalkDir(accountsPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-
 		if d.IsDir() {
 			return nil
 		}
 
+		log.Println("path", path)
+		date := d.Name()[:10]
+
 		bytes, err := os.ReadFile(path)
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
+
 		response := plaid.AccountsGetResponse{}
 		if err = json.Unmarshal(bytes, &response); err != nil {
 			return err
@@ -150,7 +162,7 @@ func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage strin
 			balance := account.GetBalances()
 			item := response.GetItem()
 
-			accountsCSV = append(accountsCSV, Account{
+			accountMap[account.GetAccountId()] = Account{
 				PlaidID:          account.GetAccountId(),
 				AvailableBalance: balance.GetAvailable(),
 				CurrentBalance:   balance.GetCurrent(),
@@ -162,22 +174,46 @@ func TransformAccounts(ctx context.Context, jsonStorage string, csvStorage strin
 				Subtype:          account.GetSubtype(),
 				Type:             account.GetType(),
 				PlaidItemID:      item.GetItemId(),
-			})
+			}
+
+			balanceKey := fmt.Sprintf("%s-%s", date, account.GetAccountId())
+
+			accountBalanceMap[balanceKey] = AccountBalance{
+				PlaidAccountID: account.GetAccountId(),
+				Date:           date,
+				Available:      balance.GetAvailable(),
+				Current:        balance.GetCurrent(),
+			}
 		}
 
 		return nil
 	})
+
+	for _, account := range accountMap {
+		accounts = append(accounts, account)
+	}
+	for _, accountBalance := range accountBalanceMap {
+		accountBalances = append(accountBalances, accountBalance)
+	}
+
+	var csvContent string
+	var fp string
+
+	csvContent, err = gocsv.MarshalString(&accounts)
 	if err != nil {
 		return err
 	}
-
-	csvContent, err := gocsv.MarshalString(&accountsCSV)
-	if err != nil {
+	fp = filepath.Join(csvStorage, "accounts.csv")
+	if err := os.WriteFile(fp, []byte(csvContent), 0644); err != nil {
 		return err
 	}
 
-	filePath := filepath.Join(csvStorage, "accounts.csv")
-	if err := os.WriteFile(filePath, []byte(csvContent), 0644); err != nil {
+	csvContent, err = gocsv.MarshalString(&accountBalances)
+	if err != nil {
+		return err
+	}
+	fp = filepath.Join(csvStorage, "account_balances.csv")
+	if err := os.WriteFile(fp, []byte(csvContent), 0644); err != nil {
 		return err
 	}
 

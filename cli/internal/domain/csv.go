@@ -81,3 +81,10 @@ type Account struct {
 	Type             plaid.AccountType    `csv:"type"`
 	PlaidItemID      string               `csv:"plaidItemId"`
 }
+
+type AccountBalance struct {
+	PlaidAccountID string  `csv:"plaidAccountId"`
+	Available      float64 `csv:"available"`
+	Current        float64 `csv:"current"`
+	Date           string  `csv:"date"`
+}

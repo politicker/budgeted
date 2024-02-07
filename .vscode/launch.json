@@ -27,6 +27,33 @@
 			"args": [".", "--remote-debugging-port=9222"],
 			"outputCapture": "std",
 			"console": "integratedTerminal"
+		},
+		{
+			"name": "CLI: Extract",
+			"cwd": "${workspaceFolder}",
+			"type": "go",
+			"request": "launch",
+			"program": "${workspaceFolder}/cli/cmd/main.go",
+			"args": ["extract"],
+			"envFile": "${workspaceFolder}/.env"
+		},
+		{
+			"name": "CLI: Transfer",
+			"cwd": "${workspaceFolder}",
+			"type": "go",
+			"request": "launch",
+			"program": "${workspaceFolder}/cli/cmd/main.go",
+			"args": ["transfer"],
+			"envFile": "${workspaceFolder}/.env"
+		},
+		{
+			"name": "CLI: Load",
+			"cwd": "${workspaceFolder}",
+			"type": "go",
+			"request": "launch",
+			"program": "${workspaceFolder}/cli/cmd/main.go",
+			"args": ["load"],
+			"envFile": "${workspaceFolder}/.env"
 		}
 	]
 }

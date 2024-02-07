@@ -37,6 +37,11 @@ func LoadCmd(ctx context.Context) *cobra.Command {
 					return err
 				}
 
+				err = domain.LoadAccountBalances(ctx, queries, importLogId)
+				if err != nil {
+					return err
+				}
+
 				return nil
 			})
 			if err != nil {
