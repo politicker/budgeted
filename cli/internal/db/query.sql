@@ -82,7 +82,6 @@ VALUES (?,
         CURRENT_TIMESTAMP)
 ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "plaidItemId"=excluded."plaidItemId",
-                                   "name"=excluded."name",
                                    "officialName"=excluded."officialName",
                                    "subtype"=excluded."subtype",
                                    "type"=excluded."type",
