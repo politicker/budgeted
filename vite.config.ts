@@ -18,8 +18,7 @@ export default defineConfig(async ({ command }) => {
 	const sourcemap = isServe || !!process.env.VSCODE_DEBUG
 
 	console.log('Building CLI...')
-	await exec('go build -o dist/budgeted-cli ./cmd', { cwd: './cli' })
-	await exec('cp cli/dist/budgeted-cli bin/budgeted-cli')
+	await exec('go build -o ../bin/budgeted-cli ./cmd', { cwd: 'cli' })
 	console.log('Finished building CLI.')
 
 	return {
