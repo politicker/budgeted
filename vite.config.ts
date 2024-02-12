@@ -17,9 +17,9 @@ export default defineConfig(async ({ command }) => {
 	const isBuild = command === 'build'
 	const sourcemap = isServe || !!process.env.VSCODE_DEBUG
 
-	console.log('Building CLI...')
+	console.info('Building CLI...')
 	await exec('go build -o ../bin/budgeted-cli ./cmd', { cwd: 'cli' })
-	console.log('Finished building CLI.')
+	console.info('Finished building CLI.')
 
 	return {
 		resolve: {
@@ -36,7 +36,7 @@ export default defineConfig(async ({ command }) => {
 					entry: 'electron/main/index.ts',
 					onstart(options) {
 						if (process.env.VSCODE_DEBUG) {
-							console.log(
+							console.info(
 								/* For `.vscode/.debug.script.mjs` */ '[startup] Electron App',
 							)
 						} else {

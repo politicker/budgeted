@@ -65,6 +65,5 @@ export async function updatePlaidInstitution(institutionId: string) {
 	const logo = institution.data.institution.logo
 	const color = institution.data.institution.primary_color
 
-	console.log('updatePlaidInstitution', institutionId, logo, color, institution)
 	await updateInstitution(institutionId, { logo, color })
 }

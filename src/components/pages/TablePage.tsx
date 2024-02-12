@@ -3,14 +3,16 @@ import { transactionColumns } from '../columns'
 import { DataTable } from '../ui/data-table/data-table'
 import { useDataTable, useDataTableInput } from '@/lib/useDataTable'
 import { useEffect, useState } from 'react'
-import { Transaction } from '@prisma/client'
 import { formatMoney } from '@/lib/money'
 import { Badge } from '../ui/badge'
+import type { fetchTransactions } from '~electron/main/models/transactions'
+
+type Transaction = Awaited<ReturnType<typeof fetchTransactions>>['results'][0]
 
 export function TablePage() {
 	const [input, setInput] = useDataTableInput()
-	const [selectedRows, setSelectedRows] = useState<Transaction[]>([])
 	const { data } = trpc.transactions.useQuery(input, { keepPreviousData: true })
+	const [selectedRows, setSelectedRows] = useState<Transaction[]>([])
 	const { data: accounts } = trpc.accounts.useQuery()
 
 	const table = useDataTable({
@@ -33,14 +35,12 @@ export function TablePage() {
 
 		setSelectedRows(rows)
 	}, [input.rowSelection])
-	// const { mutate } = trpc.rebuildTransactions.useMutation({
-	// 	onSuccess: () => refetch(),
-	// })
 
 	return (
 		<>
 			<DataTable
 				table={table}
+				selectedRows={selectedRows}
 				filters={[
 					{
 						column: 'account',

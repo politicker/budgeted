@@ -13,6 +13,13 @@ button {
 	cursor: default !important;
 }
 
+/* Plaid fixes */
+
+[id*='plaid-link-iframe'] {
+	height: calc(100vh - 24px);
+	margin-top: 24px;
+}
+
 /* Below is Andy Bell's reset: https://piccalil.li/blog/a-more-modern-css-reset/ */
 /* Box sizing rules */
 *,

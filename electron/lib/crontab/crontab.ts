@@ -20,7 +20,7 @@ export function writeCronTasks() {
 		// TODO: Eventually remove old budgeted entries and re-write them
 		const oldCrontab = stdout.trim()
 		if (oldCrontab.includes('budgeted-crontab.sh')) {
-			console.log('crontab already contains entries for budgeted')
+			console.info('crontab already contains entries for budgeted')
 			return
 		}
 

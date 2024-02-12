@@ -15,13 +15,6 @@ import { useCallback, useState } from 'react'
 import { z } from 'zod'
 
 export const TableStateInput = z.object({
-	sortColumn: z.union([
-		z.literal('date'),
-		z.literal('description'),
-		z.literal('amount'),
-		z.literal('balance'),
-	]),
-	sort: z.union([z.literal('asc'), z.literal('desc')]),
 	pageSize: z.number(),
 	pageIndex: z.number(),
 	rowSelection: z.record(z.string(), z.boolean()),
@@ -48,8 +41,6 @@ export type TableStateType = z.infer<typeof TableStateInput>
 type SetInputType = (inp: Updater<Partial<TableStateType>>) => void
 
 export const DefaultState = {
-	sort: 'desc' as const,
-	sortColumn: 'date' as const,
 	pageIndex: 0,
 	pageSize: 10,
 	showHidden: true,

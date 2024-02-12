@@ -18,12 +18,14 @@ interface DataTableProps<TData> {
 	table: Table<TData>
 	filters?: DataTableFilter<TData>[]
 	metadata?: React.ReactNode
+	selectedRows?: TData[]
 }
 
 export function DataTable<TData>({
 	table,
 	filters,
 	metadata,
+	selectedRows,
 }: DataTableProps<TData>) {
 	return (
 		<>
@@ -80,7 +82,11 @@ export function DataTable<TData>({
 				</UITable>
 			</div>
 
-			<DataTablePagination table={table} metadata={metadata} />
+			<DataTablePagination
+				table={table}
+				metadata={metadata}
+				selectedRows={selectedRows}
+			/>
 		</>
 	)
 }

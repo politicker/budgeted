@@ -41,7 +41,7 @@ function createWindow() {
 	})
 
 	if (url) {
-		console.log('loadURL', url)
+		console.info('loadURL', url)
 		// electron-vite-vue#298
 		void win.loadURL(url)
 		// Open devTool if the app is not packaged

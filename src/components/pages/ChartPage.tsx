@@ -36,8 +36,6 @@ export function ChartPage() {
 
 	const { data, refetch } = trpc.transactions.useQuery(
 		{
-			sort: 'asc',
-			sortColumn: 'date',
 			pageIndex: 0,
 			pageSize: Infinity,
 			minDate,

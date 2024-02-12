@@ -38,7 +38,7 @@ const t = initTRPC
 	.create({ isServer: true, transformer: superJsonReal })
 const procedure = t.procedure
 const loggedProcedure = procedure.use(async ({ next, path, type }) => {
-	console.log('[trpc] request -', `type=${type}`, `path=/${path}`)
+	console.info('[trpc] request -', `type=${type}`, `path=/${path}`)
 	return next()
 })
 
@@ -47,7 +47,7 @@ function reportError(
 	message: string,
 	cause?: unknown,
 ) {
-	console.log('@trpc error - ', message, cause)
+	console.error('@trpc error - ', message, cause)
 	throw new TRPCError({
 		message,
 		code,

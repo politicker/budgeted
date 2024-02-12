@@ -10,8 +10,7 @@ function narrowFilterType(
 }
 
 export async function fetchTransactions({
-	sort,
-	sortColumn,
+	sorting,
 	pageIndex,
 	pageSize,
 	minDate,
@@ -44,12 +43,13 @@ export async function fetchTransactions({
 		})
 	}
 
+	const orderBy = sorting.map((s) => ({ [s.id]: s.desc ? 'desc' : 'asc' }))
+	orderBy.push({ date: 'desc' })
+
 	const pageOptions = {
 		take: pageSize === Infinity ? undefined : pageSize,
 		skip: pageIndex === 0 ? 0 : pageIndex * pageSize,
-		orderBy: {
-			[sortColumn]: sort,
-		},
+		orderBy,
 	}
 
 	const [
