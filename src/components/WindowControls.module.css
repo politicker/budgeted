@@ -2,8 +2,7 @@
 	color: hsl(var(--secondary-foreground));
 	background-color: hsl(var(--secondary));
 	background-image: url('./drag.svg');
-	background-repeat: repeat-x;
-	background-position: center;
+	margin: 6px 0;
 	-webkit-user-select: none;
 	-webkit-app-region: drag;
 }

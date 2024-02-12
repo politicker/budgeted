@@ -1,27 +1,9 @@
-<svg width="6" height="15" viewBox="5 0 6 15" fill="none"
+<svg width="2" height="12" fill="none"
     xmlns="http://www.w3.org/2000/svg">
-    <circle cx="4.5" cy="2.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="4.5" cy="4.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="4.5" cy="6.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="4.5" cy="8.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="4.5" cy="10.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="4.5" cy="12.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="6.5" cy="2.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="6.5" cy="4.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="6.5" cy="6.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="6.5" cy="8.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="6.5" cy="10.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="6.5" cy="12.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="8.499" cy="2.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="8.499" cy="4.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="8.499" cy="6.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="8.499" cy="8.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="8.499" cy="10.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="8.499" cy="12.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="10.499" cy="2.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="10.499" cy="4.5" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="10.499" cy="6.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="10.499" cy="8.499" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="10.499" cy="10.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
-    <circle cx="10.499" cy="12.498" r=".6" fill="hsl(0 0% 96.1%)"></circle>
+    <rect x="1" y="1" width="1" height="1" fill="hsl(0 0% 96.1%)"></rect>
+    <rect x="1" y="3" width="1" height="1" fill="hsl(0 0% 96.1%)"></rect>
+    <rect x="1" y="5" width="1" height="1" fill="hsl(0 0% 96.1%)"></rect>
+    <rect x="1" y="7" width="1" height="1" fill="hsl(0 0% 96.1%)"></rect>
+    <rect x="1" y="9" width="1" height="1" fill="hsl(0 0% 96.1%)"></rect>
+    <rect x="1" y="11" width="1" height="1" fill="hsl(0 0% 96.1%)"></rect>
 </svg>
