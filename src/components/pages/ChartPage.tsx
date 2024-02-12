@@ -57,24 +57,22 @@ export function ChartPage() {
 
 	const filteredData = useMemo(() => {
 		if (!data) return null
-		let amount = 0
 
 		const startDate = sub(new Date(), { days: dayRange })
 		const frames = []
-		const results = [...data.results]
+		const results: Record<string, typeof data.results> = {}
+		let amount = 0
+
+		for (const transaction of data.results) {
+			const transactions = results[transaction.date] ?? []
+			results[transaction.date] = transactions
+			transactions.push(transaction)
+		}
 
 		for (let i = 0; i < dayRange; i++) {
 			const date = format(add(startDate, { days: i }), 'yyyy-MM-dd')
-			const transactions = []
-
-			while (results[0] && results[0].date === date) {
-				const transaction = results.shift()
-				if (!transaction) continue
-				if (transaction.amount < 0) continue
-				transactions.push(transaction)
-				amount += transaction.amount
-			}
-
+			const transactions: typeof data.results = results[date] ?? []
+			amount += transactions.reduce((a, b) => a + Math.max(0, b.amount), 0)
 			const frame = { date, amount, transactions }
 			frames.push(frame)
 		}
