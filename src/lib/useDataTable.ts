@@ -42,7 +42,7 @@ type SetInputType = (inp: Updater<Partial<TableStateType>>) => void
 
 export const DefaultState = {
 	pageIndex: 0,
-	pageSize: 10,
+	pageSize: 500,
 	showHidden: true,
 	rowSelection: {},
 	sorting: [],
@@ -99,7 +99,7 @@ export function useDataTable<TData>({
 		state: {
 			pagination: {
 				pageIndex: input.pageIndex ?? 0,
-				pageSize: input.pageSize ?? 10,
+				pageSize: input.pageSize ?? DefaultState.pageSize,
 			},
 			sorting: input.sorting,
 			columnVisibility: input.columnVisibility,
