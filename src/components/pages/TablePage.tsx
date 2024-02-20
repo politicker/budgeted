@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { formatMoney } from '@/lib/money'
 import { Badge } from '../ui/badge'
 import type { fetchTransactions } from '~electron/main/models/transactions'
+import { DayRangeInput } from '../DayRangeInput'
 
 type Transaction = Awaited<ReturnType<typeof fetchTransactions>>['results'][0]
 
@@ -43,13 +44,36 @@ export function TablePage() {
 				selectedRows={selectedRows}
 				filters={[
 					{
-						column: 'account',
+						id: 'account',
 						title: 'Account',
 						options:
 							accounts?.map((account) => ({
 								label: account.name,
 								value: account.plaidId,
 							})) ?? [],
+					},
+					{
+						id: 'dayRange',
+						title: 'Day Range',
+						render: () => (
+							<DayRangeInput
+								dayRange={
+									(input.columnFilters.find(
+										(filter) => filter.id === 'dayRange',
+									)?.value as number) ?? 30
+								}
+								setDayRange={(value) =>
+									setInput({
+										columnFilters: [
+											{
+												id: 'dayRange',
+												value,
+											},
+										],
+									})
+								}
+							/>
+						),
 					},
 				]}
 				metadata={

@@ -1,8 +1,7 @@
 'use client'
 
 import { Table } from '@tanstack/react-table'
-
-import { Input } from '@/components/ui/input'
+import { InlineInput, Input } from '@/components/ui/input'
 import { DataTableViewOptions } from './data-table-view-options'
 import {
 	DataTableFacetedFilter,
@@ -10,16 +9,18 @@ import {
 } from './data-table-faceted-filter'
 import { Button } from '../button'
 import { Cross2Icon } from '@radix-ui/react-icons'
+import { parseMoney } from '@/lib/money'
 
-export interface DataTableFilter<TData> {
-	column: keyof TData
+export interface DataTableFilter {
+	id: string
 	title: string
-	options: FacetedFilterOption[]
+	render?: () => React.ReactNode
+	options?: FacetedFilterOption[]
 }
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>
-	filters?: DataTableFilter<TData>[]
+	filters?: DataTableFilter[]
 }
 
 export function DataTableToolbar<TData>({
@@ -40,14 +41,18 @@ export function DataTableToolbar<TData>({
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
 
-				{filters?.map((filter) => (
-					<DataTableFacetedFilter
-						key={filter.column as string}
-						column={table.getColumn(filter.column as string)}
-						title={filter.title}
-						options={filter.options}
-					/>
-				))}
+				{filters?.map((filter) =>
+					filter.render ? (
+						filter.render() // filter.render() // we dont have the valyewoirwlkejrwe
+					) : (
+						<DataTableFacetedFilter
+							key={filter.id}
+							column={table.getColumn(filter.id)}
+							title={filter.title}
+							options={filter.options ?? []}
+						/>
+					),
+				)}
 
 				{isFiltered && (
 					<Button
@@ -59,6 +64,26 @@ export function DataTableToolbar<TData>({
 						<Cross2Icon className="ml-2 h-4 w-4" />
 					</Button>
 				)}
+
+				<div data-role="controls" className="p-3">
+					Budget:{' '}
+					<InlineInput
+						className="w-20 text-right"
+						value={0}
+						onChange={(e) => {
+							if (!e.target.value) {
+								// return setBudget(DEFAULT_BUDGET)
+							}
+
+							const value = parseMoney(e.target.value)
+							if (isNaN(value)) {
+								// return setBudget(DEFAULT_BUDGET)
+							}
+
+							// setBudget(formatMoney(value))
+						}}
+					/>
+				</div>
 			</div>
 			<DataTableViewOptions table={table} />
 		</div>
