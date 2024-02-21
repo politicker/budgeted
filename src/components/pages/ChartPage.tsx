@@ -29,21 +29,20 @@ export function ChartPage() {
 		DEFAULT_BUDGET,
 	)
 
-	const minDate = useMemo(
-		() => format(sub(new Date(), { days: dayRange }), 'yyyy-MM-dd'),
-		[dayRange],
-	)
-
 	const { data, refetch } = trpc.transactions.useQuery(
 		{
 			pageIndex: 0,
 			pageSize: Infinity,
-			minDate,
 			showHidden: false,
 			rowSelection: {},
 			sorting: [],
 			selection: [],
-			columnFilters: [],
+			columnFilters: [
+				{
+					id: 'dayRange',
+					value: dayRange,
+				},
+			],
 			columnVisibility: {},
 		},
 		{
