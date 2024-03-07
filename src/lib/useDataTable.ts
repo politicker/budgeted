@@ -32,7 +32,6 @@ export const TableStateInput = z.object({
 		}),
 	),
 	columnVisibility: z.record(z.string(), z.boolean()),
-	minDate: z.string(),
 	showHidden: z.boolean().default(true),
 })
 
@@ -49,7 +48,6 @@ export const DefaultState = {
 	selection: [],
 	columnFilters: [],
 	columnVisibility: {},
-	minDate: '',
 }
 
 type SetPaginationType = (

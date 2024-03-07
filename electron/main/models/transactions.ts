@@ -3,41 +3,48 @@ import { z } from 'zod'
 import { prisma } from '../prisma'
 import { Prisma } from '@prisma/client'
 
-function narrowFilterType(
-	filter: unknown,
-): asserts filter is string | string[] {
-	z.union([z.string(), z.array(z.string())]).parse(filter)
+function narrowFilterType(filter: unknown) {
+	return z.union([z.string(), z.number(), z.array(z.string())]).parse(filter)
 }
 
 export async function fetchTransactions({
 	sorting,
 	pageIndex,
 	pageSize,
-	minDate,
 	showHidden,
 	columnFilters,
 }: z.infer<typeof TableStateInput>) {
 	const where: Prisma.TransactionWhereInput = {
-		date: { gte: minDate },
 		hidden: showHidden ? undefined : false,
 	}
 
 	if (columnFilters.length) {
 		where.OR = columnFilters.map((filter) => {
-			narrowFilterType(filter.value)
+			const filterValue = narrowFilterType(filter.value)
 
 			switch (filter.id) {
 				case 'account':
 					return {
 						account: {
-							plaidId: Array.isArray(filter.value)
-								? { in: filter.value }
-								: filter.value,
+							plaidId: Array.isArray(filterValue)
+								? { in: filterValue }
+								: (filterValue as string),
+						},
+					}
+				case 'dayRange':
+					return {
+						date: {
+							gte: new Date(
+								Date.now() -
+									parseInt(filterValue as string) * 24 * 60 * 60 * 1000,
+							)
+								.toISOString()
+								.slice(0, 10),
 						},
 					}
 				default:
 					return {
-						[filter.id]: { contains: filter.value },
+						[filter.id]: { contains: filterValue },
 					}
 			}
 		})

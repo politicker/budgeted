@@ -16,7 +16,7 @@ import { DataTableFilter, DataTableToolbar } from './data-table-toolbar'
 
 interface DataTableProps<TData> {
 	table: Table<TData>
-	filters?: DataTableFilter<TData>[]
+	filters?: DataTableFilter[]
 	metadata?: React.ReactNode
 	selectedRows?: TData[]
 }
