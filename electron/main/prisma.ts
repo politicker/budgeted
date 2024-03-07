@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 
 export const prisma = new PrismaClient({
-	datasourceUrl: `file://${process.env.HOME}/.config/budgeted/db.sqlite`,
+	datasourceUrl: process.env.APPDATA
+		? `file:${process.env.APPDATA}\\budgeted\\db.sqlite`
+		: `file://${process.env.HOME}/.config/budgeted/db.sqlite`,
 })

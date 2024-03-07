@@ -1,16 +1,16 @@
 import { exec, execSync } from 'node:child_process'
 import path from 'node:path'
 
-const pwd = execSync('pwd').toString().trim()
-const scriptPath = path.join(pwd, 'bin/budgeted-crontab.sh')
-
-const morningSyncEntry = `0 0 * * * ${scriptPath}`
-const eveningSyncEntry = `0 12 * * * ${scriptPath}`
-
 /**
  * Writes the crontab entries for the morning and evening ETL jobs
  */
 export function writeCronTasks() {
+	const pwd = execSync('pwd').toString().trim()
+	const scriptPath = path.join(pwd, 'bin/budgeted-crontab.sh')
+
+	const morningSyncEntry = `0 0 * * * ${scriptPath}`
+	const eveningSyncEntry = `0 12 * * * ${scriptPath}`
+
 	// List current crontab entries
 	exec('crontab -l', (error, stdout) => {
 		if (error) {

@@ -4,6 +4,7 @@ import { prisma } from './prisma'
 import { createIPCHandler } from 'electron-trpc/main'
 import { router } from './api'
 import { titlebar } from './contexts/titlebar.js'
+import windowStateKeeper from 'electron-window-state'
 
 // The built directory structure
 //
@@ -25,20 +26,32 @@ let win: BrowserWindow | null = null
 const preload = join(__dirname, '../preload/index.js')
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
-
 nativeTheme.themeSource = 'dark'
 
 function createWindow() {
+	// Load the previous state with fallback to defaults
+	let mainWindowState = windowStateKeeper({
+		defaultWidth: 1000,
+		defaultHeight: 800,
+	})
+
 	win = new BrowserWindow({
 		title: 'Budgeted',
-		height: 900,
-		width: 1200,
+		x: mainWindowState.x,
+		y: mainWindowState.y,
+		width: mainWindowState.width,
+		height: mainWindowState.height,
 		frame: false,
 		webPreferences: {
 			preload,
 			sandbox: false,
 		},
 	})
+
+	// Let us register listeners on the window, so we can update the state
+	// automatically (the listeners will be removed when the window is closed)
+	// and restore the maximized or full screen state
+	mainWindowState.manage(win)
 
 	if (url) {
 		console.info('loadURL', url)
