@@ -32,7 +32,7 @@ nativeTheme.themeSource = 'dark'
 
 function createWindow() {
 	// Load the previous state with fallback to defaults
-	let mainWindowState = windowStateKeeper({
+	const mainWindowState = windowStateKeeper({
 		defaultWidth: 1000,
 		defaultHeight: 800,
 	})
@@ -66,8 +66,11 @@ function createWindow() {
 	}
 
 	autoUpdater.logger = logger
+	// @ts-expect-error this snippet comes from the electron-updater documentation
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	autoUpdater.logger.transports.file.level = 'info'
-	autoUpdater.checkForUpdatesAndNotify()
+
+	autoUpdater.checkForUpdatesAndNotify().catch(console.error)
 }
 
 // This method will be called when Electron has finished
