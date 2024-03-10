@@ -13,6 +13,10 @@ import {
 
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableFilter, DataTableToolbar } from './data-table-toolbar'
+import { useLocalStorage } from '@/lib/useLocalStorage'
+import { z } from 'zod'
+
+export const DEFAULT_BUDGET = '$0'
 
 interface DataTableProps<TData> {
 	table: Table<TData>
@@ -27,9 +31,20 @@ export function DataTable<TData>({
 	metadata,
 	selectedRows,
 }: DataTableProps<TData>) {
+	const [budget, setBudget] = useLocalStorage(
+		z.string(),
+		'budget',
+		DEFAULT_BUDGET,
+	)
+
 	return (
 		<>
-			<DataTableToolbar table={table} filters={filters} />
+			<DataTableToolbar
+				table={table}
+				filters={filters}
+				budget={budget}
+				setBudget={setBudget}
+			/>
 
 			<div className="rounded-md border overflow-auto mx-3 mb-3 bg-background">
 				<UITable>
