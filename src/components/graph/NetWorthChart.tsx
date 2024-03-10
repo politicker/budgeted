@@ -1,6 +1,6 @@
 import { useDimensions } from '@/lib/useDimensions'
 import * as d3 from 'd3'
-import { Dispatch, Fragment, SetStateAction, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Axis } from './Axis'
 import { format, set } from 'date-fns'
 import { formatMoneyK } from '@/lib/money'

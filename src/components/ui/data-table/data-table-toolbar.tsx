@@ -9,7 +9,8 @@ import {
 } from './data-table-faceted-filter'
 import { Button } from '../button'
 import { Cross2Icon } from '@radix-ui/react-icons'
-import { parseMoney } from '@/lib/money'
+import { formatMoney, parseMoney } from '@/lib/money'
+import { DEFAULT_BUDGET } from './data-table'
 
 export interface DataTableFilter {
 	id: string
@@ -21,11 +22,15 @@ export interface DataTableFilter {
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>
 	filters?: DataTableFilter[]
+	setBudget: (budget: string) => void
+	budget: string | undefined
 }
 
 export function DataTableToolbar<TData>({
 	table,
 	filters,
+	budget,
+	setBudget,
 }: DataTableToolbarProps<TData>) {
 	const isFiltered = table.getState().columnFilters.length > 0
 
@@ -69,18 +74,18 @@ export function DataTableToolbar<TData>({
 					Budget:{' '}
 					<InlineInput
 						className="w-20 text-right"
-						value={0}
+						value={budget}
 						onChange={(e) => {
 							if (!e.target.value) {
-								// return setBudget(DEFAULT_BUDGET)
+								return setBudget(DEFAULT_BUDGET)
 							}
 
 							const value = parseMoney(e.target.value)
 							if (isNaN(value)) {
-								// return setBudget(DEFAULT_BUDGET)
+								return setBudget(DEFAULT_BUDGET)
 							}
 
-							// setBudget(formatMoney(value))
+							setBudget(formatMoney(value))
 						}}
 					/>
 				</div>
