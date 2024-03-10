@@ -21,10 +21,6 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
-  target:
-    - target: dmg
-      arch: universal
-    - target: zip
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
@@ -37,7 +33,7 @@ mac:
   entitlementsInherit: build/entitlements.plist
   gatekeeperAssess: false
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${arch}-${version}.${ext}
   sign: false
 linux:
   target:
