@@ -7,6 +7,7 @@ import { titlebar } from './contexts/titlebar.js'
 import windowStateKeeper from 'electron-window-state'
 import { autoUpdater } from 'electron-updater'
 import logger from 'electron-log'
+import { dialog } from 'electron/main'
 
 // The built directory structure
 //
@@ -30,7 +31,7 @@ const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 nativeTheme.themeSource = 'dark'
 
-function createWindow() {
+async function createWindow() {
 	// Load the previous state with fallback to defaults
 	const mainWindowState = windowStateKeeper({
 		defaultWidth: 1000,
@@ -66,18 +67,40 @@ function createWindow() {
 	}
 
 	autoUpdater.logger = logger
-	// @ts-expect-error this snippet comes from the electron-updater documentation
+
+	// @ts-expect-error the types are missing in this package
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	autoUpdater.logger.transports.file.level = 'info'
 
-	autoUpdater.checkForUpdatesAndNotify().catch(console.error)
+	await autoUpdater.checkForUpdatesAndNotify()
+	await autoUpdater.downloadUpdate()
+
+	autoUpdater.on('update-available', () => {})
+	autoUpdater.on('update-downloaded', () => {
+		if (!win) return
+
+		dialog
+			.showMessageBox(win, {
+				type: 'question',
+				buttons: ['Install and Restart', 'Later'],
+				defaultId: 0,
+				message:
+					'A new update has been downloaded. Would you like to install and restart the app now?',
+			})
+			.then((result) => {
+				if (result.response === 0) {
+					autoUpdater.quitAndInstall()
+				}
+			})
+			.catch(console.error)
+	})
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 void app.whenReady().then(() => {
-	createWindow()
+	void createWindow()
 
 	if (win) {
 		createIPCHandler({ router, windows: [win] })
@@ -86,7 +109,7 @@ void app.whenReady().then(() => {
 	app.on('activate', function () {
 		// On macOS, it's common to re-create a window in the app when the
 		// dock icon is clicked and there are no other windows open.
-		if (BrowserWindow.getAllWindows().length === 0) createWindow()
+		if (BrowserWindow.getAllWindows().length === 0) void createWindow()
 	})
 
 	void titlebar.main()
