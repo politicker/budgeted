@@ -5,6 +5,8 @@ import { createIPCHandler } from 'electron-trpc/main'
 import { router } from './api'
 import { titlebar } from './contexts/titlebar.js'
 import windowStateKeeper from 'electron-window-state'
+import { autoUpdater } from 'electron-updater'
+import logger from 'electron-log'
 
 // The built directory structure
 //
@@ -62,6 +64,10 @@ function createWindow() {
 	} else {
 		void win.loadFile(indexHtml)
 	}
+
+	autoUpdater.logger = logger
+	autoUpdater.logger.transports.file.level = 'info'
+	autoUpdater.checkForUpdatesAndNotify()
 }
 
 // This method will be called when Electron has finished

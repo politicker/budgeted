@@ -87,7 +87,9 @@
 	"dependencies": {
 		"@prisma/client": "^5.7.1",
 		"@trpc/server": "^10.45.0",
+		"electron-log": "^5.1.2",
 		"electron-trpc": "^0.5.2",
+		"electron-updater": "^6.1.8",
 		"electron-window-state": "github:politicker/electron-window-state",
 		"plaid": "^18.2.0",
 		"sqlite3": "^5.1.7-rc.0",
