@@ -72,6 +72,7 @@ async function createWindow() {
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	autoUpdater.logger.transports.file.level = 'info'
 
+	debugger
 	await autoUpdater.checkForUpdatesAndNotify()
 }
 
