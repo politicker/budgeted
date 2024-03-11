@@ -73,27 +73,6 @@ async function createWindow() {
 	autoUpdater.logger.transports.file.level = 'info'
 
 	await autoUpdater.checkForUpdatesAndNotify()
-	await autoUpdater.downloadUpdate()
-
-	autoUpdater.on('update-available', () => {})
-	autoUpdater.on('update-downloaded', () => {
-		if (!win) return
-
-		dialog
-			.showMessageBox(win, {
-				type: 'question',
-				buttons: ['Install and Restart', 'Later'],
-				defaultId: 0,
-				message:
-					'A new update has been downloaded. Would you like to install and restart the app now?',
-			})
-			.then((result) => {
-				if (result.response === 0) {
-					autoUpdater.quitAndInstall()
-				}
-			})
-			.catch(console.error)
-	})
 }
 
 // This method will be called when Electron has finished
