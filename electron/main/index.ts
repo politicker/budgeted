@@ -7,7 +7,6 @@ import { titlebar } from './contexts/titlebar.js'
 import windowStateKeeper from 'electron-window-state'
 import { autoUpdater } from 'electron-updater'
 import logger from 'electron-log'
-import { dialog } from 'electron'
 
 // The built directory structure
 //
