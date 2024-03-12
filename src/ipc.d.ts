@@ -1,7 +1,4 @@
-export interface IPC {
-	on(channel: string, listener: (event: any, ...args: any[]) => void): void
-	removeAllListeners(channel: string): void
-}
+import type { IPC } from '../electron/main/contexts/ipc'
 
 export interface IPCWindow {
 	ipc: IPC

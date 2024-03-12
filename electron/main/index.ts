@@ -5,8 +5,11 @@ import { createIPCHandler } from 'electron-trpc/main'
 import { router } from './api'
 import { titlebar } from './contexts/titlebar.js'
 import windowStateKeeper from 'electron-window-state'
-import { autoUpdater } from 'electron-updater'
-import logger from 'electron-log'
+import log from 'electron-log'
+import { autoUpdater } from './autoUpdater'
+
+log.initialize()
+log.info('Electron started', autoUpdater)
 
 // The built directory structure
 //
@@ -55,24 +58,15 @@ async function createWindow() {
 	// and restore the maximized or full screen state
 	mainWindowState.manage(win)
 
+	// win.webContents.openDevTools()
+
 	if (url) {
 		console.info('loadURL', url)
 		// electron-vite-vue#298
 		void win.loadURL(url)
-		// Open devTool if the app is not packaged
-		// win.webContents.openDevTools()
 	} else {
 		void win.loadFile(indexHtml)
 	}
-
-	autoUpdater.logger = logger
-
-	// @ts-expect-error the types are missing in this package
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-	autoUpdater.logger.transports.file.level = 'info'
-
-	debugger
-	await autoUpdater.checkForUpdatesAndNotify()
 }
 
 // This method will be called when Electron has finished

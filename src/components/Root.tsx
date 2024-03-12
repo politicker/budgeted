@@ -13,6 +13,7 @@ import { Page } from '@/lib/types'
 import { WindowControls } from './WindowControls'
 import { Toaster } from './ui/sonner'
 import { cn } from '@/lib/utils'
+import { UpdateChecker } from './UpdateChecker'
 
 export function Root() {
 	useEffect(() => {
@@ -72,6 +73,7 @@ export function Root() {
 
 				<Outlet />
 				<Toaster />
+				<UpdateChecker />
 			</section>
 		</>
 	)

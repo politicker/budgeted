@@ -1,59 +1,48 @@
-import { BrowserWindow, dialog } from 'electron'
-import { createContextBridge } from '../../context'
+// import { ipcMain } from 'electron'
+// import { createContextBridge } from '../../context'
+// import log from 'electron-log/renderer'
 
-export const updates = createContextBridge('updates', async () => {
-	const { autoUpdater } = await import('electron-updater')
+// // import { getRunningUpdate } from '../autoUpdater'
 
-	let runningUpdate = false
-	let win = null
-	const isOsx = process.platform === 'darwin'
+// export const updates = createContextBridge(
+// 	'updates',
+// 	async (preload: boolean) => {
+// 		if (preload) {
+// 			return {
+// 				needUpdate: async ({ doUpdate }: { doUpdate: boolean }) => {
+// 					console.log('needUpdate', doUpdate)
+// 				},
+// 				checkForUpdates: async () => {
+// 					console.log('**STUB** checkForUpdates')
+// 				},
+// 			}
+// 		}
 
-	autoUpdater.autoDownload = false
+// 		return {
+// 			needUpdate: async ({ doUpdate }: { doUpdate: boolean }) => {
+// 				const { BrowserWindow } = await import('electron')
+// 				const { autoUpdater, setRunningUpdate, setWin, getRunningUpdate } =
+// 					await import('../autoUpdater')
 
-	autoUpdater.on('error', (error) => {
-		dialog.showErrorBox(
-			'Error: ',
-			error === null ? 'Error: unknown' : (error.message || error).toString(),
-		)
-	})
+// 				if (doUpdate) {
+// 					autoUpdater.downloadUpdate()
+// 				} else {
+// 					setRunningUpdate(false)
+// 				}
+// 			},
+// 			checkForUpdates: async () => {
+// 				const { BrowserWindow } = await import('electron')
+// 				const { autoUpdater, setRunningUpdate, setWin, getRunningUpdate } =
+// 					await import('../autoUpdater')
 
-	autoUpdater.on('update-available', () => {
-		win!.webContents.send('mt::UPDATE_AVAILABLE')
+// 				log.info('********** check for updates')
+// 				setWin(BrowserWindow.getFocusedWindow())
 
-		runningUpdate = false
-	})
-
-	autoUpdater.on('update-not-available', () => {
-		dialog.showMessageBox({
-			message: 'Current version is up-to-date.',
-		})
-
-		runningUpdate = false
-	})
-
-	autoUpdater.on('update-downloaded', () => {
-		dialog.showMessageBox({
-			message: 'Update downloaded, application will be quit for update...',
-		})
-
-		setImmediate(() => autoUpdater.quitAndInstall())
-	})
-
-	return {
-		needUpdate: async ({ doUpdate }: { doUpdate: boolean }) => {
-			if (doUpdate) {
-				autoUpdater.downloadUpdate()
-			} else {
-				runningUpdate = false
-			}
-		},
-		checkForUpdates: async () => {
-			win = BrowserWindow.getFocusedWindow()
-
-			if (!runningUpdate) {
-				runningUpdate = true
-				autoUpdater.checkForUpdates()
-			}
-		},
-	}
-})
+// 				if (!getRunningUpdate()) {
+// 					setRunningUpdate(true)
+// 					autoUpdater.checkForUpdates()
+// 				}
+// 			},
+// 		}
+// 	},
+// )
