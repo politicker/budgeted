@@ -21,6 +21,11 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
+  target:
+    - target: default
+      arch:
+        - x64
+        - arm64
   notarize: true
   hardenedRuntime: true
   # identity: 'Harrison Borges (CHZPTSK255)'
@@ -28,8 +33,8 @@ mac:
   entitlementsInherit: build/entitlements.plist
   gatekeeperAssess: false
 dmg:
-  artifactName: ${name}-${arch}-${version}.${ext}
-  sign: false
+  # artifactName: ${name}-${arch}-${version}.${ext}
+  # sign: false
 linux:
   target:
     - AppImage
