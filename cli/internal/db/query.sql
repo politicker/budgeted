@@ -105,6 +105,11 @@ SELECT "plaidId",
        "plaidAccessToken"
 from "Institution";
 
+-- name: InstitutionStatus :exec
+UPDATE "Institution"
+SET "status" = ?
+WHERE "plaidId" = ?;
+
 -- name: ImportLogCreate :exec
 INSERT INTO "ImportLog" ("syncStartedAt")
 VALUES (?);

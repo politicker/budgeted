@@ -197,6 +197,22 @@ func (q *Queries) InstitutionList(ctx context.Context) ([]InstitutionListRow, er
 	return items, nil
 }
 
+const institutionStatus = `-- name: InstitutionStatus :exec
+UPDATE "Institution"
+SET "status" = ?
+WHERE "plaidId" = ?
+`
+
+type InstitutionStatusParams struct {
+	Status  string
+	PlaidId string
+}
+
+func (q *Queries) InstitutionStatus(ctx context.Context, arg InstitutionStatusParams) error {
+	_, err := q.db.ExecContext(ctx, institutionStatus, arg.Status, arg.PlaidId)
+	return err
+}
+
 const transactionCreate = `-- name: TransactionCreate :exec
 INSERT INTO "Transaction"("plaidId",
                           "plaidAccountId",

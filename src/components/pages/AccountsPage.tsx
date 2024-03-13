@@ -1,7 +1,12 @@
 import { Card, CardContent, CardHeader } from '../ui/card'
 import { trpc } from '@/lib/trpc'
 import { useEffect, useState } from 'react'
-import { Link2Icon, Pencil1Icon, PlusIcon } from '@radix-ui/react-icons'
+import {
+	ExclamationTriangleIcon,
+	Link2Icon,
+	Pencil1Icon,
+	PlusIcon,
+} from '@radix-ui/react-icons'
 import { Button } from '../ui/button'
 import { InlineInput } from '../ui/input'
 import { Account } from '@prisma/client'
@@ -9,12 +14,12 @@ import { PlaidLinkButton } from '../PlaidLinkButton'
 import { formatMoney } from '@/lib/money'
 
 export function AccountsPage() {
-	const { data, refetch } = trpc.institutions.useQuery()
+	const { data: institutions, refetch } = trpc.institutions.useQuery()
 
 	return (
 		<div className="overflow-y-auto">
 			<div className="flex flex-wrap gap-4 p-4">
-				{data?.map((institution) => (
+				{institutions?.map((institution) => (
 					<Card className="w-[380px] flex flex-col" key={institution.name}>
 						<CardHeader className="flex flex-row items-center">
 							<div
@@ -37,22 +42,38 @@ export function AccountsPage() {
 								))}
 							</div>
 
-							<PlaidLinkButton
-								onSuccess={refetch}
-								institutionId={institution.plaidId}
-								asChild
-							>
-								<div className="grow flex items-end">
-									<Button className="w-full" variant="outline" asChild>
-										<div className="flex items-center gap-3">
-											<Link2Icon />
-											<div className="leading-3 pt-[2px]">
-												Reconnect to Plaid
+							{institution.status !== 'OK' && (
+								<div className="grow flex items-end w-full">
+									<div className="w-full border border-destructive rounded-md p-3">
+										<div className="flex gap-3 mb-3">
+											<ExclamationTriangleIcon className="w-[30px] mt-[3px]" />
+											<div>
+												Plaid has been disconnected from {institution.name}. You
+												must reconnect it to keep syncing data.
 											</div>
 										</div>
-									</Button>
+
+										<PlaidLinkButton
+											onSuccess={refetch}
+											institutionId={institution.plaidId}
+											asChild
+										>
+											<Button
+												className="w-full select-none"
+												variant="destructive"
+												asChild
+											>
+												<div className="flex items-center gap-3">
+													<Link2Icon />
+													<div className="leading-3 pt-[2px]">
+														Reconnect to Plaid
+													</div>
+												</div>
+											</Button>
+										</PlaidLinkButton>
+									</div>
 								</div>
-							</PlaidLinkButton>
+							)}
 						</CardContent>
 					</Card>
 				))}

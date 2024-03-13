@@ -12,11 +12,6 @@ CREATE TABLE IF NOT EXISTS "Config" (
     "plaidClientId" TEXT NOT NULL PRIMARY KEY,
     "plaidSecret" TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS "Institution" (
-    "plaidId" TEXT NOT NULL PRIMARY KEY,
-    "name" TEXT NOT NULL,
-    "plaidAccessToken" TEXT NOT NULL
-, "color" TEXT, "logo" TEXT);
 CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE IF NOT EXISTS "Transaction" (
     "plaidId" TEXT NOT NULL PRIMARY KEY,
@@ -91,4 +86,12 @@ CREATE TABLE IF NOT EXISTS "AccountBalance" (
     PRIMARY KEY ("accountPlaidId", "date"),
     CONSTRAINT "AccountBalance_accountPlaidId_fkey" FOREIGN KEY ("accountPlaidId") REFERENCES "Account" ("plaidId") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "AccountBalance_importLogId_fkey" FOREIGN KEY ("importLogId") REFERENCES "ImportLog" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "Institution" (
+    "plaidId" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "plaidAccessToken" TEXT NOT NULL,
+    "logo" TEXT,
+    "color" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'OK'
 );
