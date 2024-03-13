@@ -41,7 +41,7 @@ type SetInputType = (inp: Updater<Partial<TableStateType>>) => void
 
 export const DefaultState = {
 	pageIndex: 0,
-	pageSize: 500,
+	pageSize: 100,
 	showHidden: true,
 	rowSelection: {},
 	sorting: [],
@@ -69,6 +69,7 @@ export function useDataTableInput() {
 		},
 		[setInputSimple],
 	)
+
 	return [input, setInput] as const
 }
 

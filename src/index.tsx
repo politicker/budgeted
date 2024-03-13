@@ -15,7 +15,18 @@ function RenderRoot() {
 	const superJsonReal = (superjson as unknown as { default: typeof superjson })
 		.default
 
-	const [queryClient] = useState(() => new QueryClient())
+	const [queryClient] = useState(
+		() =>
+			new QueryClient({
+				defaultOptions: {
+					queries: {
+						keepPreviousData: true,
+						refetchOnWindowFocus: false,
+						staleTime: Infinity,
+					},
+				},
+			}),
+	)
 	const [trpcClient] = useState(() =>
 		trpc.createClient({
 			links: [ipcLink()],

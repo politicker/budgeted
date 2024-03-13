@@ -299,3 +299,12 @@ func (q *Queries) TransactionCreate(ctx context.Context, arg TransactionCreatePa
 	)
 	return err
 }
+
+const transactionDeleteAll = `-- name: TransactionDeleteAll :exec
+DELETE FROM "Transaction"
+`
+
+func (q *Queries) TransactionDeleteAll(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, transactionDeleteAll)
+	return err
+}

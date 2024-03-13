@@ -2,7 +2,7 @@ import { trpc } from '@/lib/trpc'
 import { transactionColumns } from '../columns'
 import { DataTable } from '../ui/data-table/data-table'
 import { useDataTable, useDataTableInput } from '@/lib/useDataTable'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { formatMoney } from '@/lib/money'
 import { Badge } from '../ui/badge'
 import type { fetchTransactions } from '~electron/main/models/transactions'
@@ -12,8 +12,8 @@ type Transaction = Awaited<ReturnType<typeof fetchTransactions>>['results'][0]
 
 export function TablePage() {
 	const [input, setInput] = useDataTableInput()
-	const { data } = trpc.transactions.useQuery(input, { keepPreviousData: true })
 	const [selectedRows, setSelectedRows] = useState<Transaction[]>([])
+	const { data } = trpc.transactions.useQuery(input)
 	const { data: accounts } = trpc.accounts.useQuery()
 
 	const table = useDataTable({
@@ -37,6 +37,14 @@ export function TablePage() {
 		setSelectedRows(rows)
 	}, [input.rowSelection])
 
+	const merchants = useMemo(() => {
+		const merchants = new Set<string>()
+		data?.results.forEach((transaction) => {
+			merchants.add(transaction.merchantName)
+		})
+		return Array.from(merchants)
+	}, [data?.results])
+
 	return (
 		<>
 			<DataTable
@@ -50,6 +58,15 @@ export function TablePage() {
 							accounts?.map((account) => ({
 								label: account.name,
 								value: account.plaidId,
+							})) ?? [],
+					},
+					{
+						column: 'merchantName',
+						title: 'Merchant',
+						options:
+							merchants?.map((merchant) => ({
+								label: merchant,
+								value: merchant,
 							})) ?? [],
 					},
 					{

@@ -55,6 +55,9 @@ ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "lon"=excluded."lon",
                                    "postalCode"=excluded."postalCode";
 
+-- name: TransactionDeleteAll :exec
+DELETE FROM "Transaction";
+
 -- name: AccountCreate :exec
 INSERT INTO "Account"("plaidId",
                       "plaidItemId",
@@ -89,6 +92,7 @@ ON CONFLICT(plaidId) DO UPDATE SET plaidId=excluded."plaidId",
                                    "availableBalance"=excluded."availableBalance",
                                    "currentBalance"=excluded."currentBalance",
                                    "isoCurrencyCode"=excluded."isoCurrencyCode";
+
 -- name: ConfigGet :one
 SELECT "plaidClientId",
        "plaidSecret"

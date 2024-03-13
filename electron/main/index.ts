@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme } from 'electron'
+import { app, BrowserWindow, Menu, nativeTheme } from 'electron'
 import { join } from 'node:path'
 import { prisma } from './prisma'
 import { createIPCHandler } from 'electron-trpc/main'
@@ -97,3 +97,6 @@ app.on('window-all-closed', () => {
 		void prisma.$disconnect()
 	}
 })
+
+const menu = Menu.buildFromTemplate([])
+Menu.setApplicationMenu(menu)

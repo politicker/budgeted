@@ -116,7 +116,7 @@ export function BudgetChart({
 							/>
 							<circle
 								cx={x(new Date(d.date)) ?? 0}
-								cy={y(d.amount) - 3 ?? 0}
+								cy={y(d.amount) - 3}
 								r={20}
 								transform="translate(15,0)"
 								fill={

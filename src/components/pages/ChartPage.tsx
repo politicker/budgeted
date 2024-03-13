@@ -29,26 +29,20 @@ export function ChartPage() {
 		DEFAULT_BUDGET,
 	)
 
-	const { data, refetch } = trpc.transactions.useQuery(
-		{
-			pageIndex: 0,
-			pageSize: Infinity,
-			showHidden: false,
-			rowSelection: {},
-			sorting: [],
-			selection: [],
-			columnFilters: [
-				{
+	const { data, refetch } = trpc.transactions.useQuery({
+		pageIndex: 0,
+		pageSize: Infinity,
+
+		showHidden: false,
+		rowSelection: {},
+		sorting: [],
+		selection: [],
+		columnFilters: [{
 					id: 'dayRange',
 					value: dayRange,
-				},
-			],
-			columnVisibility: {},
-		},
-		{
-			keepPreviousData: true,
-		},
-	)
+				},],
+		columnVisibility: {},
+	})
 
 	const { mutate } = trpc.hideTransaction.useMutation({
 		onSuccess: () => refetch(),

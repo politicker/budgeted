@@ -58,9 +58,7 @@ function reportError(
 export const router = t.router({
 	transactions: loggedProcedure
 		.input(TableStateInput)
-		.query(async ({ input }) => {
-			return await fetchTransactions(input)
-		}),
+		.query(async ({ input }) => await fetchTransactions(input)),
 
 	rebuildTransactions: loggedProcedure.mutation(() => {
 		try {
@@ -95,13 +93,7 @@ export const router = t.router({
 			},
 		})
 	}),
-	accounts: loggedProcedure.query(async () => {
-		try {
-			return await fetchAccounts()
-		} catch (err) {
-			reportError('INTERNAL_SERVER_ERROR', 'Error fetching accounts', err)
-		}
-	}),
+	accounts: loggedProcedure.query(async () => await fetchAccounts()),
 	setAccountName: loggedProcedure
 		.input(z.object({ id: z.string(), name: z.string() }))
 		.mutation(async ({ input }) => {
@@ -246,12 +238,14 @@ export const router = t.router({
 		}
 		return { success: true }
 	}),
-	accountBalances: loggedProcedure.query(async () => {
-		return await prisma.accountBalance.findMany({
-			orderBy: { date: 'asc' },
-			include: { account: true },
-		})
-	}),
+	accountBalances: loggedProcedure.query(
+		async () =>
+			await prisma.accountBalance.findMany({
+				orderBy: { date: 'asc' },
+				include: { account: true },
+			}),
+	),
+	// merchants: loggedProcedure.query(async () => await prisma.transaction.findMany({
 })
 
 export type AppRouter = typeof router

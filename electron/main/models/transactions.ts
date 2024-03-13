@@ -42,6 +42,12 @@ export async function fetchTransactions({
 								.slice(0, 10),
 						},
 					}
+				case 'merchantName':
+					return {
+						merchantName: Array.isArray(filter.value)
+							? { in: filter.value }
+							: filter.value,
+					}
 				default:
 					return {
 						[filter.id]: { contains: filterValue },
