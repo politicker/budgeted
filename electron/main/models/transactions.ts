@@ -44,9 +44,9 @@ export async function fetchTransactions({
 					}
 				case 'merchantName':
 					return {
-						merchantName: Array.isArray(filter.value)
-							? { in: filter.value }
-							: filter.value,
+						merchantName: Array.isArray(filterValue)
+							? { in: filterValue }
+							: (filterValue as string),
 					}
 				default:
 					return {

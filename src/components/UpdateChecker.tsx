@@ -1,5 +1,4 @@
 import { IPCWindow } from '@/ipc'
-import log from 'electron-log/renderer'
 import { useEffect } from 'react'
 // import { updates } from '../../electron/main/contexts/updates'
 
@@ -9,7 +8,7 @@ export function UpdateChecker() {
 
 		ipc.send('mt::CHECK_FOR_UPDATES')
 
-		ipc.on('mt::UPDATE_AVAILABLE', (e, message) => {
+		ipc.on('mt::UPDATE_AVAILABLE', () => {
 			const doUpdate = confirm(
 				'Found an update, do you want download and install now?',
 			)

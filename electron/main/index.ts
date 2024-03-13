@@ -33,7 +33,7 @@ const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 nativeTheme.themeSource = 'dark'
 
-async function createWindow() {
+function createWindow() {
 	// Load the previous state with fallback to defaults
 	const mainWindowState = windowStateKeeper({
 		defaultWidth: 1000,
