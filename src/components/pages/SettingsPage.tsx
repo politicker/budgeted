@@ -22,7 +22,6 @@ function SettingsForm({
 }: {
 	defaultValues: { plaidClientId: string; plaidSecret: string }
 }) {
-	console.log('SettingsForm', defaultValues)
 	const { mutateAsync } = trpc.createConfig.useMutation({})
 
 	const form = useForm<z.infer<typeof CreateConfigInput>>({
@@ -96,7 +95,6 @@ export function SettingsPage() {
 		plaidClientId: '',
 		plaidSecret: '',
 	}
-	// console.log('SettingsPage', defaultValues, data, rest)
 
 	return (
 		<div className="flex flex-col gap-12 p-8 w-1/2">
