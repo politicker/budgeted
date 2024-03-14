@@ -82,17 +82,19 @@ export const router = t.router({
 			}
 			return { success: true }
 		}),
-	institutions: loggedProcedure.query(async () => {
-		return await prisma.institution.findMany({
-			select: {
-				name: true,
-				accounts: true,
-				plaidId: true,
-				logo: true,
-				color: true,
-			},
-		})
-	}),
+	institutions: loggedProcedure.query(
+		async () =>
+			await prisma.institution.findMany({
+				select: {
+					name: true,
+					accounts: true,
+					plaidId: true,
+					logo: true,
+					color: true,
+					status: true,
+				},
+			}),
+	),
 	accounts: loggedProcedure.query(async () => await fetchAccounts()),
 	setAccountName: loggedProcedure
 		.input(z.object({ id: z.string(), name: z.string() }))

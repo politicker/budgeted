@@ -21,6 +21,7 @@ model Institution {
   plaidAccessToken String
   logo             String?
   color            String?
+  status           String    @default("OK")
   accounts         Account[]
 }
 

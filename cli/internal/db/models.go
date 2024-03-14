@@ -66,8 +66,9 @@ type Institution struct {
 	PlaidId          string
 	Name             string
 	PlaidAccessToken string
-	Color            sql.NullString
 	Logo             sql.NullString
+	Color            sql.NullString
+	Status           string
 }
 
 type PrismaMigrations struct {

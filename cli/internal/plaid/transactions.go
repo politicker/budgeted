@@ -2,22 +2,23 @@ package plaid
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"io"
 	"log"
 	"path/filepath"
 
 	"github.com/plaid/plaid-go/v20/plaid"
+	"github.com/politicker/budgeted/internal/db"
 )
 
-func (pc *APIClient) LoadTransactions(ctx context.Context, institutionId string, accessToken string) error {
+func (pc *APIClient) ExtractTransactions(ctx context.Context, institutionId string, accessToken string, queries *db.Queries) error {
 	var hasMore bool = true
 	prefix := filepath.Join("transactions", institutionId)
 
 	// Get previous cursor from the latest cached response
 	cursor, err := pc.GetNextCursor(ctx, prefix)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get next cursor: %w", err)
 	}
 
 	// Iterate through each page of new transaction updates for item
@@ -40,13 +41,20 @@ func (pc *APIClient) LoadTransactions(ctx context.Context, institutionId string,
 
 		if err != nil {
 			if plaidErr, innerErr := plaid.ToPlaidError(err); innerErr == nil {
-				// if plaidErr.ErrorMessage == "cursor not associated with access_token" {
-				// 	log.Println("Access token changed. Restarting sync.")
-				// 	cursor = ""
-				// 	continue
-				// }
+				if plaidErr.ErrorCode == "ITEM_LOGIN_REQUIRED" {
+					log.Println("Item login required. Skipping sync.")
 
-				return errors.New(plaidErr.GetErrorMessage())
+					if err := queries.InstitutionStatus(ctx, db.InstitutionStatusParams{
+						Status:  "ITEM_LOGIN_REQUIRED",
+						PlaidId: institutionId,
+					}); err != nil {
+						return fmt.Errorf("failed to update institution status: %w", err)
+					}
+
+					return nil
+				}
+
+				return fmt.Errorf("failed TransactionsSync plaid API call: %s", plaidErr.GetErrorMessage())
 			} else {
 				return err
 			}

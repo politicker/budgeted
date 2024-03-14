@@ -17,7 +17,7 @@ func ExtractPlaidData(ctx context.Context, pc *plaid.APIClient, db *db.Queries) 
 	}
 
 	for _, institution := range institutions {
-		err = pc.LoadTransactions(ctx, institution.PlaidId, institution.PlaidAccessToken)
+		err = pc.ExtractTransactions(ctx, institution.PlaidId, institution.PlaidAccessToken, db)
 
 		if err != nil {
 			return fmt.Errorf("failed to load transactions: %w", err)

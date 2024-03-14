@@ -61,7 +61,7 @@ export function TablePage() {
 							})) ?? [],
 					},
 					{
-						column: 'merchantName',
+						id: 'merchantName',
 						title: 'Merchant',
 						options:
 							merchants?.map((merchant) => ({
