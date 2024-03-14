@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/politicker/budgeted/internal/db"
 	"github.com/politicker/budgeted/internal/domain"
 
@@ -60,7 +60,7 @@ func (a *API) Routes() (*mux.Router, error) {
 
 	r.HandleFunc("/health", a.healthCheckHandler).Methods("GET")
 
-	driver, err := sql.Open("sqlite3", filepath.Join(os.Getenv("HOME"), ".config", "budgeted", "db.sqlite"))
+	driver, err := sql.Open("sqlite3", filepath.Join(cmdutil.ConfigDir(), "db.sqlite"))
 	if err != nil {
 		return nil, err
 	}

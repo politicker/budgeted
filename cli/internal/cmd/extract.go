@@ -3,9 +3,9 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"os"
 	"path/filepath"
 
+	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/politicker/budgeted/internal/db"
 	"github.com/politicker/budgeted/internal/domain"
 	"github.com/spf13/cobra"
@@ -21,7 +21,7 @@ func ExtractCmd(ctx context.Context) *cobra.Command {
 				return err
 			}
 
-			driver, err := sql.Open("sqlite3", filepath.Join(os.Getenv("HOME"), ".config", "budgeted", "db.sqlite"))
+			driver, err := sql.Open("sqlite3", filepath.Join(cmdutil.ConfigDir(), "db.sqlite"))
 			if err != nil {
 				return err
 			}

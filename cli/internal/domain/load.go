@@ -65,7 +65,7 @@ func LoadTransactions(ctx context.Context, queries *db.Queries, importLogId int6
 	}
 
 	// Walk CSV directory
-	err = filepath.WalkDir(path.Join(os.Getenv("HOME"), ".config", "budgeted", "csv"), func(fp string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(cmdutil.ConfigDir(), "csv"), func(fp string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -145,7 +145,7 @@ func LoadTransactions(ctx context.Context, queries *db.Queries, importLogId int6
 }
 
 func LoadAccounts(ctx context.Context, queries *db.Queries, importLogId int64) error {
-	csvFile := path.Join(os.Getenv("HOME"), ".config", "budgeted", "csv", "accounts.csv")
+	csvFile := path.Join(cmdutil.ConfigDir(), "csv", "accounts.csv")
 	data, err := os.Open(csvFile)
 	if err != nil {
 		return errors.Wrapf(err, "failed to read file: %s", csvFile)
@@ -181,7 +181,7 @@ func LoadAccounts(ctx context.Context, queries *db.Queries, importLogId int64) e
 }
 
 func LoadAccountBalances(ctx context.Context, queries *db.Queries, importLogId int64) error {
-	csvFile := path.Join(os.Getenv("HOME"), ".config", "budgeted", "csv", "account_balances.csv")
+	csvFile := path.Join(cmdutil.ConfigDir(), "csv", "account_balances.csv")
 	data, err := os.Open(csvFile)
 	if err != nil {
 		return errors.Wrapf(err, "failed to read file: %s", csvFile)

@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	_ "github.com/lib/pq"
+	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -49,7 +50,7 @@ func NewRedisConnection(ctx context.Context) *redis.Client {
 }
 
 func Dirs() (string, string, error) {
-	jsonStorage := filepath.Join(os.Getenv("HOME"), ".config/budgeted/json")
+	jsonStorage := filepath.Join(cmdutil.ConfigDir(), "json")
 	info, err := os.Stat(jsonStorage)
 	if os.IsNotExist(err) {
 		log.Println("creating json storage directory", jsonStorage)
@@ -65,7 +66,7 @@ func Dirs() (string, string, error) {
 		return "", "", errors.New("json storage is not a directory")
 	}
 
-	csvStorage := filepath.Join(os.Getenv("HOME"), ".config/budgeted/csv")
+	csvStorage := filepath.Join(ConfigDir(), "csv")
 	info, err = os.Stat(csvStorage)
 	if os.IsNotExist(err) {
 		log.Println("creating csv storage directory", jsonStorage)
@@ -79,4 +80,17 @@ func Dirs() (string, string, error) {
 	}
 
 	return jsonStorage, csvStorage, nil
+}
+
+func ConfigDir() string {
+	configDir := os.Getenv("CONFIG_DIR")
+	if configDir != "" {
+		return configDir
+	}
+
+	if os.Getenv("APPDATA") != "" {
+		return path.Join(os.Getenv("APPDATA"), "budgeted")
+	}
+
+	return path.Join(os.Getenv("HOME"), ".config", "budgeted")
 }

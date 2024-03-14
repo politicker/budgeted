@@ -3,10 +3,10 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"os"
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/politicker/budgeted/internal/db"
 	"github.com/politicker/budgeted/internal/domain"
 	"github.com/spf13/cobra"
@@ -18,7 +18,7 @@ func LoadCmd(ctx context.Context) *cobra.Command {
 		Short: "load CSV data into SQLite database",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			driver, err := sql.Open("sqlite3", filepath.Join(os.Getenv("HOME"), ".config", "budgeted", "db.sqlite"))
+			driver, err := sql.Open("sqlite3", filepath.Join(cmdutil.ConfigDir(), "db.sqlite"))
 			if err != nil {
 				return err
 			}
