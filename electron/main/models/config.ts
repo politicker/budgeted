@@ -1,16 +1,15 @@
 import { prisma } from '../prisma'
 
-export async function upsertConfig(clientId: string, secret: string) {
-	const payload = {
-		plaidClientId: clientId,
-		plaidSecret: secret,
-	}
+export async function upsertConfig(plaidClientId: string, plaidSecret: string) {
+	const payload = { plaidClientId, plaidSecret }
+	console.log('upsertConfig', payload)
 
-	await prisma.config.upsert({
-		where: {
-			plaidClientId: clientId,
-		},
-		create: payload,
-		update: payload,
-	})
+	const existingConfig = await prisma.config.findFirst()
+
+	existingConfig
+		? await prisma.config.update({
+				where: { id: existingConfig.id },
+				data: payload,
+			})
+		: await prisma.config.create({ data: payload })
 }

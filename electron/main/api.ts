@@ -132,7 +132,7 @@ export const router = t.router({
 				reportError(
 					'INTERNAL_SERVER_ERROR',
 					'Error creating Plaid link token',
-					e,
+					'N/A: error too long to display',
 				)
 			}
 		}),

@@ -87,6 +87,7 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^5.7.1",
+		"@prisma/migrate": "^5.11.0",
 		"@trpc/server": "^10.45.0",
 		"electron-log": "^5.1.2",
 		"electron-trpc": "^0.5.2",

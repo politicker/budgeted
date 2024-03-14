@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import path from 'node:path'
+import fs from 'node:fs'
 
 const configDir = process.env.CONFIG_DIR
 	? process.env.CONFIG_DIR
@@ -9,6 +10,10 @@ const configDir = process.env.CONFIG_DIR
 
 const sqlPath = path.join(configDir, 'db.sqlite')
 
+fs.mkdirSync(configDir, { recursive: true })
+
 export const prisma = new PrismaClient({
-	datasourceUrl: process.env.APPDATA ? `file:${sqlPath}` : `file://${sqlPath}`,
+	datasourceUrl:
+		process.env.DATABASE_URL ??
+		(process.env.APPDATA ? `file:${sqlPath}` : `file://${sqlPath}`),
 })

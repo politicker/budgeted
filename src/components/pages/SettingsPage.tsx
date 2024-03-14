@@ -20,10 +20,10 @@ import { CreateConfigInput } from '~electron/main/api-inputs'
 function SettingsForm({
 	defaultValues,
 }: {
-	defaultValues: NonNullable<ReturnType<typeof trpc.config.useQuery>['data']>
+	defaultValues: { plaidClientId: string; plaidSecret: string }
 }) {
+	console.log('SettingsForm', defaultValues)
 	const { mutateAsync } = trpc.createConfig.useMutation({})
-	const { data: config, status } = trpc.config.useQuery()
 
 	const form = useForm<z.infer<typeof CreateConfigInput>>({
 		resolver: zodResolver(CreateConfigInput),
@@ -44,60 +44,63 @@ function SettingsForm({
 	}
 
 	return (
-		status === 'success' && (
-			<Form {...form}>
-				<form
-					onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
-					className="space-y-8"
-				>
-					<FormField
-						control={form.control}
-						name="plaidClientId"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Plaid Client ID</FormLabel>
-								<FormControl>
-									<Input {...field} defaultValue={config?.plaidClientId} />
-								</FormControl>
-								<FormDescription>
-									The Plaid Client ID from the devtools dashboard
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="plaidSecret"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Plaid Secret</FormLabel>
-								<FormControl>
-									<Input {...field} defaultValue={config?.plaidSecret} />
-								</FormControl>
-								<FormDescription>
-									The Plaid Secret from the devtools dashboard
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+		<Form {...form}>
+			<form
+				onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
+				className="space-y-8"
+			>
+				<FormField
+					control={form.control}
+					name="plaidClientId"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Plaid Client ID</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormDescription>
+								The Plaid Client ID from the devtools dashboard
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="plaidSecret"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Plaid Secret</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormDescription>
+								The Plaid Secret from the devtools dashboard
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 
-					<Button type="submit">Submit</Button>
-				</form>
-			</Form>
-		)
+				<Button type="submit">Submit</Button>
+			</form>
+		</Form>
 	)
 }
 
 export function SettingsPage() {
-	const { data } = trpc.config.useQuery()
+	const { data, status } = trpc.config.useQuery()
 	const { mutate: rebuildTransactions } = trpc.rebuildTransactions.useMutation()
 	const { mutate: writeCronTab } = trpc.writeCronTasks.useMutation()
+	const defaultValues = data || {
+		plaidClientId: '',
+		plaidSecret: '',
+	}
+	// console.log('SettingsPage', defaultValues, data, rest)
 
 	return (
 		<div className="flex flex-col gap-12 p-8 w-1/2">
-			<SettingsForm defaultValues={data || {}} />
+			{status === 'success' && <SettingsForm defaultValues={defaultValues} />}
 			<Button onClick={() => rebuildTransactions()}>
 				Rebuild Transactions
 			</Button>

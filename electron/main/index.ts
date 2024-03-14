@@ -33,7 +33,12 @@ const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 nativeTheme.themeSource = 'dark'
 
-function createWindow() {
+async function createWindow() {
+	// TODO: https://github.com/prisma/prisma/issues/13549
+	// const { MigrateDeploy } = await import('@prisma/migrate')
+	const migrate = MigrateDeploy.new()
+	await migrate.parse([])
+
 	// Load the previous state with fallback to defaults
 	const mainWindowState = windowStateKeeper({
 		defaultWidth: 1000,
@@ -72,17 +77,17 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-void app.whenReady().then(() => {
-	void createWindow()
+void app.whenReady().then(async () => {
+	await createWindow()
 
 	if (win) {
 		createIPCHandler({ router, windows: [win] })
 	}
 
-	app.on('activate', function () {
+	app.on('activate', async () => {
 		// On macOS, it's common to re-create a window in the app when the
 		// dock icon is clicked and there are no other windows open.
-		if (BrowserWindow.getAllWindows().length === 0) void createWindow()
+		if (BrowserWindow.getAllWindows().length === 0) await createWindow()
 	})
 
 	void titlebar.main()
