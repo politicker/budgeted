@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 
 	_ "github.com/lib/pq"
-	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -50,7 +49,7 @@ func NewRedisConnection(ctx context.Context) *redis.Client {
 }
 
 func Dirs() (string, string, error) {
-	jsonStorage := filepath.Join(cmdutil.ConfigDir(), "json")
+	jsonStorage := filepath.Join(ConfigDir(), "json")
 	info, err := os.Stat(jsonStorage)
 	if os.IsNotExist(err) {
 		log.Println("creating json storage directory", jsonStorage)

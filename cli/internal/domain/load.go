@@ -14,6 +14,7 @@ import (
 
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
+	"github.com/politicker/budgeted/internal/cmdutil"
 	"github.com/politicker/budgeted/internal/db"
 )
 
@@ -65,7 +66,7 @@ func LoadTransactions(ctx context.Context, queries *db.Queries, importLogId int6
 	}
 
 	// Walk CSV directory
-	err = filepath.WalkDir(cmdutil.ConfigDir(), "csv"), func(fp string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(filepath.Join(cmdutil.ConfigDir(), "csv"), func(fp string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
