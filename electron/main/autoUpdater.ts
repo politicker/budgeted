@@ -1,6 +1,7 @@
 import { autoUpdater as electronAutoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import { BrowserWindow, app, dialog, ipcMain } from 'electron'
+import { arch } from 'os'
 
 electronAutoUpdater.logger = log
 
@@ -11,6 +12,16 @@ electronAutoUpdater.logger.transports.file.level = 'info'
 let runningUpdate = false
 let win: Electron.BrowserWindow | null = null
 // const isOsx = process.platform === 'darwin'
+
+export function setUpdateDownloadUrl() {
+	if (arch() !== 'arm64') {
+		return
+	}
+
+	electronAutoUpdater.setFeedURL(
+		'https://your-update-server.com/path-to-arm64-updates/',
+	)
+}
 
 export function setRunningUpdate(value: boolean) {
 	runningUpdate = value

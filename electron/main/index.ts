@@ -6,11 +6,9 @@ import { router } from './api'
 import { titlebar } from './contexts/titlebar.js'
 import windowStateKeeper from 'electron-window-state'
 import log from 'electron-log'
-import { autoUpdater } from './autoUpdater'
 import { MigrateDeploy } from '@prisma/migrate'
 
 log.initialize()
-log.info('Electron started', autoUpdater)
 
 // The built directory structure
 //
