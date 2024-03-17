@@ -12,8 +12,15 @@ const sqlPath = path.join(configDir, 'db.sqlite')
 
 fs.mkdirSync(configDir, { recursive: true })
 
+const datasourceUrl =
+	process.env.DATABASE_URL && process.env.DONT_USE_DB_URL !== 'true'
+		? process.env.DATABASE_URL
+		: process.env.APPDATA
+			? `file:${sqlPath}`
+			: `file://${sqlPath}`
+
+console.log('connecting to', datasourceUrl)
+
 export const prisma = new PrismaClient({
-	datasourceUrl:
-		process.env.DATABASE_URL ??
-		(process.env.APPDATA ? `file:${sqlPath}` : `file://${sqlPath}`),
+	datasourceUrl,
 })

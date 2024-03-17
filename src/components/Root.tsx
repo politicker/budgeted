@@ -14,6 +14,23 @@ import { WindowControls } from './WindowControls'
 import { Toaster } from './ui/sonner'
 import { cn } from '@/lib/utils'
 import { UpdateChecker } from './UpdateChecker'
+import { trpc } from '@/lib/trpc'
+
+function NavLink({
+	to,
+	children,
+	disabled,
+}: {
+	to: string
+	children: React.ReactNode
+	disabled: boolean
+}) {
+	return (
+		<Button variant="ghost" size="icon" asChild={!disabled} disabled={disabled}>
+			<Link to={to}>{children}</Link>
+		</Button>
+	)
+}
 
 export function Root() {
 	useEffect(() => {
@@ -28,6 +45,12 @@ export function Root() {
 		root.classList.add(systemTheme)
 	}, [])
 
+	let { data } = trpc.isReady.useQuery()
+
+	const isReady = data ?? { needsInstitution: true, needsConfig: true }
+
+	console.log({ isReady })
+
 	return (
 		<>
 			<section className={cn(styles.root, 'bg-muted')}>
@@ -36,37 +59,27 @@ export function Root() {
 				<div className="bg-background row-span-3 p-3 border-r text-center">
 					<div className="flex flex-col justify-between h-full">
 						<div>
-							<Button variant="ghost" size="icon" asChild>
-								<Link to={Page.TABLE}>
-									<TableIcon />
-								</Link>
-							</Button>
+							<NavLink to={Page.TABLE} disabled={isReady.needsInstitution}>
+								<TableIcon />
+							</NavLink>
 
-							<Button variant="ghost" size="icon" asChild>
-								<Link to={Page.CHART}>
-									<BarChartIcon />
-								</Link>
-							</Button>
+							<NavLink to={Page.CHART} disabled={isReady.needsInstitution}>
+								<BarChartIcon />
+							</NavLink>
 
-							<Button variant="ghost" size="icon" asChild>
-								<Link to={Page.NET_WORTH}>
-									<ValueIcon />
-								</Link>
-							</Button>
+							<NavLink to={Page.NET_WORTH} disabled={isReady.needsInstitution}>
+								<ValueIcon />
+							</NavLink>
 
-							<Button variant="ghost" size="icon" asChild>
-								<Link to={Page.ACCOUNTS}>
-									<IdCardIcon />
-								</Link>
-							</Button>
+							<NavLink to={Page.ACCOUNTS} disabled={isReady.needsConfig}>
+								<IdCardIcon />
+							</NavLink>
 						</div>
 
 						<div>
-							<Button variant="ghost" size="icon" asChild>
-								<Link to={Page.SETTINGS}>
-									<GearIcon />
-								</Link>
-							</Button>
+							<NavLink to={Page.SETTINGS} disabled={false}>
+								<GearIcon />
+							</NavLink>
 						</div>
 					</div>
 				</div>

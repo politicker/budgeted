@@ -60,6 +60,17 @@ export const router = t.router({
 		.input(TableStateInput)
 		.query(async ({ input }) => await fetchTransactions(input)),
 
+	isReady: loggedProcedure.query(async () => {
+		const config = await prisma.config.findFirst()
+		const institution = await prisma.institution.findFirst()
+
+		return {
+			needsInstitution: !institution,
+			needsConfig: !config,
+			ready: !(!config || !institution),
+		}
+	}),
+
 	rebuildTransactions: loggedProcedure.mutation(() => {
 		try {
 			extract()
