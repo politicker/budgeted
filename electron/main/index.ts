@@ -102,5 +102,5 @@ app.on('window-all-closed', () => {
 	}
 })
 
-const menu = Menu.buildFromTemplate([])
-Menu.setApplicationMenu(menu)
+// const menu = Menu.buildFromTemplate([])
+// Menu.setApplicationMenu(menu)
