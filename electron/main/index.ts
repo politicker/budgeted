@@ -83,10 +83,10 @@ void app.whenReady().then(async () => {
 		createIPCHandler({ router, windows: [win] })
 	}
 
-	app.on('activate', async () => {
+	app.on('activate', () => {
 		// On macOS, it's common to re-create a window in the app when the
 		// dock icon is clicked and there are no other windows open.
-		if (BrowserWindow.getAllWindows().length === 0) await createWindow()
+		if (BrowserWindow.getAllWindows().length === 0) void createWindow()
 	})
 
 	void titlebar.main()
