@@ -102,5 +102,44 @@ app.on('window-all-closed', () => {
 	}
 })
 
-// const menu = Menu.buildFromTemplate([])
-// Menu.setApplicationMenu(menu)
+if (process.platform === 'darwin') {
+	const template = [
+		{
+			label: app.getName(),
+			submenu: [
+				{ role: 'about' },
+				{ type: 'separator' },
+				{ role: 'hide' },
+				{ role: 'hideothers' },
+				{ role: 'unhide' },
+				{ type: 'separator' },
+				{ role: 'quit' },
+			],
+		},
+		{
+			label: 'Edit',
+			submenu: [
+				{ role: 'undo' },
+				{ role: 'redo' },
+				{ type: 'separator' },
+				{ role: 'cut' },
+				{ role: 'copy' },
+				{ role: 'paste' },
+				{ role: 'selectall' },
+			],
+		},
+		{
+			label: 'View',
+			submenu: [{ role: 'togglefullscreen' }],
+		},
+		{
+			role: 'window',
+			submenu: [{ role: 'minimize' }, { role: 'close' }],
+		},
+	]
+
+	// @ts-expect-error it works fuck off
+	Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+} else {
+	Menu.setApplicationMenu(null)
+}

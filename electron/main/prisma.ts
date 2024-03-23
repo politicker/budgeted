@@ -21,6 +21,8 @@ const datasourceUrl =
 
 console.log('connecting to', datasourceUrl)
 
+process.env.DATABASE_URL = datasourceUrl
+
 export const prisma = new PrismaClient({
 	datasourceUrl,
 })
